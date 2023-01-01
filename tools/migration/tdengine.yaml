@@ -1,0 +1,15 @@
+# TDengine配置
+tdengineSrc:
+  type: "taosRestful" #http连接方式，端口是6041
+  dsn: "zhgy_iot:adsafdsfa@http(101.200.200.249:6041)/"
+  dbName: "sagoo_iot"
+
+# tdengineSrc:
+#   type: "taosRestful" #http连接方式，端口是6041
+#   dsn: "root:taosdata@http(127.0.0.1:6041)/"
+#   dbName: "sagoo_iot"
+
+tdengineDest:
+  type: "taosRestful" #http连接方式，端口是6041
+  dsn: "root:taosdata@http(127.0.0.1:6041)/"
+  dbName: "sagoo_iot"
