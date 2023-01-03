@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/guid"
 	"github.com/mssola/user_agent"
+	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
@@ -129,8 +130,14 @@ func (s *sLogin) LoginOut(ctx context.Context) (err error) {
 		err = gerror.New("未登录,无法退出!")
 		return
 	}
+	cache := common.Cache()
 	//增加删除缓存信息
-	common.Cache().Remove(ctx, userOnline.Key)
+	cache.Remove(ctx, userOnline.Key)
+
+	loginUserId := service.Context().GetUserId(ctx)
+
+	cache.Remove(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId))
+	cache.Remove(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId))
 
 	err = service.SysUserOnline().DelByToken(ctx, token[1])
 	return

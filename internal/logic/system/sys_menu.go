@@ -2,14 +2,17 @@ package system
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-
+	"encoding/json"
+	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/sagoo-cloud/sagooiot/internal/consts"
+	"github.com/sagoo-cloud/sagooiot/internal/dao"
+	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
+	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
+	"github.com/sagoo-cloud/sagooiot/internal/service"
 )
 
 type sSysMenu struct {
@@ -25,10 +28,19 @@ func init() {
 
 // GetAll 获取全部菜单数据
 func (s *sSysMenu) GetAll(ctx context.Context) (data []*entity.SysMenu, err error) {
+	cache := common.Cache()
 	err = dao.SysMenu.Ctx(ctx).Where(g.Map{
 		dao.SysMenu.Columns().Status:    1,
 		dao.SysMenu.Columns().IsDeleted: 0,
 	}).OrderDesc(dao.SysMenu.Columns().Weigh).Scan(&data)
+	if err != nil {
+		return
+	}
+	if data != nil && len(data) > 0 {
+		cache.Set(ctx, consts.CacheSysMenu, data, 0)
+	} else {
+		cache.Remove(ctx, consts.CacheSysMenu)
+	}
 	return
 }
 
@@ -92,6 +104,11 @@ func (s *sSysMenu) Add(ctx context.Context, input *model.AddMenuInput) (err erro
 	if err != nil {
 		return err
 	}
+	//获取所有的菜单
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -129,6 +146,12 @@ func (s *sSysMenu) Edit(ctx context.Context, input *model.EditMenuInput) (err er
 	if err != nil {
 		return gerror.New("修改失败")
 	}
+	//获取所有的菜单
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -165,6 +188,11 @@ func (s *sSysMenu) Del(ctx context.Context, menuId int64) (err error) {
 	}).Where(dao.SysMenu.Columns().Id, menuId).Update()
 	//删除菜单信息
 	_, err = dao.SysMenu.Ctx(ctx).Where(dao.SysMenu.Columns().Id, menuId).Delete()
+	//获取所有的菜单
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -236,6 +264,32 @@ func checkMenuId(ctx context.Context, MenuId int64, menu *entity.SysMenu) *entit
 
 // GetInfoByMenuIds 根据菜单ID数组获取菜单信息
 func (s *sSysMenu) GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenu, err error) {
+	cache := common.Cache()
+	var tmpData *gvar.Var
+	tmpData = cache.Get(ctx, consts.CacheSysMenu)
+	if err != nil {
+		return
+	}
+
+	var tmpMenuInfo []*entity.SysMenu
+	json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo)
+
+	var menuInfo []*entity.SysMenu
+	//根据菜单ID数组获取菜单列表信息
+	if tmpData != nil {
+		for _, menuId := range menuIds {
+			for _, menuTmp := range tmpMenuInfo {
+				if menuId == int(menuTmp.Id) {
+					menuInfo = append(menuInfo, menuTmp)
+					continue
+				}
+			}
+		}
+	}
+	if menuInfo != nil && len(menuInfo) >= 0 {
+		data = menuInfo
+		return
+	}
 	err = dao.SysMenu.Ctx(ctx).Where(g.Map{
 		dao.SysMenu.Columns().IsDeleted: 0,
 		dao.SysMenu.Columns().Status:    1,

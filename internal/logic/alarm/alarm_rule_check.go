@@ -255,7 +255,7 @@ func (s *sAlarmRule) expression(ctx context.Context, rule model.AlarmRuleOutput)
 			var fexp string
 			switch v.Operator {
 			case model.OperatorEq:
-				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "=", v.Value[0])
+				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "==", v.Value[0])
 			case model.OperatorNe:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "!=", v.Value[0])
 			case model.OperatorGt:

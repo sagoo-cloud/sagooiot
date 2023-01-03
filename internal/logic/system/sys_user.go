@@ -2,6 +2,7 @@ package system
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -11,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/util/grand"
 	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/dao"
+	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
@@ -530,16 +532,29 @@ func (s *sSysUser) GetAll(ctx context.Context) (data []*entity.SysUser, err erro
 }
 
 func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfoOut, menuTreeOut []*model.UserMenuTreeOut, err error) {
+	cache := common.Cache()
+
 	//获取当前登录用户信息
 	loginUserId := service.Context().GetUserId(ctx)
 	if loginUserId == 0 {
 		err = gerror.New("无登录用户信息,请先登录!")
 		return
 	}
+	tmpUserAuthorize := cache.Get(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId))
+	tmpUserInfo := cache.Get(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId))
+	if tmpUserAuthorize.Val() != nil && tmpUserInfo.Val() != nil {
+		json.Unmarshal([]byte(tmpUserAuthorize.Val().(string)), &menuTreeOut)
+		json.Unmarshal([]byte(tmpUserInfo.Val().(string)), &userInfoOut)
+		return
+	}
+
 	//获取当前登录用户信息
 	userInfo, err := service.SysUser().GetUserById(ctx, uint(loginUserId))
 	if err = gconv.Scan(userInfo, &userInfoOut); err != nil {
 		return
+	}
+	if userInfo != nil {
+		cache.Set(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId), userInfo, time.Hour)
 	}
 
 	//根据当前登录用户ID查询用户角色信息
@@ -560,46 +575,51 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 	if isSuperAdmin {
 		//获取所有的菜单
 		//根据菜单ID数组获取菜单列表信息
-		userMenuTreeRes, menuTreeError := GetMenuInfo(ctx, nil)
+		userMenuTreeOut, menuTreeError := GetMenuInfo(ctx, nil)
 		if menuTreeError != nil {
 			err = menuTreeError
 			return
 		}
 		var menuIds []int
 		//获取菜单绑定的按钮信息
-		for _, userMenu := range userMenuTreeRes {
+		for _, userMenu := range userMenuTreeOut {
 			menuIds = append(menuIds, int(userMenu.Id))
 		}
 		//获取所有的按钮
-		userMenuTreeRes, userItemsTypeTreeErr := GetUserItemsTypeTreeOut(ctx, menuIds, consts.Button, userMenuTreeRes)
+		userMenuTreeOut, userItemsTypeTreeErr := GetUserItemsTypeTreeOut(ctx, menuIds, consts.Button, userMenuTreeOut)
 		if userItemsTypeTreeErr != nil {
 			err = userItemsTypeTreeErr
 			return
 		}
 		//获取所有的列表
-		userMenuTreeRes, userItemsTypeTreeErr = GetUserItemsTypeTreeOut(ctx, menuIds, consts.Column, userMenuTreeRes)
+		userMenuTreeOut, userItemsTypeTreeErr = GetUserItemsTypeTreeOut(ctx, menuIds, consts.Column, userMenuTreeOut)
 		if userItemsTypeTreeErr != nil {
 			err = userItemsTypeTreeErr
 			return
 		}
 		//获取所有的接口
-		userMenuTreeRes, userItemsTypeTreeErr = GetUserItemsTypeTreeOut(ctx, menuIds, consts.Api, userMenuTreeRes)
+		userMenuTreeOut, userItemsTypeTreeErr = GetUserItemsTypeTreeOut(ctx, menuIds, consts.Api, userMenuTreeOut)
 		if userItemsTypeTreeErr != nil {
 			err = userItemsTypeTreeErr
 			return
 		}
 
 		//对菜单进行树状重组
-		menuTreeOut = GetUserMenuTree(userMenuTreeRes)
+		menuTreeOut = GetUserMenuTree(userMenuTreeOut)
+
+		if menuTreeOut != nil {
+			cache.Set(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId), menuTreeOut, time.Hour)
+		}
 		return
 	} else {
-		//根据角色ID获取菜单配置
-		authorizeInfo, authorizeErr := service.SysAuthorize().GetInfoByRoleIds(ctx, roleIds)
-		if authorizeErr != nil {
+		//获取缓存配置信息
+		var authorizeInfo []*entity.SysAuthorize
+		authorizeInfo, err = service.SysAuthorize().GetInfoByRoleIds(ctx, roleIds)
+		if err != nil {
 			return
 		}
 		if authorizeInfo == nil {
-			authorizeErr = gerror.New("无权限配置,请联系管理员")
+			err = gerror.New("无权限配置,请联系管理员")
 			return
 		}
 		//菜单Ids
@@ -621,9 +641,10 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 				menuApiIds = append(menuApiIds, authorize.ItemsId)
 			}
 		}
-		//根据菜单ID数组获取菜单列表信息
-		menuInfo, menuErr := service.SysMenu().GetInfoByMenuIds(ctx, menuIds)
-		if menuErr != nil {
+		//获取所有菜单信息
+		var menuInfo []*entity.SysMenu
+		menuInfo, err = service.SysMenu().GetInfoByMenuIds(ctx, menuIds)
+		if err != nil {
 			return
 		}
 		if menuInfo == nil {
@@ -697,6 +718,9 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 
 		//对菜单进行树状重组
 		menuTreeOut = GetUserMenuTree(userMenuTreeOut)
+		if menuTreeOut != nil {
+			cache.Set(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId), menuTreeOut, time.Hour)
+		}
 		return
 	}
 }

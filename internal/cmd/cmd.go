@@ -63,6 +63,11 @@ var (
 
 			})
 
+			//初始化系统权限缓存
+			if err := service.SysAuthorize().InitAuthorize(ctx); err != nil {
+				g.Log().Fatal(ctx, "系统权限缓存初始化失败：", err)
+			}
+
 			// 初始化插件配置数据
 			if err := service.SystemPluginsConfig().UpdateAllPluginsConfigCache(); err != nil {
 				g.Log().Error(ctx, "初始化插件配置数据失败：", err)

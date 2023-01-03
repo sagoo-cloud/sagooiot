@@ -194,15 +194,15 @@ func (a *cMenu) MenuColumnTree(ctx context.Context, req *system.MenuColumnDoReq)
 			}
 		}
 	}
-	treeData := columnTree(parentNodeRes, menuColumnInfo)
+	treeData := ColumnTree(parentNodeRes, menuColumnInfo)
 	res = &system.MenuColumnDoRes{
 		Data: treeData,
 	}
 	return
 }
 
-// columnTree MenuColumnTree 生成菜单列表树结构
-func columnTree(parentNodeRes []*model.UserMenuColumnRes, data []model.UserMenuColumnRes) (dataTree []*model.UserMenuColumnRes) {
+// ColumnTree MenuColumnTree 生成菜单列表树结构
+func ColumnTree(parentNodeRes []*model.UserMenuColumnRes, data []model.UserMenuColumnRes) (dataTree []*model.UserMenuColumnRes) {
 	//循环所有一级菜单
 	for k, v := range parentNodeRes {
 		//查询所有该菜单下的所有子菜单
@@ -215,7 +215,7 @@ func columnTree(parentNodeRes []*model.UserMenuColumnRes, data []model.UserMenuC
 				parentNodeRes[k].Children = append(parentNodeRes[k].Children, node)
 			}
 		}
-		columnTree(v.Children, data)
+		ColumnTree(v.Children, data)
 	}
 	return parentNodeRes
 }

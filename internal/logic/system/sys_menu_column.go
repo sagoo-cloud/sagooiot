@@ -2,7 +2,11 @@ package system
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/dao"
+	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
@@ -82,6 +86,16 @@ func (s *sSysMenuColumn) Add(ctx context.Context, input *model.AddMenuColumnInpu
 	if err != nil {
 		return err
 	}
+	//获取该菜单下所有的菜单按钮
+	_, err = s.GetInfoByMenuId(ctx, menuColumn.MenuId)
+	if err != nil {
+		return
+	}
+	//所有的菜单列表
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -125,6 +139,16 @@ func (s *sSysMenuColumn) Edit(ctx context.Context, input *model.EditMenuColumnIn
 	if err != nil {
 		return gerror.New("修改失败")
 	}
+	//获取该菜单下所有的菜单按钮
+	_, err = s.GetInfoByMenuId(ctx, menuColumn.MenuId)
+	if err != nil {
+		return
+	}
+	//所有的菜单列表
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -158,34 +182,56 @@ func (s *sSysMenuColumn) Del(ctx context.Context, Id int64) (err error) {
 		Update()
 	//删除菜单列表信息
 	_, err = dao.SysMenuColumn.Ctx(ctx).Where(dao.SysMenuColumn.Columns().Id, Id).Delete()
+
+	//获取该菜单下所有的菜单按钮
+	_, err = s.GetInfoByMenuId(ctx, menuColumn.MenuId)
+	if err != nil {
+		return
+	}
+	//所有的菜单列表
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
 	return
 }
 
 // EditStatus 修改状态
 func (s *sSysMenuColumn) EditStatus(ctx context.Context, id int, menuId int, status int) (err error) {
-	var menuColum *entity.SysMenuColumn
+	var menuColumn *entity.SysMenuColumn
 	_ = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
 		dao.SysMenuColumn.Columns().Id: id,
-	}).Scan(&menuColum)
-	if menuColum == nil {
+	}).Scan(&menuColumn)
+	if menuColumn == nil {
 		return gerror.New("ID错误")
 	}
-	if menuColum.MenuId != menuId {
+	if menuColumn.MenuId != menuId {
 		return gerror.New("列表字段不属于当前菜单,无法修改")
 	}
-	if menuColum != nil && menuColum.IsDeleted == 1 {
+	if menuColumn != nil && menuColumn.IsDeleted == 1 {
 		return gerror.New("列表字段已删除,无法修改")
 	}
-	if menuColum != nil && menuColum.Status == status {
+	if menuColumn != nil && menuColumn.Status == status {
 		return gerror.New("列表已禁用或启用,无须重复修改")
 	}
 	loginUserId := service.Context().GetUserId(ctx)
-	menuColum.Status = status
-	menuColum.UpdatedBy = loginUserId
+	menuColumn.Status = status
+	menuColumn.UpdatedBy = loginUserId
 
-	_, err = dao.SysMenuColumn.Ctx(ctx).Data(menuColum).Where(g.Map{
+	_, err = dao.SysMenuColumn.Ctx(ctx).Data(menuColumn).Where(g.Map{
 		dao.SysMenuColumn.Columns().Id: id,
 	}).Update()
+	//获取该菜单下所有的菜单按钮
+	_, err = s.GetInfoByMenuId(ctx, menuColumn.MenuId)
+	if err != nil {
+		return
+	}
+	//所有的菜单列表
+	_, err = s.GetAll(ctx)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -221,16 +267,99 @@ func checkMenuColumnCode(ctx context.Context, menu int, code string, menuColumn 
 
 // GetInfoByColumnIds 根据列表ID数组获取菜单信息
 func (s *sSysMenuColumn) GetInfoByColumnIds(ctx context.Context, ids []int) (data []*entity.SysMenuColumn, err error) {
+	cache := common.Cache()
+	var tmpData *gvar.Var
+	tmpData = cache.Get(ctx, consts.CacheSysMenuColumn)
+	if err != nil {
+		return
+	}
+
+	var tmpSysMenuColumn []*entity.SysMenuColumn
+
+	var menuColumnInfo []*entity.SysMenuColumn
+	//根据菜单ID数组获取菜单列表信息
+	if tmpData.Val() != nil {
+		json.Unmarshal([]byte(tmpData.Val().(string)), &tmpSysMenuColumn)
+		for _, id := range ids {
+			for _, tmp := range tmpSysMenuColumn {
+				if id == int(tmp.Id) {
+					menuColumnInfo = append(menuColumnInfo, tmp)
+					continue
+				}
+			}
+		}
+	}
+	if menuColumnInfo != nil && len(menuColumnInfo) >= 0 {
+		data = menuColumnInfo
+		return
+	}
+
 	err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
 		dao.SysMenuColumn.Columns().IsDeleted: 0,
+		dao.SysMenuColumn.Columns().Status:    1,
 	}).WhereIn(dao.SysMenuColumn.Columns().Id, ids).Scan(&data)
 	return
 }
 
 // GetInfoByMenuIds 根据菜单ID数组获取菜单信息
 func (s *sSysMenuColumn) GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenuColumn, err error) {
+	cache := common.Cache()
+	//获取缓存菜单按钮信息
+	for _, v := range menuIds {
+		var tmpData *gvar.Var
+		tmpData = cache.Get(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(v))
+		if err != nil {
+			return
+		}
+		if tmpData.Val() != nil {
+			var sysMenuColumn []*entity.SysMenuColumn
+			json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuColumn)
+			data = append(data, sysMenuColumn...)
+			return
+		}
+	}
+	if data == nil || len(data) == 0 {
+		err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
+			dao.SysMenuColumn.Columns().IsDeleted: 0,
+			dao.SysMenuColumn.Columns().Status:    1,
+		}).WhereIn(dao.SysMenuColumn.Columns().MenuId, menuIds).Scan(&data)
+	}
+	return
+}
+
+// GetInfoByMenuId 根据菜单ID获取菜单信息
+func (s *sSysMenuColumn) GetInfoByMenuId(ctx context.Context, menuId int) (data []*entity.SysMenuColumn, err error) {
+	cache := common.Cache()
 	err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
 		dao.SysMenuColumn.Columns().IsDeleted: 0,
-	}).WhereIn(dao.SysMenuColumn.Columns().MenuId, menuIds).Scan(&data)
+		dao.SysMenuColumn.Columns().Status:    1,
+		dao.SysMenuColumn.Columns().MenuId:    menuId,
+	}).Scan(&data)
+	if err != nil {
+		return
+	}
+	if data != nil && len(data) > 0 {
+		cache.Set(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId), data, 0)
+	} else {
+		cache.Remove(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId))
+	}
+	return
+}
+
+// GetAll 获取所有的列表信息
+func (s *sSysMenuColumn) GetAll(ctx context.Context) (data []*entity.SysMenuColumn, err error) {
+	cache := common.Cache()
+	err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
+		dao.SysMenuColumn.Columns().IsDeleted: 0,
+		dao.SysMenuColumn.Columns().Status:    1,
+	}).Scan(&data)
+	if err != nil {
+		return
+	}
+	if data != nil && len(data) > 0 {
+		cache.Set(ctx, consts.CacheSysMenuColumn, data, 0)
+	} else {
+		cache.Remove(ctx, consts.CacheSysMenuColumn)
+	}
 	return
 }

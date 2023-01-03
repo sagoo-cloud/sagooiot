@@ -2,9 +2,13 @@ package system
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/dao"
+	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
@@ -27,6 +31,32 @@ func init() {
 
 // GetInfoByIds 根据接口APIID数组获取接口信息
 func (s *sSysApi) GetInfoByIds(ctx context.Context, ids []int) (data []*entity.SysApi, err error) {
+	cache := common.Cache()
+	//获取缓存信息
+	var tmpData *gvar.Var
+	tmpData = cache.Get(ctx, consts.CacheSysApi)
+	if err != nil {
+		return
+	}
+	var tmpSysApiInfo []*entity.SysApi
+
+	var apiInfo []*entity.SysApi
+	//根据菜单ID数组获取菜单列表信息
+	if tmpData.Val() != nil {
+		json.Unmarshal([]byte(tmpData.Val().(string)), &tmpSysApiInfo)
+		for _, id := range ids {
+			for _, menuTmp := range tmpSysApiInfo {
+				if id == int(menuTmp.Id) {
+					apiInfo = append(apiInfo, menuTmp)
+					continue
+				}
+			}
+		}
+	}
+	if apiInfo != nil && len(apiInfo) >= 0 {
+		data = apiInfo
+		return
+	}
 	err = dao.SysApi.Ctx(ctx).Where(g.Map{
 		dao.SysApi.Columns().IsDeleted: 0,
 		dao.SysApi.Columns().Status:    1,
@@ -65,11 +95,17 @@ func (s *sSysApi) GetInfoById(ctx context.Context, id int) (entity *entity.SysAp
 
 // GetApiAll 获取所有接口
 func (s *sSysApi) GetApiAll(ctx context.Context) (data []*entity.SysApi, err error) {
+	cache := common.Cache()
 	err = dao.SysApi.Ctx(ctx).Where(g.Map{
 		dao.SysApi.Columns().IsDeleted: 0,
 		dao.SysApi.Columns().Status:    1,
 		dao.SysApi.Columns().Types:     2,
 	}).Scan(&data)
+	if data != nil && len(data) > 0 {
+		cache.Set(ctx, consts.CacheSysApi, data, 0)
+	} else {
+		cache.Remove(ctx, consts.CacheSysApi)
+	}
 	return
 }
 
@@ -137,13 +173,13 @@ func (s *sSysApi) Add(ctx context.Context, input *model.AddApiInput) (err error)
 	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
 		var apiInfo *entity.SysApi
 		//根据名称查看是否存在
-		apiInfo = checkApiName(ctx, input.Name, 0)
+		apiInfo = CheckApiName(ctx, input.Name, 0)
 		if apiInfo != nil {
 			return gerror.New("Api名字已存在,无法添加")
 		}
 		if input.Types == 2 {
 			//根据名称查看是否存在
-			apiInfo = checkApiAddress(ctx, input.Address, 0)
+			apiInfo = CheckApiAddress(ctx, input.Address, 0)
 			if apiInfo != nil {
 				return gerror.New("Api地址,无法添加")
 			}
@@ -162,6 +198,11 @@ func (s *sSysApi) Add(ctx context.Context, input *model.AddApiInput) (err error)
 		}
 		//绑定菜单
 		err = AddMenuApi(ctx, int(apiInfoId), input.MenuIds, loginUserId)
+		if err != nil {
+			return
+		}
+		//获取所有接口并添加缓存
+		_, err = s.GetApiAll(ctx)
 		return
 	})
 	return
@@ -188,6 +229,7 @@ func (s *sSysApi) Detail(ctx context.Context, id int) (out *model.SysApiOut, err
 }
 
 func AddMenuApi(ctx context.Context, id int, menuIds []int, loginUserId int) (err error) {
+	cache := common.Cache()
 	//添加菜单
 	var sysMenuApis []*entity.SysMenuApi
 	for _, menuId := range menuIds {
@@ -226,6 +268,32 @@ func AddMenuApi(ctx context.Context, id int, menuIds []int, loginUserId int) (er
 		if addErr != nil {
 			err = gerror.New("添加失败")
 			return
+		}
+		//查询菜单ID绑定的所有接口ID
+		var menuApiInfos []*entity.SysMenuApi
+		dao.SysMenuApi.Ctx(ctx).Where(g.Map{
+			dao.SysMenuApi.Columns().IsDeleted: 0,
+		}).WhereIn(dao.SysMenuApi.Columns().MenuId, menuIds).Scan(&menuApiInfos)
+		//添加缓存
+		for _, menuId := range menuIds {
+			var menuApi []*entity.SysMenuApi
+			for _, menuApiInfo := range menuApiInfos {
+				if menuId == menuApiInfo.MenuId {
+					menuApi = append(menuApi, menuApiInfo)
+				}
+			}
+			if menuApi != nil && len(menuApi) > 0 {
+				cache.Set(ctx, consts.CacheSysMenuApi+"_"+gconv.String(menuId), menuApi, 0)
+			}
+
+		}
+		//获取所有信息
+		var menuApiInfoAll []*entity.SysMenuApi
+		dao.SysMenuApi.Ctx(ctx).Where(g.Map{
+			dao.SysMenuApi.Columns().IsDeleted: 0,
+		}).WhereIn(dao.SysMenuApi.Columns().MenuId, menuIds).Scan(&menuApiInfoAll)
+		if menuApiInfoAll != nil && len(menuApiInfoAll) > 0 {
+			cache.Set(ctx, consts.CacheSysMenuApi, menuApiInfoAll, 0)
 		}
 	}
 	return
@@ -266,16 +334,16 @@ func (s *sSysApi) Edit(ctx context.Context, input *model.EditApiInput) (err erro
 	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
 		var apiInfo, apiInfo2 *entity.SysApi
 		//根据ID查看Api列表是否存在
-		apiInfo = checkApiId(ctx, input.Id, apiInfo)
+		apiInfo = CheckApiId(ctx, input.Id, apiInfo)
 		if apiInfo == nil {
 			return gerror.New("Api列表不存在")
 		}
-		apiInfo2 = checkApiName(ctx, input.Name, input.Id)
+		apiInfo2 = CheckApiName(ctx, input.Name, input.Id)
 		if apiInfo2 != nil {
 			return gerror.New("相同Api名称已存在,无法修改")
 		}
 		if input.Types == 2 {
-			apiInfo2 = checkApiAddress(ctx, input.Address, input.Id)
+			apiInfo2 = CheckApiAddress(ctx, input.Address, input.Id)
 			if apiInfo2 != nil {
 				return gerror.New("Api地址已存在,无法修改")
 			}
@@ -293,6 +361,9 @@ func (s *sSysApi) Edit(ctx context.Context, input *model.EditApiInput) (err erro
 		}
 		//绑定菜单
 		err = AddMenuApi(ctx, input.Id, input.MenuIds, loginUserId)
+
+		//获取所有接口并添加缓存
+		_, err = s.GetApiAll(ctx)
 		return
 	})
 
@@ -341,6 +412,10 @@ func (s *sSysApi) Del(ctx context.Context, Id int) (err error) {
 			dao.SysMenuApi.Columns().DeletedBy: loginUserId,
 			dao.SysMenuApi.Columns().DeletedAt: time,
 		}).Where(dao.SysMenuApi.Columns().ApiId, Id).Update()
+
+		//获取所有接口并添加缓存
+		_, err = s.GetApiAll(ctx)
+
 		return
 	})
 	return
@@ -368,6 +443,10 @@ func (s *sSysApi) EditStatus(ctx context.Context, id int, status int) (err error
 	_, err = dao.SysApi.Ctx(ctx).Data(apiInfo).Where(g.Map{
 		dao.SysApi.Columns().Id: id,
 	}).Update()
+
+	//获取所有接口并添加缓存
+	_, err = s.GetApiAll(ctx)
+
 	return
 }
 
@@ -382,7 +461,7 @@ func (s *sSysApi) GetInfoByAddress(ctx context.Context, address string) (entity 
 }
 
 // 检查指定ID的数据是否存在
-func checkApiId(ctx context.Context, Id int, apiColumn *entity.SysApi) *entity.SysApi {
+func CheckApiId(ctx context.Context, Id int, apiColumn *entity.SysApi) *entity.SysApi {
 	_ = dao.SysApi.Ctx(ctx).Where(g.Map{
 		dao.SysApi.Columns().Id:        Id,
 		dao.SysApi.Columns().IsDeleted: 0,
@@ -391,7 +470,7 @@ func checkApiId(ctx context.Context, Id int, apiColumn *entity.SysApi) *entity.S
 }
 
 // 检查相同Api名称的数据是否存在
-func checkApiName(ctx context.Context, name string, tag int) *entity.SysApi {
+func CheckApiName(ctx context.Context, name string, tag int) *entity.SysApi {
 	var apiInfo *entity.SysApi
 	m := dao.SysApi.Ctx(ctx)
 	if tag > 0 {
@@ -405,7 +484,7 @@ func checkApiName(ctx context.Context, name string, tag int) *entity.SysApi {
 }
 
 // 检查相同Api地址的数据是否存在
-func checkApiAddress(ctx context.Context, address string, tag int) *entity.SysApi {
+func CheckApiAddress(ctx context.Context, address string, tag int) *entity.SysApi {
 	var apiInfo *entity.SysApi
 	m := dao.SysApi.Ctx(ctx)
 	if tag > 0 {

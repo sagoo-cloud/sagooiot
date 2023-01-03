@@ -2,11 +2,13 @@ package system
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/sagoo-cloud/sagooiot/internal/consts"
+	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
@@ -139,23 +141,49 @@ func ApiTree(parentNodeRes []*model.SysApiTreeOut, data []*entity.SysApi) (dataT
 }
 
 // GetMenuInfo 根据菜单ID获取指定菜单信息或者获取所有菜单信息
-func GetMenuInfo(ctx context.Context, menuIds []int) (userMenuTreeRes []*model.UserMenuTreeOut, err error) {
+func GetMenuInfo(ctx context.Context, menuIds []int) (userMenuTreeOut []*model.UserMenuTreeOut, err error) {
+	cache := common.Cache()
+	//查看REDIS是否存在
+	tmpData := cache.Get(ctx, consts.CacheSysMenu)
+	//将缓存菜单转为struct
+	var tmpMenuInfo []*entity.SysMenu
+	json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo)
+
 	var menuInfo []*entity.SysMenu
 	if menuIds != nil {
 		//根据菜单ID获取菜单信息
-		menuInfo, _ = service.SysMenu().GetInfoByMenuIds(ctx, menuIds)
-		if err != nil {
-			return
+		if tmpData != nil {
+			for _, menuId := range menuIds {
+				for _, tmp := range tmpMenuInfo {
+					if menuId == int(tmp.Id) {
+						menuInfo = append(menuInfo, tmp)
+						continue
+					}
+				}
+			}
+		} else {
+			//获取所有的菜单
+			menuInfo, err = service.SysMenu().GetInfoByMenuIds(ctx, menuIds)
+			if err != nil {
+				return
+			}
 		}
+
 	} else {
-		//获取所有的菜单
-		menuInfo, _ = service.SysMenu().GetAll(ctx)
-		if err != nil {
-			return
+		if tmpMenuInfo != nil {
+			if err = gconv.Scan(tmpMenuInfo, &menuInfo); err != nil {
+				return
+			}
+		} else {
+			//获取所有的菜单
+			menuInfo, err = service.SysMenu().GetAll(ctx)
+			if err != nil {
+				return
+			}
 		}
 	}
 
-	//获取所有的菜单信息
+	//获取所有的菜单信
 	if menuInfo != nil {
 		var userMenuTreeInfo []*model.UserMenuTreeOut
 		if err = gconv.Scan(menuInfo, &userMenuTreeInfo); err != nil {
@@ -174,9 +202,10 @@ func GetMenuInfo(ctx context.Context, menuIds []int) (userMenuTreeRes []*model.U
 // GetUserItemsTypeTreeOut 根据项目类型 菜单ID封装菜单的按钮，列表字段,API接口
 func GetUserItemsTypeTreeOut(ctx context.Context, menuIds []int, itemsType string, userMenuTreeInfo []*model.UserMenuTreeOut) (userMenuTreeRes []*model.UserMenuTreeOut, err error) {
 	if strings.EqualFold(itemsType, consts.Button) {
+		var menuButtonInfo []*entity.SysMenuButton
 		//根据菜单ID获取按钮列表
-		menuButtonInfo, er := service.SysMenuButton().GetInfoByMenuIds(ctx, menuIds)
-		if er != nil {
+		menuButtonInfo, err = service.SysMenuButton().GetInfoByMenuIds(ctx, menuIds)
+		if err != nil {
 			return
 		}
 		if menuButtonInfo != nil {
@@ -186,9 +215,11 @@ func GetUserItemsTypeTreeOut(ctx context.Context, menuIds []int, itemsType strin
 			}
 		}
 	} else if strings.EqualFold(itemsType, consts.Column) {
+
+		var menuColumnInfo []*entity.SysMenuColumn
 		//根据菜单ID获取列表字段
-		menuColumnInfo, er := service.SysMenuColumn().GetInfoByMenuIds(ctx, menuIds)
-		if er != nil {
+		menuColumnInfo, err = service.SysMenuColumn().GetInfoByMenuIds(ctx, menuIds)
+		if err != nil {
 			return
 		}
 		if menuColumnInfo != nil {
