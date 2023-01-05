@@ -10,6 +10,7 @@ import (
 	sourceController "github.com/sagoo-cloud/sagooiot/internal/controller/source"
 	systemController "github.com/sagoo-cloud/sagooiot/internal/controller/system"
 	tdengineController "github.com/sagoo-cloud/sagooiot/internal/controller/tdengine"
+	thingController "github.com/sagoo-cloud/sagooiot/internal/controller/thing"
 
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 
@@ -38,6 +39,14 @@ func System(ctx context.Context, group *ghttp.RouterGroup) {
 			commonController.DictData,
 			commonController.BaseDbLink, //数据源管理
 			commonController.CityData,   //城市管理
+		)
+	})
+
+	// 物联概览相关路由
+	group.Group("/thing", func(group *ghttp.RouterGroup) {
+		group.Middleware(service.Middleware().Auth)
+		group.Bind(
+			thingController.DataOverview, // 物联概览
 		)
 	})
 
