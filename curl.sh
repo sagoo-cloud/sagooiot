@@ -30,7 +30,7 @@ function check_pid() {
  		return
  	fi
 
-    nohup ./$app &> $logfile &
+    nohup ./$app &>> $logfile &
     sleep 1
     running=$(ps -p $! | grep -c -v "PID TTY")
     if [ "$running" -gt 0 ];then

@@ -9,12 +9,12 @@ import (
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 )
 
-var SysPluginsConfig = cSystemPlugins_config{}
+var SysPluginsConfig = csystempluginsConfig{}
 
-type cSystemPlugins_config struct{}
+type csystempluginsConfig struct{}
 
 // GetPluginsConfigList 获取列表
-func (u *cSystemPlugins_config) GetPluginsConfigList(ctx context.Context, req *system.GetPluginsConfigListReq) (res *system.GetPluginsConfigListRes, err error) {
+func (u *csystempluginsConfig) GetPluginsConfigList(ctx context.Context, req *system.GetPluginsConfigListReq) (res *system.GetPluginsConfigListRes, err error) {
 	var inputData = new(model.GetPluginsConfigListInput)
 	if err = gconv.Scan(req, &inputData); err != nil {
 		return
@@ -28,7 +28,7 @@ func (u *cSystemPlugins_config) GetPluginsConfigList(ctx context.Context, req *s
 }
 
 // GetPluginsConfigById 获取指定ID数据
-func (u *cSystemPlugins_config) GetPluginsConfigById(ctx context.Context, req *system.GetPluginsConfigByIdReq) (res *system.GetPluginsConfigByIdRes, err error) {
+func (u *csystempluginsConfig) GetPluginsConfigById(ctx context.Context, req *system.GetPluginsConfigByIdReq) (res *system.GetPluginsConfigByIdRes, err error) {
 	data, err := service.SystemPluginsConfig().GetPluginsConfigById(ctx, req.Id)
 	res = new(system.GetPluginsConfigByIdRes)
 	err = gconv.Scan(data, &res)
@@ -36,7 +36,7 @@ func (u *cSystemPlugins_config) GetPluginsConfigById(ctx context.Context, req *s
 }
 
 // GetPluginsConfigByName 获取指定类型与名称的插件配置数据
-func (u *cSystemPlugins_config) GetPluginsConfigByName(ctx context.Context, req *system.GetPluginsConfigByNameReq) (res *system.GetPluginsConfigByNameRes, err error) {
+func (u *csystempluginsConfig) GetPluginsConfigByName(ctx context.Context, req *system.GetPluginsConfigByNameReq) (res *system.GetPluginsConfigByNameRes, err error) {
 	data, err := service.SystemPluginsConfig().GetPluginsConfigByName(ctx, req.Type, req.Name)
 	res = new(system.GetPluginsConfigByNameRes)
 	err = gconv.Scan(data, &res)
@@ -44,7 +44,7 @@ func (u *cSystemPlugins_config) GetPluginsConfigByName(ctx context.Context, req 
 }
 
 // AddPluginsConfig 添加数据
-func (u *cSystemPlugins_config) AddPluginsConfig(ctx context.Context, req *system.AddPluginsConfigReq) (res *system.AddPluginsConfigRes, err error) {
+func (u *csystempluginsConfig) AddPluginsConfig(ctx context.Context, req *system.AddPluginsConfigReq) (res *system.AddPluginsConfigRes, err error) {
 	var data = model.PluginsConfigAddInput{}
 	if err = gconv.Scan(req, &data); err != nil {
 		return
@@ -54,7 +54,7 @@ func (u *cSystemPlugins_config) AddPluginsConfig(ctx context.Context, req *syste
 }
 
 // EditPluginsConfig 修改数据
-func (u *cSystemPlugins_config) EditPluginsConfig(ctx context.Context, req *system.EditPluginsConfigReq) (res *system.EditPluginsConfigRes, err error) {
+func (u *csystempluginsConfig) EditPluginsConfig(ctx context.Context, req *system.EditPluginsConfigReq) (res *system.EditPluginsConfigRes, err error) {
 	var data = model.PluginsConfigEditInput{}
 	if err = gconv.Scan(req, &data); err != nil {
 		return
@@ -64,7 +64,7 @@ func (u *cSystemPlugins_config) EditPluginsConfig(ctx context.Context, req *syst
 }
 
 // SavePluginsConfig 修改数据
-func (u *cSystemPlugins_config) SavePluginsConfig(ctx context.Context, req *system.SavePluginsConfigReq) (res *system.SavePluginsConfigRes, err error) {
+func (u *csystempluginsConfig) SavePluginsConfig(ctx context.Context, req *system.SavePluginsConfigReq) (res *system.SavePluginsConfigRes, err error) {
 	var data = model.PluginsConfigAddInput{}
 	if err = gconv.Scan(req, &data); err != nil {
 		return
@@ -74,7 +74,7 @@ func (u *cSystemPlugins_config) SavePluginsConfig(ctx context.Context, req *syst
 }
 
 // DeletePluginsConfig 删除数据
-func (u *cSystemPlugins_config) DeletePluginsConfig(ctx context.Context, req *system.DeletePluginsConfigReq) (res *system.DeletePluginsConfigRes, err error) {
+func (u *csystempluginsConfig) DeletePluginsConfig(ctx context.Context, req *system.DeletePluginsConfigReq) (res *system.DeletePluginsConfigRes, err error) {
 	if len(req.Ids) == 0 {
 		err = gerror.New("ID参数错误")
 	}

@@ -282,7 +282,7 @@ func (s *sDevProduct) Del(ctx context.Context, ids []uint) (err error) {
 		}
 
 		num, _ := rs.RowsAffected()
-		if num > 0 {
+		if num > 0 && res.MetadataTable == 1 {
 			// 删除TD表
 			err = service.TSLTable().DropStable(ctx, res.Key)
 			if err != nil {
