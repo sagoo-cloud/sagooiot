@@ -19,7 +19,7 @@ import (
 )
 
 // 告警匹配检测
-func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey string, data map[string]any) (err error) {
+func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey string, triggerType int, data map[string]any) (err error) {
 	list, err := s.Cache(ctx)
 	if err != nil {
 		g.Log().Errorf(ctx, "告警规则缓存获取 - %s - %s：%s", productKey, deviceKey, err)
@@ -30,6 +30,17 @@ func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey str
 	}
 	pList, ok := list[productKey]
 	if !ok {
+		return
+	}
+
+	// 根据触发类型，过滤告警规则
+	var rules []model.AlarmRuleOutput
+	for _, r := range pList {
+		if r.TriggerType == triggerType && r.DeviceKey == deviceKey {
+			rules = append(rules, r)
+		}
+	}
+	if len(rules) == 0 {
 		return
 	}
 
@@ -48,90 +59,88 @@ func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey str
 		data["ts"] = time.Now().Unix()
 	}
 
-	for _, rule := range pList {
-		if rule.DeviceKey == deviceKey {
-			go func(rule model.AlarmRuleOutput) {
-				exp := s.expression(ctx, rule)
-				if exp != "" {
-					gov, err := govaluate.NewEvaluableExpression(exp)
+	for _, r := range rules {
+		go func(rule model.AlarmRuleOutput) {
+			exp := s.expression(ctx, rule)
+			if exp != "" {
+				gov, err := govaluate.NewEvaluableExpression(exp)
+				if err != nil {
+					g.Log().Errorf(ctx, "告警表达式 - %s - %s - %s：%s", productKey, deviceKey, exp, err)
+					return
+				}
+				if gov == nil {
+					return
+				}
+				rs, err := gov.Evaluate(data)
+				if err != nil {
+					g.Log().Errorf(ctx, "告警表达式参数 - %s - %s：%s - %v", productKey, deviceKey, err, data)
+					return
+				}
+				if rs == nil {
+					return
+				}
+				if y, ok := rs.(bool); ok && y {
+					log := &model.AlarmLogAddInput{
+						Type:       1,
+						RuleId:     rule.Id,
+						RuleName:   rule.Name,
+						Level:      rule.Level,
+						Data:       string(logData),
+						ProductKey: productKey,
+						DeviceKey:  deviceKey,
+					}
+					logId, err := service.AlarmLog().Add(ctx, log)
 					if err != nil {
-						g.Log().Errorf(ctx, "告警表达式 - %s - %s - %s：%s", productKey, deviceKey, exp, err)
+						g.Log().Errorf(ctx, "告警日志写入 - %s - %s：%s", productKey, deviceKey, err)
 						return
 					}
-					if gov == nil {
-						return
-					}
-					rs, err := gov.Evaluate(data)
-					if err != nil {
-						g.Log().Errorf(ctx, "告警表达式参数 - %s - %s：%s - %v", productKey, deviceKey, err, data)
-						return
-					}
-					if rs == nil {
-						return
-					}
-					if y, ok := rs.(bool); ok && y {
-						log := &model.AlarmLogAddInput{
-							Type:       1,
-							RuleId:     rule.Id,
-							RuleName:   rule.Name,
-							Level:      rule.Level,
-							Data:       string(logData),
-							ProductKey: productKey,
-							DeviceKey:  deviceKey,
-						}
-						logId, err := service.AlarmLog().Add(ctx, log)
-						if err != nil {
-							g.Log().Errorf(ctx, "告警日志写入 - %s - %s：%s", productKey, deviceKey, err)
-							return
-						}
 
-						// 触发告警通知
-						nt := notifier.NewNotifier(3 * time.Second)
-						nt.SetCallbacks(
-							func(state notifier.State) {
-								s.doAction(ctx, rule, exp)
-							},
-							func(state notifier.State) {
-								s.doAction(ctx, rule, exp)
-							},
-							func(state notifier.State) {
-								s.doAction(ctx, rule, exp)
-							})
-						// 频率控制
-						i := 0
-						for {
-							i++
-							if i == 6 || i == 12 {
-								alarmLog, _ := service.AlarmLog().Detail(ctx, logId)
-								if alarmLog == nil {
-									break
-								}
-								// 告警未处理，触发通知
-								if alarmLog.Status == model.AlarmLogStatusUnhandle {
-									nt.Trigger(true)
-								}
-							}
-							if i == 9 || i == 15 {
-								alarmLog, _ := service.AlarmLog().Detail(ctx, logId)
-								if alarmLog == nil {
-									break
-								}
-								// 告警已处理或忽略，停止触发通知
-								if alarmLog.Status == model.AlarmLogStatusHandle ||
-									alarmLog.Status == model.AlarmLogStatusIgnore {
-									nt.Trigger(false)
-								}
-							}
-
-							time.Sleep(1 * time.Second)
-							if i > 20 {
+					// 触发告警通知
+					nt := notifier.NewNotifier(3 * time.Second)
+					nt.SetCallbacks(
+						func(state notifier.State) {
+							s.doAction(ctx, rule, exp)
+						},
+						func(state notifier.State) {
+							s.doAction(ctx, rule, exp)
+						},
+						func(state notifier.State) {
+							s.doAction(ctx, rule, exp)
+						})
+					// 频率控制
+					i := 0
+					for {
+						i++
+						if i == 6 || i == 12 {
+							alarmLog, _ := service.AlarmLog().Detail(ctx, logId)
+							if alarmLog == nil {
 								break
 							}
+							// 告警未处理，触发通知
+							if alarmLog.Status == model.AlarmLogStatusUnhandle {
+								nt.Trigger(true)
+							}
+						}
+						if i == 9 || i == 15 {
+							alarmLog, _ := service.AlarmLog().Detail(ctx, logId)
+							if alarmLog == nil {
+								break
+							}
+							// 告警已处理或忽略，停止触发通知
+							if alarmLog.Status == model.AlarmLogStatusHandle ||
+								alarmLog.Status == model.AlarmLogStatusIgnore {
+								nt.Trigger(false)
+							}
+						}
+
+						time.Sleep(1 * time.Second)
+						if i > 20 {
+							break
 						}
 					}
 				}
-			}(rule)
-		}
+			}
+		}(r)
 	}
 	return
 }

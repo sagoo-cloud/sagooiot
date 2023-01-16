@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "github.com/sagoo-cloud/sagooiot/internal/logic/notice"
 	_ "github.com/sagoo-cloud/sagooiot/internal/logic/product"
+	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"testing"
 	"time"
@@ -19,7 +20,7 @@ func TestCheck(t *testing.T) {
 		"ts": gtime.Datetime(),
 		"va": 92.12,
 	}
-	err := service.AlarmRule().Check(context.TODO(), productKey, deviceKey, data)
+	err := service.AlarmRule().Check(context.TODO(), productKey, deviceKey, model.AlarmTriggerTypeProperty, data)
 	if err != nil {
 		t.Fatal(err)
 	}

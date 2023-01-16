@@ -74,7 +74,7 @@ func (c *cAlarmRule) TriggerType(ctx context.Context, req *alarm.AlarmRuleTrigge
 }
 
 func (c *cAlarmRule) TriggerParam(ctx context.Context, req *alarm.AlarmRuleTriggerParamReq) (res *alarm.AlarmRuleTriggerParamRes, err error) {
-	out, err := service.AlarmRule().TriggerParam(ctx, req.ProductKey)
+	out, err := service.AlarmRule().TriggerParam(ctx, req.ProductKey, req.TriggerType)
 	if err != nil || out == nil {
 		return
 	}

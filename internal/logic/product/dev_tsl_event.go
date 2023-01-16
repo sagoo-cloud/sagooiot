@@ -23,6 +23,26 @@ func devTSLEventNew() *sDevTSLEvent {
 	return &sDevTSLEvent{}
 }
 
+func (s *sDevTSLEvent) Detail(ctx context.Context, deviceKey string, eventKey string) (event *model.TSLEvent, err error) {
+	dout, err := service.DevDevice().Get(ctx, deviceKey)
+	if err != nil {
+		return
+	}
+	if dout.TSL == nil {
+		err = gerror.Newf("设备 %s 物模型数据异常", deviceKey)
+		return
+	}
+
+	for _, v := range dout.TSL.Events {
+		if v.Key == eventKey {
+			event = &v
+			return
+		}
+	}
+
+	return
+}
+
 func (s *sDevTSLEvent) ListEvent(ctx context.Context, in *model.ListTSLEventInput) (out *model.ListTSLEventOutput, err error) {
 	var p *entity.DevProduct
 

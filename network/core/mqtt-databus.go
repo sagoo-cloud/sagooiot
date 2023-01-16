@@ -3,14 +3,15 @@ package core
 import (
 	"context"
 	"encoding/json"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 	networkModel "github.com/sagoo-cloud/sagooiot/network/model"
 	"strings"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 )
 
 func onlineHandler(ctx context.Context, client MQTT.Client, message MQTT.Message) {
@@ -63,7 +64,7 @@ func reportPropertiesHandler(ctx context.Context, client MQTT.Client, message MQ
 	if len(topicNodes) < 3 {
 		return
 	}
-	if alarmCheckErr := service.AlarmRule().Check(ctx, topicNodes[2], reportMessage.DeviceKey, reportMessage.Properties); alarmCheckErr != nil {
+	if alarmCheckErr := service.AlarmRule().Check(ctx, topicNodes[2], reportMessage.DeviceKey, model.AlarmTriggerTypeProperty, reportMessage.Properties); alarmCheckErr != nil {
 		g.Log().Errorf(ctx, "alarm check error: %w, topic:%s, message:%s, message ignored", alarmCheckErr, message.Topic(), string(message.Payload()))
 		return
 	}

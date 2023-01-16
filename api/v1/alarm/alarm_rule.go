@@ -68,8 +68,9 @@ type AlarmRuleTriggerTypeRes struct {
 }
 
 type AlarmRuleTriggerParamReq struct {
-	g.Meta     `path:"/rule/trigger_param" method:"get" summary:"触发条件参数" tags:"告警"`
-	ProductKey string `json:"productKey" dc:"产品标识"`
+	g.Meta      `path:"/rule/trigger_param" method:"get" summary:"触发条件参数" tags:"告警"`
+	ProductKey  string `json:"productKey" dc:"产品标识"`
+	TriggerType int    `json:"triggerType" dc:"触发类型:1=上线,2=离线,3=属性上报,4=事件上报"`
 }
 type AlarmRuleTriggerParamRes struct {
 	List []model.TriggerParamOutput `json:"list" dc:"触发条件参数列表"`

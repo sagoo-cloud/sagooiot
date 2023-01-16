@@ -11,14 +11,6 @@ import (
 )
 
 type (
-	IAlarmLog interface {
-		Detail(ctx context.Context, id uint64) (out *model.AlarmLogOutput, err error)
-		Add(ctx context.Context, in *model.AlarmLogAddInput) (id uint64, err error)
-		List(ctx context.Context, in *model.AlarmLogListInput) (out *model.AlarmLogListOutput, err error)
-		Handle(ctx context.Context, in *model.AlarmLogHandleInput) (err error)
-		TotalForLevel(ctx context.Context) (total []model.AlarmLogLevelTotal, err error)
-		ClearLogByDays(ctx context.Context, days int) (err error)
-	}
 	IAlarmRule interface {
 		List(ctx context.Context, in *model.AlarmRuleListInput) (out *model.AlarmRuleListOutput, err error)
 		Cache(ctx context.Context) (rs map[string][]model.AlarmRuleOutput, err error)
@@ -30,13 +22,21 @@ type (
 		Del(ctx context.Context, id uint64) (err error)
 		Operator(ctx context.Context) (out []model.OperatorOutput, err error)
 		TriggerType(ctx context.Context, productKey string) (out []model.TriggerTypeOutput, err error)
-		TriggerParam(ctx context.Context, productKey string) (out []model.TriggerParamOutput, err error)
-		Check(ctx context.Context, productKey string, deviceKey string, data map[string]any) (err error)
+		TriggerParam(ctx context.Context, productKey string, triggerType int) (out []model.TriggerParamOutput, err error)
+		Check(ctx context.Context, productKey string, deviceKey string, triggerType int, data map[string]any) (err error)
 	}
 	IAlarmLevel interface {
 		Detail(ctx context.Context, level uint) (out model.AlarmLevelOutput, err error)
 		All(ctx context.Context) (out *model.AlarmLevelListOutput, err error)
 		Edit(ctx context.Context, in []*model.AlarmLevelEditInput) (err error)
+	}
+	IAlarmLog interface {
+		Detail(ctx context.Context, id uint64) (out *model.AlarmLogOutput, err error)
+		Add(ctx context.Context, in *model.AlarmLogAddInput) (id uint64, err error)
+		List(ctx context.Context, in *model.AlarmLogListInput) (out *model.AlarmLogListOutput, err error)
+		Handle(ctx context.Context, in *model.AlarmLogHandleInput) (err error)
+		TotalForLevel(ctx context.Context) (total []model.AlarmLogLevelTotal, err error)
+		ClearLogByDays(ctx context.Context, days int) (err error)
 	}
 )
 

@@ -51,9 +51,6 @@ func (s *sTSLTable) Insert(ctx context.Context, deviceKey string, data map[strin
 
 	sql := "INSERT INTO ? (?) VALUES (?)"
 	_, err = taos.Exec(sql, deviceKey, strings.Join(field, ","), strings.Join(value, ","))
-	if err != nil {
-		return
-	}
 
 	return
 }

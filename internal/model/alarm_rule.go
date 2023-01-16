@@ -8,12 +8,14 @@ const (
 	AlarmTriggerTypeOnline   = iota + 1 // 触发类型：设备上线
 	AlarmTriggerTypeOffline             // 触发类型：设备离线
 	AlarmTriggerTypeProperty            // 触发类型：属性上报
+	AlarmTriggerTypeEvent               // 触发类型：事件上报
 )
 
 var AlarmTriggerType = map[int]string{
 	AlarmTriggerTypeOnline:   "设备上线",
 	AlarmTriggerTypeOffline:  "设备离线",
 	AlarmTriggerTypeProperty: "属性上报",
+	AlarmTriggerTypeEvent:    "事件上报",
 }
 
 const (

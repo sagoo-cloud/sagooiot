@@ -267,10 +267,14 @@ func (s *sAlarmRule) TriggerType(ctx context.Context, productKey string) (out []
 		return
 	}
 	if product.TSL != nil {
-		switch {
-		case len(product.TSL.Properties) > 0:
+		if len(product.TSL.Properties) > 0 {
 			out = append(out, model.TriggerTypeOutput{
 				Title: model.AlarmTriggerType[model.AlarmTriggerTypeProperty], Type: model.AlarmTriggerTypeProperty,
+			})
+		}
+		if len(product.TSL.Events) > 0 {
+			out = append(out, model.TriggerTypeOutput{
+				Title: model.AlarmTriggerType[model.AlarmTriggerTypeEvent], Type: model.AlarmTriggerTypeEvent,
 			})
 		}
 	}
@@ -278,9 +282,9 @@ func (s *sAlarmRule) TriggerType(ctx context.Context, productKey string) (out []
 	return
 }
 
-func (s *sAlarmRule) TriggerParam(ctx context.Context, productKey string) (out []model.TriggerParamOutput, err error) {
+func (s *sAlarmRule) TriggerParam(ctx context.Context, productKey string, triggerType int) (out []model.TriggerParamOutput, err error) {
 	out = []model.TriggerParamOutput{
-		// {Title: "系统时间", ParamKey: "sysTime"},
+
 		{Title: "上报时间", ParamKey: "sysReportTime"},
 	}
 
@@ -290,8 +294,14 @@ func (s *sAlarmRule) TriggerParam(ctx context.Context, productKey string) (out [
 	}
 	if product.TSL != nil {
 		switch {
-		case len(product.TSL.Properties) > 0:
+		case triggerType == model.AlarmTriggerTypeProperty && len(product.TSL.Properties) > 0:
 			for _, v := range product.TSL.Properties {
+				out = append(out, model.TriggerParamOutput{
+					Title: v.Name, ParamKey: v.Key,
+				})
+			}
+		case triggerType == model.AlarmTriggerTypeEvent && len(product.TSL.Events) > 0:
+			for _, v := range product.TSL.Events {
 				out = append(out, model.TriggerParamOutput{
 					Title: v.Name, ParamKey: v.Key,
 				})
