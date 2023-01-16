@@ -16,22 +16,6 @@ import (
 )
 
 type (
-	IDataTemplateNode interface {
-		Add(ctx context.Context, in *model.DataTemplateNodeAddInput) (err error)
-		Edit(ctx context.Context, in *model.DataTemplateNodeEditInput) (err error)
-		Del(ctx context.Context, id uint64) (err error)
-		List(ctx context.Context, tid uint64) (list []*model.DataTemplateNodeOutput, err error)
-	}
-	IDataTemplateRecord interface {
-		UpdateData(ctx context.Context, tid uint64) error
-	}
-	IDataNode interface {
-		Add(ctx context.Context, in *model.DataNodeAddInput) (err error)
-		Edit(ctx context.Context, in *model.DataNodeEditInput) (err error)
-		Del(ctx context.Context, nodeId uint64) (err error)
-		List(ctx context.Context, sourceId uint64) (list []*model.DataNodeOutput, err error)
-		Detail(ctx context.Context, nodeId uint64) (out *model.DataNodeOutput, err error)
-	}
 	IDataSource interface {
 		Add(ctx context.Context, in *model.DataSourceApiAddInput) (sourceId uint64, err error)
 		Edit(ctx context.Context, in *model.DataSourceApiEditInput) (err error)
@@ -87,6 +71,23 @@ type (
 		GetInfos(ctx context.Context, busiTypes int) (data *entity.DataTemplateBusi, err error)
 		GetInfo(ctx context.Context, busiTypes int) (data *entity.DataTemplateBusi, err error)
 		GetTable(ctx context.Context, busiTypes int) (table string, err error)
+		Del(ctx context.Context, tid uint64) error
+	}
+	IDataTemplateNode interface {
+		Add(ctx context.Context, in *model.DataTemplateNodeAddInput) (err error)
+		Edit(ctx context.Context, in *model.DataTemplateNodeEditInput) (err error)
+		Del(ctx context.Context, id uint64) (err error)
+		List(ctx context.Context, tid uint64) (list []*model.DataTemplateNodeOutput, err error)
+	}
+	IDataTemplateRecord interface {
+		UpdateData(ctx context.Context, tid uint64) error
+	}
+	IDataNode interface {
+		Add(ctx context.Context, in *model.DataNodeAddInput) (err error)
+		Edit(ctx context.Context, in *model.DataNodeEditInput) (err error)
+		Del(ctx context.Context, nodeId uint64) (err error)
+		List(ctx context.Context, sourceId uint64) (list []*model.DataNodeOutput, err error)
+		Detail(ctx context.Context, nodeId uint64) (out *model.DataNodeOutput, err error)
 	}
 )
 

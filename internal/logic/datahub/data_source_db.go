@@ -227,6 +227,8 @@ func (s *sDataSource) GetDbData(ctx context.Context, sourceId uint64) (string, e
 	return rs[0].Json(), nil
 }
 
+// 获取数据源配置的数据库数据
+// 数据源配置时，注意控制数据获取的数量，数量过大可能造成内存溢出
 func (s *sDataSource) getDbData(ctx context.Context, sourceId uint64, limit int) (rs gdb.Result, ds *model.DataSourceOutput, err error) {
 	p, _ := s.Detail(ctx, sourceId)
 	if p == nil || p.DbConfig == nil {

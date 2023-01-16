@@ -211,6 +211,13 @@ func (s *sDataTemplate) Del(ctx context.Context, ids []uint64) (err error) {
 			}
 		}
 
+		// 绑定业务
+		for _, id := range delIds {
+			err = service.DataTemplateBusi().Del(ctx, id)
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 

@@ -250,6 +250,9 @@ func (s *sDevDevice) Deploy(ctx context.Context, id uint) (err error) {
 	if pd == nil {
 		return gerror.New("产品不存在")
 	}
+	if pd.Status != model.ProductStatusOn {
+		return gerror.New("产品未发布，请先发布产品")
+	}
 
 	err = dao.DevDevice.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
 		_, err = dao.DevDevice.Ctx(ctx).
@@ -543,20 +546,25 @@ func (s *sDevDevice) RunStatus(ctx context.Context, id uint) (out *model.DeviceR
 		// 获取当天属性值列表
 		var ls gdb.Result
 		if _, ok := rs[v.Key]; ok {
-			sql := "select ? from ? where ts >= '?' order by ts desc"
-			ls, _ = service.TdEngine().GetAll(ctx, sql, v.Key, p.Key, gtime.Now().Format("Y-m-d"))
+			sql := "select ? from ? where ts >= '?' and ? is not null order by ts desc"
+			ls, _ = service.TdEngine().GetAll(ctx, sql, v.Key, p.Key, gtime.Now().Format("Y-m-d"), v.Key)
 		}
 
 		unit := ""
 		if v.ValueType.Unit != nil {
 			unit = *v.ValueType.Unit
 		}
+
+		value := rs[v.Key]
+		if value.IsEmpty() && ls.Len() > 0 {
+			value = ls.Array(v.Key)[ls.Len()-1]
+		}
 		pro := model.DevicePropertiy{
 			Key:   v.Key,
 			Name:  v.Name,
 			Type:  v.ValueType.Type,
 			Unit:  unit,
-			Value: rs[v.Key],
+			Value: value,
 			List:  ls.Array(v.Key),
 		}
 		properties = append(properties, pro)
@@ -578,8 +586,8 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	}
 
 	// 属性值获取
-	sql := "select ? from ? order by ts desc limit 1"
-	rs, err := service.TdEngine().GetOne(ctx, sql, in.PropertyKey, p.Key)
+	sql := "select ? from ? where ? is not null order by ts desc limit 1"
+	rs, err := service.TdEngine().GetOne(ctx, sql, in.PropertyKey, p.Key, in.PropertyKey)
 	if err != nil {
 		return
 	}
@@ -601,8 +609,8 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	out.Value = rs[in.PropertyKey]
 
 	// 获取当天属性值列表
-	sql = "select ? from ? where ts >= '?' order by ts desc"
-	ls, _ := service.TdEngine().GetAll(ctx, sql, in.PropertyKey, p.Key, gtime.Now().Format("Y-m-d"))
+	sql = "select ? from ? where ts >= '?' and ? is not null order by ts desc"
+	ls, _ := service.TdEngine().GetAll(ctx, sql, in.PropertyKey, p.Key, gtime.Now().Format("Y-m-d"), in.PropertyKey)
 	out.List = ls.Array(in.PropertyKey)
 
 	return
@@ -622,20 +630,22 @@ func (s *sDevDevice) GetPropertyList(ctx context.Context, in *model.DeviceGetPro
 	out = new(model.DeviceGetPropertyListOutput)
 
 	// TDengine
-	sql := "select count(*) as num from ? where ts >= '?'"
-	rs, err := service.TdEngine().GetOne(ctx, sql, p.Key, gtime.Now().Format("Y-m-d"))
+	sql := "select count(*) as num from ? where ts >= '?' and ? is not null"
+	rs, err := service.TdEngine().GetOne(ctx, sql, p.Key, gtime.Now().Format("Y-m-d"), in.PropertyKey)
 	if err != nil {
 		return
 	}
 	out.Total = rs["num"].Int()
 	out.CurrentPage = in.PageNum
 
-	sql = "select ts, ? from ? where ts >= '?' order by ts desc limit ?, ?"
+	sql = "select ts, ? from ? where ts >= '?' and ? is not null order by ts desc limit ?, ?"
 	ls, _ := service.TdEngine().GetAll(
-		ctx, sql,
+		ctx,
+		sql,
 		in.PropertyKey,
 		p.Key,
 		gtime.Now().Format("Y-m-d"),
+		in.PropertyKey,
 		(in.PageNum-1)*in.PageSize,
 		in.PageSize,
 	)
