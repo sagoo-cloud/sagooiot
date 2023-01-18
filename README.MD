@@ -9,6 +9,8 @@ SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平
 
 官方QQ群：686637608
 
+欢迎点右上角 💘Star💘支持我们。
+
 
 ## 平台简介
 * 基于全新Go Frame 2.0+Vue3+Element Plus开发的全栈前后端分离的管理系统
@@ -48,148 +50,20 @@ SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平
 16. 设备管理：对设备进行接入与数据配置管理
 17. 数据中心：对第三方api或是数据库及内部数据进行数据新建模管理，支持规则定义。
 
+## 演示图
 
-## 环境需求
+| ![登录页](http://iotdoc.sagoo.cn/assets/img/01.1c18fa83.png) | ![物联概览](http://iotdoc.sagoo.cn/assets/img/02.cf806fcd.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![物模型管理](http://iotdoc.sagoo.cn/assets/img/03.c53a7ad3.png) | ![设备数据监测](http://iotdoc.sagoo.cn/assets/img/04.56ad4c63.png) |
+| ![设备数据日志](http://iotdoc.sagoo.cn/assets/img/05.047f7b6c.png) | ![视频监控](http://iotdoc.sagoo.cn/assets/img/08.9df1e582.png) |
+| ![通知配置](http://iotdoc.sagoo.cn/assets/img/09.7cd7f1e4.png) | ![告警配置管理](http://iotdoc.sagoo.cn/assets/img/10.643301e3.png) |
+| ![告警规则配置](http://iotdoc.sagoo.cn/assets/img/11.27ccb9d9.png) | ![用户管理](http://iotdoc.sagoo.cn/assets/img/12.e5f73f32.png) |
+| ![系统监控](http://iotdoc.sagoo.cn/assets/img/13.9f1f168e.png) | ![数据汇聚中心](http://iotdoc.sagoo.cn/assets/img/14.098c87ed.png) |
+| ![可视化规则引擎](http://iotdoc.sagoo.cn/assets/img/07.b48538a8.png) | ![可视化大屏](http://iotdoc.sagoo.cn/assets/img/06.8a674439.png) |
 
-**操作系统**
-
-Linux / macOS /Win
-
-**Go 编译环境**
-
-依赖 `Go1.16+` 编译环境，可前往[官方网站](https://golang.org/dl/) 或 [国内镜像](https://golang.google.cn/dl/) 下载安装。
-
-**MySQL**
-
-MySQL 5.6+
+![组态界面](http://iotdoc.sagoo.cn/assets/img/configure.06cd9b6e.jpg)
 
 
+## 免责声明：
 
-## 技术栈
-
-开发语言：golang
-
-服务端基础架构：[GoFrame](https://github.com/gogf/gf) 【 [中文文档](https://goframe.org/index) 】
-
-前端框架 [vue-next-admin](https://gitee.com/lyt-top/vue-next-admin)【[中文文档](https://lyt-top.gitee.io/vue-next-admin-doc-preview/)】
-
-swaggo https://github.com/swaggo/swag
-
-gtoken https://github.com/goflyfox/gtoken
-
-casbin https://github.com/casbin/casbin
-
-## 工程目录
-
-```
-/
-├── api
-├── hack
-├── internal
-│   ├── cmd
-│   ├── consts
-│   ├── controller
-│   ├── dao
-│   ├── logic
-│   ├── model
-│   |   ├── do
-│   │   └── entity
-│   └── service
-├── manifest
-├── resource
-├── utility
-├── go.mod
-└── main.go
-
-```
-
-| 目录/文件名称   | 说明     | 描述                                                         |
-| :-------------- | :------- | :----------------------------------------------------------- |
-| `api`           | 对外接口 | 对外提供服务的输入/输出数据结构定义。考虑到版本管理需要，往往以`api/v1...`存在。 |
-| `hack`          | 工具脚本 | 存放项目开发工具、脚本等内容。例如，`CLI`工具的配置，各种`shell/bat`脚本等文件。 |
-| `internal`      | 内部逻辑 | 业务逻辑存放目录。通过`Golang internal`特性对外部隐藏可见性。 |
-| ` - cmd`        | 入口指令 | 命令行管理目录。可以管理维护多个命令行。                     |
-| ` - consts`     | 常量定义 | 项目所有常量定义。                                           |
-| ` - controller` | 接口处理 | 接收/解析用户输入参数的入口/接口层。                         |
-| ` - dao`        | 数据访问 | 数据访问对象，这是一层抽象对象，用于和底层数据库交互，仅包含最基础的 `CURD` 方法 |
-| ` - logic`      | 业务封装 | 业务逻辑封装管理，特定的业务逻辑实现和封装。往往是项目中最复杂的部分。 |
-| ` - model`      | 结构模型 | 数据结构管理模块，管理数据实体对象，以及输入与输出数据结构定义。 |
-| `  - do`        | 领域对象 | 用于`dao`数据操作中业务模型与实例模型转换，由工具维护，用户不能修改。 |
-| `  - entity`    | 数据模型 | 数据模型是模型与数据集合的一对一关系，由工具维护，用户不能修改。 |
-| ` - service`    | 业务接口 | 用于业务模块解耦的接口定义层。具体的接口实现在`logic`中进行注入。 |
-| `manifest`      | 交付清单 | 包含程序编译、部署、运行、配置的文件。常见内容如下：         |
-| ` - config`     | 配置管理 | 配置文件存放目录。                                           |
-| ` - docker`     | 镜像文件 | `Docker`镜像相关依赖文件，脚本文件等等。                     |
-| ` - deploy`     | 部署文件 | 部署相关的文件。默认提供了`Kubernetes`集群化部署的`Yaml`模板，通过`kustomize`管理。 |
-| `resource`      | 静态资源 | 静态资源文件。这些文件往往可以通过 资源打包/镜像编译 的形式注入到发布文件中。 |
-| `go.mod`        | 依赖管理 | 使用`Go Module`包管理的依赖描述文件。                        |
-| `main.go`       | 入口文件 | 程序入口文件。                                               |
-
-## 本地源码运行
-
-修改config下的config.toml文件，并配置相关项
-
-请跟据注释进行配置修改，包括服务相关配置，日志相关
-
-`go run main.go`
-
-## 关于build.sh编译脚本
-
-可以使用build.sh进行程序编译，如果在使用build.sh脚本进行程序编译时，提示
-
-```
-fatal: No names found, cannot describe anything.
-./build.sh linux|windows|mac
-
-```
-是因为源码没有进行git版本的标签设置。
-
-支持将git的tag编译到程序中。需要创建git的tag。只有创建了tag，编译的程序才会显示版本号。
-
-```
-git tag v0.0.1
-
-git push origin v0.0.1
-```
-
-## 编译后执行脚本
-
-编译后生成的可执行文件放在bin目录下，将bin目录下的文件放到目标服务器，执行`./curl.sh start` 运行即可。
-
-```
-curl.sh脚本参数：
-
-start|stop|restart|status|tail
-
-```
-
-分别对应 启动、停止、重启、状态、显示动态日志运行信息
-
-## 插件编译
-
-如果要使用插件，需要提前将插件进行编译。直接使用plugins下面的编译脚本直接执行就可以。
-
-
-## 其它问题
-
-### 如果在macOS下遇到 Warning :`IOMasterPort`：
-```
-warning: ‘IOMasterPort‘ is deprecated: first deprecated in macOS 12.0 [-Wdeprecated-declarations]
-```
-**原因**
-
-依赖包跟MacOS的版本有兼容问题。
-
-解决方案
-切换CGO编译方式
-```
-go env -w CGO_ENABLED="0"
-```
-
-### 如果采用HTTPS方式时SSE不工作，需要如下配置：
-
-```Nginx
-    proxy_set_header Connection '';
-    proxy_http_version 1.1;
-    chunked_transfer_encoding off; 
-```
+SagooIOT社区版是一个开源学习项目，与商业行为无关。用户在使用该项目时，应遵循法律法规，不得进行非法活动。如果SagooIOT发现用户有违法行为，将会配合相关机关进行调查并向政府部门举报。用户因非法行为造成的任何法律责任均由用户自行承担，如因用户使用造成第三方损害的，用户应当依法予以赔偿。使用SagooIOT所有相关资源均由用户自行承担风险.
