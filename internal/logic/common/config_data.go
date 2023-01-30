@@ -13,6 +13,7 @@ import (
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"github.com/sagoo-cloud/sagooiot/utility/liberr"
+	"time"
 )
 
 type sConfigData struct {
@@ -149,7 +150,8 @@ func (s *sConfigData) GetConfigByKey(ctx context.Context, key string) (config *e
 		return
 	}
 	if config != nil {
-		cache.Set(ctx, consts.CacheSysConfigTag+key, config, 0, consts.CacheSysConfigTag)
+		//配置数据缓存1分钟
+		cache.Set(ctx, consts.CacheSysConfigTag+key, config, time.Minute*1, consts.CacheSysConfigTag)
 	}
 	return
 }
