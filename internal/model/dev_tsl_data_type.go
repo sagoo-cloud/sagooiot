@@ -69,7 +69,11 @@ type TInt TSLParam
 func (tInt TInt) Convert(v interface{}) interface{} {
 	number, ok := v.(int)
 	if !ok {
-		return 0
+		floatNumber, floatNumberOk := v.(float64)
+		if !floatNumberOk {
+			return 0
+		}
+		number = int(floatNumber)
 	}
 	if tInt.TSLParamBase.Min != nil && *tInt.TSLParamBase.Min > number {
 		return *tInt.TSLParamBase.Min
@@ -83,14 +87,14 @@ func (tInt TInt) Convert(v interface{}) interface{} {
 type TLong TSLParam
 
 func (tLong TLong) Convert(v interface{}) interface{} {
-	number, ok := v.(int64)
+	number, ok := v.(float64)
 	if !ok {
 		return 0
 	}
-	if tLong.TSLParamBase.Min != nil && int64(*tLong.TSLParamBase.Min) > number {
+	if tLong.TSLParamBase.Min != nil && float64(*tLong.TSLParamBase.Min) > number {
 		return *tLong.TSLParamBase.Min
 	}
-	if tLong.TSLParamBase.Max != nil && int64(*tLong.TSLParamBase.Max) > number {
+	if tLong.TSLParamBase.Max != nil && float64(*tLong.TSLParamBase.Max) > number {
 		return *tLong.TSLParamBase.Max
 	}
 	return number

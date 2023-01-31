@@ -3,12 +3,14 @@ package product
 import (
 	"context"
 	"encoding/json"
+	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/dao"
 	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/do"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"strings"
 	"time"
 
 	"github.com/gogf/gf/v2/container/gvar"
@@ -385,9 +387,9 @@ func (s *sDevDevice) TotalByProductId(ctx context.Context, productIds []uint) (t
 	return
 }
 
-// 统计设备数量
+// Total 统计设备数量
 func (s *sDevDevice) Total(ctx context.Context) (data model.DeviceTotalOutput, err error) {
-	key := "device:total"
+	key := consts.IotOverviewIndex
 	tag := "device"
 	value := common.Cache().GetOrSetFunc(ctx, key, func(ctx context.Context) (value interface{}, err error) {
 		var rs model.DeviceTotalOutput
@@ -545,9 +547,9 @@ func (s *sDevDevice) RunStatus(ctx context.Context, id uint) (out *model.DeviceR
 	for _, v := range p.TSL.Properties {
 		// 获取当天属性值列表
 		var ls gdb.Result
-		if _, ok := rs[v.Key]; ok {
+		if _, ok := rs[strings.ToLower(v.Key)]; ok {
 			sql := "select ? from ? where ts >= '?' and ? is not null order by ts desc"
-			ls, _ = service.TdEngine().GetAll(ctx, sql, v.Key, p.Key, gtime.Now().Format("Y-m-d"), v.Key)
+			ls, _ = service.TdEngine().GetAll(ctx, sql, strings.ToLower(v.Key), p.Key, gtime.Now().Format("Y-m-d"), strings.ToLower(v.Key))
 		}
 
 		unit := ""
@@ -555,9 +557,9 @@ func (s *sDevDevice) RunStatus(ctx context.Context, id uint) (out *model.DeviceR
 			unit = *v.ValueType.Unit
 		}
 
-		value := rs[v.Key]
+		value := rs[strings.ToLower(v.Key)]
 		if value.IsEmpty() && ls.Len() > 0 {
-			value = ls.Array(v.Key)[ls.Len()-1]
+			value = ls.Array(strings.ToLower(v.Key))[ls.Len()-1]
 		}
 		pro := model.DevicePropertiy{
 			Key:   v.Key,
@@ -565,7 +567,7 @@ func (s *sDevDevice) RunStatus(ctx context.Context, id uint) (out *model.DeviceR
 			Type:  v.ValueType.Type,
 			Unit:  unit,
 			Value: value,
-			List:  ls.Array(v.Key),
+			List:  ls.Array(strings.ToLower(v.Key)),
 		}
 		properties = append(properties, pro)
 	}

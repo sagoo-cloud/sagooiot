@@ -32,3 +32,11 @@ func TestAlarmTotalForMonths(t *testing.T) {
 	}
 	t.Log(out)
 }
+
+func TestRunStatus(t *testing.T) {
+	out, err := service.DevDevice().RunStatus(context.TODO(), 21)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(out)
+}
