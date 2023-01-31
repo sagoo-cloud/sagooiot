@@ -587,6 +587,9 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 		return
 	}
 
+	sKey := in.PropertyKey
+	in.PropertyKey = strings.ToLower(in.PropertyKey)
+
 	// 属性值获取
 	sql := "select ? from ? where ? is not null order by ts desc limit 1"
 	rs, err := service.TdEngine().GetOne(ctx, sql, in.PropertyKey, p.Key, in.PropertyKey)
@@ -597,7 +600,7 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	var name string
 	var valueType string
 	for _, v := range p.TSL.Properties {
-		if v.Key == in.PropertyKey {
+		if strings.ToLower(v.Key) == in.PropertyKey {
 			name = v.Name
 			valueType = v.ValueType.Type
 			break
@@ -605,7 +608,7 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	}
 
 	out = new(model.DevicePropertiy)
-	out.Key = in.PropertyKey
+	out.Key = sKey
 	out.Name = name
 	out.Type = valueType
 	out.Value = rs[in.PropertyKey]
@@ -628,6 +631,8 @@ func (s *sDevDevice) GetPropertyList(ctx context.Context, in *model.DeviceGetPro
 		err = gerror.New("设备未启用")
 		return
 	}
+
+	in.PropertyKey = strings.ToLower(in.PropertyKey)
 
 	out = new(model.DeviceGetPropertyListOutput)
 
