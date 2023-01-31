@@ -74,3 +74,8 @@ const (
 	IsAutoRunJob        = "sys.auto.run.job"
 	IsOpenAccessControl = "sys.access.control"
 )
+
+// 默认的插件协议
+const (
+	DefaultProtocol = "SagooMqtt"
+)

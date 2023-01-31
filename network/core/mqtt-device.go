@@ -66,7 +66,7 @@ func deviceDataHandler(ctx context.Context, client MQTT.Client, message MQTT.Mes
 	}
 	messageProtocol := productDetail.MessageProtocol
 	res := string(message.Payload())
-	if messageProtocol != "" {
+	if messageProtocol != consts.DefaultProtocol && messageProtocol != "" {
 		if extend.GetProtocolPlugin() == nil {
 			return
 		}
