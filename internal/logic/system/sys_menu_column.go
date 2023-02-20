@@ -315,7 +315,6 @@ func (s *sSysMenuColumn) GetInfoByMenuIds(ctx context.Context, menuIds []int) (d
 			var sysMenuColumn []*entity.SysMenuColumn
 			json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuColumn)
 			data = append(data, sysMenuColumn...)
-			return
 		}
 	}
 	if data == nil || len(data) == 0 {
