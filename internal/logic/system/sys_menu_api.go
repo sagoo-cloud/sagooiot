@@ -66,7 +66,6 @@ func (s *sSysMenuApi) GetInfoByMenuIds(ctx context.Context, menuIds []int) (data
 			var sysMenuApi []*entity.SysMenuApi
 			json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuApi)
 			data = append(data, sysMenuApi...)
-			return
 		}
 	}
 	if data == nil || len(data) > 0 {

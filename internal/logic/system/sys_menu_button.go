@@ -228,7 +228,6 @@ func (s *sSysMenuButton) GetInfoByMenuIds(ctx context.Context, menuIds []int) (d
 			var sysMenuButton []*entity.SysMenuButton
 			json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuButton)
 			data = append(data, sysMenuButton...)
-			return
 		}
 	}
 	if data == nil || len(data) == 0 {
