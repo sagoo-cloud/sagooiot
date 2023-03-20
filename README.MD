@@ -52,16 +52,16 @@ SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平
 
 ## 演示图
 
-| ![登录页](https://iotdoc.sagoo.cn/assets/img/01.1c18fa83.png)     | ![物联概览](https://iotdoc.sagoo.cn/assets/img/02.cf806fcd.png)   |
-|----------------------------------------------------------------|---------------------------------------------------------------|
-| ![物模型管理](https://iotdoc.sagoo.cn/assets/img/03.c53a7ad3.png)   | ![设备数据监测](https://iotdoc.sagoo.cn/assets/img/04.56ad4c63.png) |
-| ![设备数据日志](https://iotdoc.sagoo.cn/assets/img/05.047f7b6c.png)  | ![视频监控](https://iotdoc.sagoo.cn/assets/img/08.9df1e582.png)   |
-| ![通知配置](https://iotdoc.sagoo.cn/assets/img/09.7cd7f1e4.png)    | ![告警配置管理](https://iotdoc.sagoo.cn/assets/img/10.643301e3.png) |
-| ![告警规则配置](https://iotdoc.sagoo.cn/assets/img/11.27ccb9d9.png)  | ![用户管理](https://iotdoc.sagoo.cn/assets/img/12.e5f73f32.png)   |
-| ![系统监控](https://iotdoc.sagoo.cn/assets/img/13.9f1f168e.png)    | ![数据汇聚中心](https://iotdoc.sagoo.cn/assets/img/14.098c87ed.png) |
-| ![可视化规则引擎](https://iotdoc.sagoo.cn/assets/img/07.b48538a8.png) | ![可视化大屏](https://iotdoc.sagoo.cn/assets/img/06.8a674439.png)  |
+| ![登录页](https://iotdoc.sagoo.cn/imgs/demo/01.png)     | ![物联概览](https://iotdoc.sagoo.cn/imgs/demo/02.png) |
+|------------------------------------------------------|----------------------------------------------------|
+| ![物模型管理](https://iotdoc.sagoo.cn/imgs/demo/03.png) | ![设备数据监测](https://iotdoc.sagoo.cn/imgs/demo/04.png) |
+| ![设备数据日志](https://iotdoc.sagoo.cn/imgs/demo/05.png) | ![视频监控](https://iotdoc.sagoo.cn/imgs/demo/08.png) |
+| ![通知配置](https://iotdoc.sagoo.cn/imgs/demo/09.png) | ![告警配置管理](https://iotdoc.sagoo.cn/imgs/demo/10.png) |
+| ![告警规则配置](https://iotdoc.sagoo.cn/imgs/demo/11.png) | ![用户管理](https://iotdoc.sagoo.cn/imgs/demo/12.png) |
+| ![系统监控](https://iotdoc.sagoo.cn/imgs/demo/13.png) | ![数据汇聚中心](https://iotdoc.sagoo.cn/imgs/demo/14.png) |
+| ![可视化规则引擎](https://iotdoc.sagoo.cn/imgs/demo/07.png) | ![可视化大屏](https://iotdoc.sagoo.cn/imgs/demo/06.png) |
 
-![组态界面](https://iotdoc.sagoo.cn/assets/img/configure.06cd9b6e.jpg)
+![组态界面](https://iotdoc.sagoo.cn/imgs/configure.jpg)
 
 
 ## 免责声明：
