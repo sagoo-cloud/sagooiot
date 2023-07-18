@@ -12,6 +12,14 @@ SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平
 欢迎点右上角 💘Star💘支持我们。
 
 
+
+**系统运行后，系统默认的用户名与密码为：**
+
+用户：admin
+
+密码：admin123456
+
+
 ## 平台简介
 * 基于全新Go Frame 2.0+Vue3+Element Plus开发的全栈前后端分离的管理系统
 * 前端采用vue-next-admin 、Vue、Element UI。
