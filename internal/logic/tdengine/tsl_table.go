@@ -3,10 +3,11 @@ package tdengine
 import (
 	"context"
 	"fmt"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"strconv"
 	"strings"
+
+	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"github.com/sagoo-cloud/sagooiot/internal/service"
 
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -76,7 +77,7 @@ func (s *sTSLTable) CreateStable(ctx context.Context, tsl *model.TSL) (err error
 
 	// 标签字段
 	tags := make([]string, len(tsl.Tags)+1)
-	tags[0] = "device VARCHAR(255) COMMENT '设备标识'"
+	tags[0] = "device VARCHAR(255)"
 	for i, v := range tsl.Tags {
 		maxLength := 0
 		if v.ValueType.TSLParamBase.MaxLength != nil {
@@ -115,10 +116,6 @@ func (s *sTSLTable) CreateTable(ctx context.Context, stable, table string) (err 
 
 func (s *sTSLTable) column(dataType, key, name string, maxLength int) string {
 	column := ""
-	comment := ""
-	if name != "" {
-		comment = "COMMENT '" + name + "'"
-	}
 	tdType := ""
 	switch dataType {
 	case "int":
@@ -144,7 +141,7 @@ func (s *sTSLTable) column(dataType, key, name string, maxLength int) string {
 		}
 		tdType = "NCHAR(" + strconv.Itoa(maxLength) + ")"
 	}
-	column = fmt.Sprintf("%s %s %s", key, tdType, comment)
+	column = fmt.Sprintf("%s %s", key, tdType)
 	return column
 }
 
