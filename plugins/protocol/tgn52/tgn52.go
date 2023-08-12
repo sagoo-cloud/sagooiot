@@ -10,7 +10,7 @@ import (
 	plugin "github.com/sagoo-cloud/sagooiot/extend/module"
 )
 
-//ProtocolTgn52 实现
+// ProtocolTgn52 实现
 type ProtocolTgn52 struct{}
 
 func (ProtocolTgn52) Info() model.ModuleInfo {
@@ -23,12 +23,12 @@ func (ProtocolTgn52) Info() model.ModuleInfo {
 	return res
 }
 
-func (ProtocolTgn52) Write(args interface{}) (err error) {
+func (ProtocolTgn52) Encode(args interface{}) (string, error) {
 	fmt.Println("接收到参数：", args)
-	return
+	return "", nil
 }
 
-func (ProtocolTgn52) Read(data []byte) string {
+func (ProtocolTgn52) Decode(data []byte, dataIdent string) (string, error) {
 	tmpData := strings.Split(string(data), ";")
 	var rd = DeviceData{}
 	l := len(tmpData)
@@ -49,15 +49,15 @@ func (ProtocolTgn52) Read(data []byte) string {
 	if rd.IsEmpty() {
 		res = plugin.OutJsonRes(1, "数据为空，或数据结构不对", nil)
 	}
-	return res
+	return res, nil
 }
 
-//Tgn52Plugin 插件接口实现
-//这有两种方法：服务器必须为此插件返回RPC服务器类型。我们为此构建了一个RPCServer。
-//客户端必须返回我们的接口的实现通过RPC客户端。我们为此返回RPC。
+// Tgn52Plugin 插件接口实现
+// 这有两种方法：服务器必须为此插件返回RPC服务器类型。我们为此构建了一个RPCServer。
+// 客户端必须返回我们的接口的实现通过RPC客户端。我们为此返回RPC。
 type Tgn52Plugin struct{}
 
-//Server 此方法由插件进程延迟调
+// Server 此方法由插件进程延迟调
 func (Tgn52Plugin) Server(*gplugin.MuxBroker) (interface{}, error) {
 	return &plugin.ProtocolRPCServer{Impl: new(ProtocolTgn52)}, nil
 }
