@@ -82,6 +82,17 @@ func pluginInit(sysPluginType string) (pm *Manager, err error) {
 	return
 }
 
+// GetProtocolPlugin 获取指协议名称的插件
+func (pm *SysPlugin) GetProtocolPlugin(protocolName string) (obj module.Protocol, err error) {
+	//获取插件
+	p, err := pm.pluginManager.GetInterface(protocolName)
+	if err != nil {
+		return
+	}
+	obj = p.(module.Protocol)
+	return
+}
+
 // GetProtocolUnpackData 通过协议解析插件处理后，获取解析数据。protocolType 为协议名称
 // todo 需要标记数据协议子类型
 func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (res string, err error) {

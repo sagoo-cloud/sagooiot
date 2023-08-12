@@ -27,10 +27,23 @@ func TestManagerInit(t *testing.T) {
 
 }
 
+// 测试获取插件信息
+func TestProtocolInfo(t *testing.T) {
+	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
+	if err != nil {
+		return
+	}
+	t.Log(p.Info())
+}
+
 // 测试自定义协议解析
 func TestProtocol(t *testing.T) {
 	data := gconv.Bytes("NB1;1234567;1;2;+25.5;00;030;+21;+22")
-	res, err := extend.GetProtocolPlugin().GetProtocolUnpackData("tgn52", data)
+	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
+	if err != nil {
+		return
+	}
+	res, err := p.Decode(data, "")
 	if err != nil {
 		t.Log("Error: ", err.Error())
 	}
