@@ -41,7 +41,7 @@ func (g *ProtocolRPC) Encode(args interface{}) (string, error) {
 
 	return resp, nil
 }
-func (g *ProtocolRPC) Decode(data []byte) string {
+func (g *ProtocolRPC) Decode(data []byte, dataIdent string) string {
 	var resp string
 	err := g.Client.Call("Plugin.Decode", data, &resp)
 	if err != nil {

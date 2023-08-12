@@ -11,7 +11,7 @@ import (
 )
 
 func TestManagerInit(t *testing.T) {
-	manager := extend.NewManager("protocol", "protocol-*", "../plugins/built", &module.ProtocolPlugin{})
+	manager := extend.NewManager("protocol", "protocol-*", "./plugins/built", &module.ProtocolPlugin{})
 	defer manager.Dispose()
 	err := manager.Init()
 	if err != nil {
@@ -23,20 +23,23 @@ func TestManagerInit(t *testing.T) {
 		t.Log(info.Path)
 		t.Log(info.Client)
 	}
-
-	modbus, err := manager.GetInterface("modbus")
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
-	data := gconv.Bytes("aadsfsfsfdfsfsdfsfs")
-	res := modbus.(module.Protocol).Read(data)
-	t.Log(res)
+	t.Log(manager)
 
 }
 
-//测试插件服务使用，需要先将要测试的插件进行编译
+// 测试自定义协议解析
+func TestProtocol(t *testing.T) {
+	data := gconv.Bytes("NB1;1234567;1;2;+25.5;00;030;+21;+22")
+	res, err := extend.GetProtocolPlugin().GetProtocolUnpackData("tgn52", data)
+	if err != nil {
+		t.Log("Error: ", err.Error())
+	}
+	t.Log(res)
+}
+
+// 测试插件服务使用，需要先将要测试的插件进行编译
 func TestProtocolPluginServer(t *testing.T) {
+	extend.GetProtocolPlugin()
 	NetData()
 }
 
@@ -73,7 +76,7 @@ func doServerStuff(conn net.Conn) {
 		fmt.Printf("Received data: %v\n", string(buf[:l]))
 
 		//获取协议插件解析后的数据 传入插件ID，及需要解析的数据
-		data, err := extend.GetProtocolPlugin().GetProtocolUnpackData("modbus", buf[:l])
+		data, err := extend.GetProtocolPlugin().GetProtocolUnpackData("tgn52", buf[:l])
 		fmt.Println("============通过插件获取数据：", data)
 	}
 }

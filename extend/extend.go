@@ -15,18 +15,20 @@ type SysPlugin struct {
 }
 
 const (
-	NoticePluginName   = "notice"
-	ProtocolPluginName = "protocol"
+	// NoticePluginTypeName 通知类插件
+	NoticePluginTypeName = "notice"
+	// ProtocolPluginTypeName 协议类插件
+	ProtocolPluginTypeName = "protocol"
 )
 
 var ins *SysPlugin
 var once sync.Once
 
-//GetNoticePlugin 构造方法
+// GetNoticePlugin 构造方法
 func GetNoticePlugin() *SysPlugin {
 	once.Do(func() {
 		ins = &SysPlugin{}
-		pm, err := pluginInit("notice")
+		pm, err := pluginInit(NoticePluginTypeName)
 		if err != nil {
 			g.Log().Error(context.TODO(), err.Error())
 		}
@@ -36,11 +38,11 @@ func GetNoticePlugin() *SysPlugin {
 	return ins
 }
 
-//GetProtocolPlugin 构造方法
+// GetProtocolPlugin 构造方法
 func GetProtocolPlugin() *SysPlugin {
 	once.Do(func() {
 		ins = &SysPlugin{}
-		pm, err := pluginInit("protocol")
+		pm, err := pluginInit(ProtocolPluginTypeName)
 		if err != nil {
 			g.Log().Error(context.TODO(), err.Error())
 		}
@@ -50,19 +52,19 @@ func GetProtocolPlugin() *SysPlugin {
 	return ins
 }
 
-//初始化处理协议插件
+// 初始化处理协议插件
 func pluginInit(sysPluginType string) (pm *Manager, err error) {
 	// 静态目录设置
 	pluginsPath := g.Cfg().MustGet(context.TODO(), "system.pluginsPath").String()
 	//pluginsPath := "../plugins/built"
 	switch sysPluginType {
-	case "notice":
-		pm = NewManager(sysPluginType, "notice-*", pluginsPath, &module.NoticePlugin{})
+	case NoticePluginTypeName:
+		pm = NewManager(sysPluginType, NoticePluginTypeName+"-*", pluginsPath, &module.NoticePlugin{})
 		defer pm.Dispose()
 
 		break
-	case "protocol":
-		pm = NewManager(sysPluginType, "protocol-*", pluginsPath, &module.ProtocolPlugin{})
+	case ProtocolPluginTypeName:
+		pm = NewManager(sysPluginType, ProtocolPluginTypeName+"-*", pluginsPath, &module.ProtocolPlugin{})
 		defer pm.Dispose()
 
 		break
@@ -76,48 +78,32 @@ func pluginInit(sysPluginType string) (pm *Manager, err error) {
 	err = pm.Init()
 	//重启所有插件
 	err = pm.Launch()
-	//if len(pm.Plugins) > 0 {
-	//	for key, _ := range pm.Plugins {
-	//		data, e := pm.GetInterface(key)
-	//		if e != nil {
-	//			return
-	//		}
-	//		//将插件启动的信息存入数据库
-	//		res := data.(module.Notice).Info()
-	//		var pluginData sysModel.SysPluginsAddInput
-	//		err = gconv.Scan(res, &pluginData)
-	//		pluginData.Status = 1
-	//		pluginData.Types = sysPluginType
-	//		pluginData.StartTime = gtime.Datetime()
-	//		//go service.SysPlugins().SaveSysPlugins(context.TODO(), pluginData)
-	//	}
-	//}
 
 	return
 }
 
 // GetProtocolUnpackData 通过协议解析插件处理后，获取解析数据。protocolType 为协议名称
+// todo 需要标记数据协议子类型
 func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (res string, err error) {
 	//获取插件
 	p, err := pm.pluginManager.GetInterface(protocolType)
 	if err != nil {
 		return
 	}
-	res, err = p.(module.Protocol).Decode(data, "")
-	return
+	return p.(module.Protocol).Decode(data, "")
 }
 
-// NoticeSend 通过插件发送通知信息。noticeType 为通知插件名称；msg为通知内容
-func (pm *SysPlugin) NoticeSend(noticeType string, msg model.NoticeInfoData) (res string, err error) {
+// NoticeSend 通过插件发送通知信息。noticeName 为通知插件名称；msg为通知内容
+func (pm *SysPlugin) NoticeSend(noticeName string, msg model.NoticeInfoData) (res string, err error) {
 	//获取插件
-	p, err := pm.pluginManager.GetInterface(noticeType)
+	p, err := pm.pluginManager.GetInterface(noticeName)
 	if err != nil {
 		return
 	}
 
 	var nd = new(model.NoticeData)
 	nd.Msg = msg
-	cfgData, err := getPluginsConfigData("notice", noticeType)
+	cfgData, err := getPluginsConfigData(NoticePluginTypeName, noticeName)
 	if err != nil {
 		return
 	}

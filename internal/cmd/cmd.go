@@ -6,6 +6,7 @@ import (
 	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/mqtt"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/sagoo-cloud/sagooiot/internal/task"
 	"github.com/sagoo-cloud/sagooiot/network"
 	"github.com/sagoo-cloud/sagooiot/utility/notifier"
 
@@ -88,6 +89,10 @@ var (
 			if err := network.ReloadNetwork(context.Background()); err != nil {
 				g.Log().Errorf(ctx, "载入网络错误,错误原因:%+#v", err)
 			}
+
+			//初始化任务
+			task.StartInit()
+
 			// 自定义丰富文档
 			enhanceOpenAPIDoc(s)
 			// 启动Http Server

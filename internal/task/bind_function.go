@@ -18,7 +18,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-func init() {
+func StartInit() {
 
 	ctx := context.TODO()
 
