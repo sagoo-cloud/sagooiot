@@ -103,7 +103,7 @@ func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (re
 	if err != nil {
 		return
 	}
-	res = p.(module.Protocol).Read(data)
+	res, err = p.(module.Protocol).Decode(data, "")
 	return
 }
 
