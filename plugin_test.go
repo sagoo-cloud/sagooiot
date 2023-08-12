@@ -36,6 +36,27 @@ func TestProtocolInfo(t *testing.T) {
 	t.Log(p.Info())
 }
 
+type TestData struct {
+	Name  string
+	Value string
+}
+
+// 测试协议的编码方法
+func TestProtocolEncode(t *testing.T) {
+	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
+	if err != nil {
+		return
+	}
+	td := new(TestData)
+	td.Name = "aaaa"
+	td.Value = "bbbbb"
+	res, err := p.Encode(td)
+	if err != nil {
+		t.Log("Error: ", err.Error())
+	}
+	t.Log(res)
+}
+
 // 测试自定义协议解析
 func TestProtocol(t *testing.T) {
 	data := gconv.Bytes("NB1;1234567;1;2;+25.5;00;030;+21;+22")

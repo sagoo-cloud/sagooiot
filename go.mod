@@ -10,7 +10,7 @@ require (
 	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.2.0
 	github.com/gogf/gf/v2 v2.2.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/hashicorp/go-plugin v1.4.5
+	github.com/hashicorp/go-plugin v1.4.10
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/mssola/user_agent v0.5.3
 	github.com/robfig/cron/v3 v3.0.1
