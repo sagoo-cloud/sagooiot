@@ -41,7 +41,7 @@ func (g *ProtocolRPC) Encode(args interface{}) (string, error) {
 
 	return resp, nil
 }
-func (g *ProtocolRPC) Decode(data []byte, dataIdent string) string {
+func (g *ProtocolRPC) Decode(data []byte, dataIdent string) (string, error) {
 	var resp string
 	err := g.Client.Call("Plugin.Decode", data, &resp)
 	if err != nil {
@@ -49,7 +49,7 @@ func (g *ProtocolRPC) Decode(data []byte, dataIdent string) string {
 		//这里没有太多其他选择。
 		panic(err)
 	}
-	return resp
+	return resp, nil
 }
 
 // ProtocolRPCServer  GreeterRPC的RPC服务器，符合 net/rpc的要求
