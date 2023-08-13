@@ -7,6 +7,12 @@ type JsonRes struct {
 	Data    interface{} `json:"data"`    // 返回数据(业务接口定义具体数据结构)
 }
 
+// DataReq 数据请求参数
+type DataReq struct {
+	Data      []byte
+	DataIdent string
+}
+
 type SagooMqttData struct {
 	Attr       map[string]any `json:"attr"`
 	DeviceID   string         `json:"device_id"`

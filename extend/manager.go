@@ -118,7 +118,7 @@ func (m *Manager) Dispose() {
 func (m *Manager) GetInterface(id string) (interface{}, error) {
 
 	if _, ok := m.Plugins[id]; !ok {
-		return nil, errors.New("在注册的插件中找不到插件ID！")
+		return nil, errors.New("在注册的插件中找不到插件ID！ " + id)
 	}
 
 	//获取注册插件客户端 plugin.Client

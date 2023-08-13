@@ -45,14 +45,14 @@ type TestData struct {
 func TestProtocolEncode(t *testing.T) {
 	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
 	if err != nil {
-		return
+		t.Fatal(err.Error())
 	}
 	td := new(TestData)
 	td.Name = "aaaa"
 	td.Value = "bbbbb"
-	res, err := p.Encode(td)
+	res := p.Encode(td)
 	if err != nil {
-		t.Log("Error: ", err.Error())
+		t.Fatal(err.Error())
 	}
 	t.Log(res)
 }
@@ -64,9 +64,11 @@ func TestProtocol(t *testing.T) {
 	if err != nil {
 		return
 	}
-	res, err := p.Decode(data, "")
+	var dr model.DataReq
+	dr.Data = data
+	res := p.Decode(dr)
 	if err != nil {
-		t.Log("Error: ", err.Error())
+		t.Fatal(err.Error())
 	}
 	t.Log(res)
 }
@@ -126,35 +128,21 @@ func TestNotice(t *testing.T) {
 	//通过邮件发送通知
 	res, err := extend.GetNoticePlugin().NoticeSend("mail", msg)
 	if err != nil {
-		t.Log("Error: ", err.Error())
-	}
-	t.Log(res)
-
-	//通过短信发送通知
-	res, err = extend.GetNoticePlugin().NoticeSend("sms", msg)
-	if err != nil {
-		t.Log("Error: ", err.Error())
-	}
-	t.Log(res)
-
-	//通过webhook发送通知
-	res, err = extend.GetNoticePlugin().NoticeSend("webhook", msg)
-	if err != nil {
-		t.Log("Error: ", err.Error())
+		t.Fatal(err.Error())
 	}
 	t.Log(res)
 
 	//通过企业微信发送通知
 	res, err = extend.GetNoticePlugin().NoticeSend("wework", msg)
 	if err != nil {
-		t.Log("Error: ", err.Error())
+		t.Fatal(err.Error())
 	}
 	t.Log(res)
 
 	//通过钉钉发送通知
 	res, err = extend.GetNoticePlugin().NoticeSend("dingding", msg)
 	if err != nil {
-		t.Log("Error: ", err.Error())
+		t.Fatal(err.Error())
 	}
 	t.Log(res)
 

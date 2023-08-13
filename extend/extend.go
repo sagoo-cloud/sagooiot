@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	"github.com/sagoo-cloud/sagooiot/extend/module"
 	"sync"
@@ -101,7 +102,11 @@ func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (re
 	if err != nil {
 		return
 	}
-	return p.(module.Protocol).Decode(data, "")
+
+	var rd = model.DataReq{}
+	rd.Data = data
+	resData := p.(module.Protocol).Decode(rd)
+	return gconv.String(resData), err
 }
 
 // NoticeSend 通过插件发送通知信息。noticeName 为通知插件名称；msg为通知内容
