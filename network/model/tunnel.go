@@ -3,6 +3,7 @@ package model
 import (
 	"bytes"
 	"encoding/hex"
+	"github.com/gogf/gf/v2/text/gregex"
 	"regexp"
 	"time"
 )
@@ -71,7 +72,8 @@ func (p *RegisterPacket) Check(buf []byte) (deviceKey string, checkOk bool) {
 		if p.regex == nil {
 			p.regex = regexp.MustCompile(p.Regex)
 		}
-		return string(buf), p.regex.MatchString(string(buf))
+		match, _ := gregex.MatchString(p.Regex, string(buf))
+		return match[1], p.regex.Match(buf)
 	}
 	if p.Length > 0 {
 		if len(buf) != p.Length {

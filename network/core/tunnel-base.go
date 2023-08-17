@@ -97,11 +97,19 @@ func (l *tunnelBase) ReadData(ctx context.Context, deviceKey string, data []byte
 		if extend.GetProtocolPlugin() == nil {
 			return
 		}
-		res, err = extend.GetProtocolPlugin().GetProtocolUnpackData(productDetail.MessageProtocol, data)
+		// 通过消息协议插件解析数据
+		pluginData, err := extend.GetProtocolPlugin().GetProtocolUnpackData(productDetail.MessageProtocol, data)
+		g.Log().Debug(context.TODO(), "GetProtocolUnpackData", pluginData)
 		if err != nil {
 			g.Log().Errorf(ctx, "get plugin error: %w,  message:%s, message ignored", err, res)
 			return
 		}
+		if pluginData.Code != 0 {
+			g.Log().Errorf(ctx, "plugin parse error: code:%d message:%s, deviceKey:%s, data:%s, message ignored", pluginData.Code, pluginData.Message, deviceDetail.Key, string(data))
+			return
+		}
+		pluginDataByte, _ := json.Marshal(pluginData.Data)
+		res = string(pluginDataByte)
 	}
 	var reportData networkModel.DefaultMessageType
 	if reportDataErr := json.Unmarshal([]byte(res), &reportData); reportDataErr != nil {

@@ -5,7 +5,6 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	"github.com/sagoo-cloud/sagooiot/extend/module"
 	"sync"
@@ -96,7 +95,7 @@ func (pm *SysPlugin) GetProtocolPlugin(protocolName string) (obj module.Protocol
 
 // GetProtocolUnpackData 通过协议解析插件处理后，获取解析数据。protocolType 为协议名称
 // todo 需要标记数据协议子类型
-func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (res string, err error) {
+func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (res model.JsonRes, err error) {
 	//获取插件
 	p, err := pm.pluginManager.GetInterface(protocolType)
 	if err != nil {
@@ -106,7 +105,7 @@ func (pm *SysPlugin) GetProtocolUnpackData(protocolType string, data []byte) (re
 	var rd = model.DataReq{}
 	rd.Data = data
 	resData := p.(module.Protocol).Decode(rd)
-	return gconv.String(resData), err
+	return resData, err
 }
 
 // NoticeSend 通过插件发送通知信息。noticeName 为通知插件名称；msg为通知内容

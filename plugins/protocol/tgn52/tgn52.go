@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/gogf/gf/v2/util/guid"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	"net/rpc"
 	"strings"
+	"time"
 
 	gplugin "github.com/hashicorp/go-plugin"
 	plugin "github.com/sagoo-cloud/sagooiot/extend/module"
@@ -32,30 +34,37 @@ func (p *ProtocolTgn52) Encode(args interface{}) model.JsonRes {
 func (p *ProtocolTgn52) Decode(data model.DataReq) model.JsonRes {
 	var resp model.JsonRes
 	resp.Code = 0
+
 	tmpData := strings.Split(string(data.Data), ";")
-	var rd = DeviceData{}
+	var rd = make(map[string]model.Param)
+
 	l := len(tmpData)
+	nowTime := time.Now().Unix()
 	if l > 7 {
-		rd.HeadStr = tmpData[0]
-		rd.DeviceID = tmpData[1]
-		rd.Signal = tmpData[2]
-		rd.Battery = tmpData[3]
-		rd.Temperature = tmpData[4]
-		rd.Humidity = tmpData[5]
-		rd.Cycle = tmpData[6]
+		rd["HeadStr"] = model.Param{Value: tmpData[0], Time: nowTime}
+		rd["DeviceID"] = model.Param{Value: tmpData[1], Time: nowTime}
+		rd["Signal"] = model.Param{Value: tmpData[2], Time: nowTime}
+		rd["Battery"] = model.Param{Value: tmpData[3], Time: nowTime}
+		rd["Temperature"] = model.Param{Value: tmpData[4], Time: nowTime}
+		rd["Humidity"] = model.Param{Value: tmpData[5], Time: nowTime}
+		rd["Cycle"] = model.Param{Value: tmpData[6], Time: nowTime}
 		//处理续传数据
+		updateStr := make([]string, 0)
 		for i := 7; i < l; i++ {
-			rd.Update = append(rd.Update, tmpData[i])
+			updateStr = append(updateStr, tmpData[i])
 		}
+		rd["Update"] = model.Param{Value: updateStr, Time: nowTime}
 	}
-	res := plugin.OutJsonRes(0, "", rd)
-	if rd.IsEmpty() {
-		resp.Code = 1
-		resp.Message = "数据为空，或数据结构不对"
-		return resp
-	}
+
 	resp.Code = 0
-	resp.Data = res
+	resp.Data = model.SagooMqttModel{
+		Id:            guid.S(),
+		Version:       "1.0",
+		Sys:           model.SysInfo{Ack: 0},
+		Params:        rd,
+		Method:        "thing.event.property.post",
+		ModelFuncName: "upProperty",
+	}
 	return resp
 }
 

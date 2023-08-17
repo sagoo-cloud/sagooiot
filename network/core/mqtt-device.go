@@ -70,11 +70,17 @@ func deviceDataHandler(ctx context.Context, client MQTT.Client, message MQTT.Mes
 		if extend.GetProtocolPlugin() == nil {
 			return
 		}
-		res, err = extend.GetProtocolPlugin().GetProtocolUnpackData(messageProtocol, message.Payload())
+		pluginData, err := extend.GetProtocolPlugin().GetProtocolUnpackData(messageProtocol, message.Payload())
 		if err != nil {
-			g.Log().Errorf(ctx, "get plugin error: %w, topic:%s, message:%s, message ignored", err, message.Topic(), string(message.Payload()))
+			g.Log().Errorf(ctx, "get plugin error: %w, deviceKey:%s, data:%s, message ignored", err, deviceDetail.Key, string(message.Payload()))
 			return
 		}
+		if pluginData.Code != 0 {
+			g.Log().Errorf(ctx, "plugin parse error: code:%d message:%s, deviceKey:%s, data:%s, message ignored", pluginData.Code, pluginData.Message, deviceDetail.Key, string(message.Payload()))
+			return
+		}
+		pluginDataByte, _ := json.Marshal(pluginData.Data)
+		res = string(pluginDataByte)
 	}
 	var reportData networkModel.DefaultMessageType
 	if reportDataErr := json.Unmarshal([]byte(res), &reportData); reportDataErr != nil {
