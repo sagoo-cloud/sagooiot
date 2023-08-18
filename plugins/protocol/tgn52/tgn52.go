@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gogf/gf/v2/util/guid"
+	"github.com/sagoo-cloud/sagooiot/extend/consts/PluginHandleType"
+	"github.com/sagoo-cloud/sagooiot/extend/consts/PluginType"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	"net/rpc"
 	"strings"
@@ -15,12 +17,14 @@ import (
 // ProtocolTgn52 实现
 type ProtocolTgn52 struct{}
 
-func (p *ProtocolTgn52) Info() model.ModuleInfo {
-	var res = model.ModuleInfo{}
+func (p *ProtocolTgn52) Info() model.PluginInfo {
+	var res = model.PluginInfo{}
 	res.Name = "tgn52"
+	res.Types = PluginType.Notice
+	res.HandleType = PluginHandleType.TcpServer
 	res.Title = "TG-N5 v2设备协议"
 	res.Author = "Microrain"
-	res.Intro = "对TG-N5插座设备进行数据采集v2"
+	res.Description = "对TG-N5插座设备进行数据采集v2"
 	res.Version = "0.01"
 	return res
 }

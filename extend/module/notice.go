@@ -8,7 +8,7 @@ import (
 
 // Notice 通知服务插件接口
 type Notice interface {
-	Info() model.ModuleInfo
+	Info() model.PluginInfo
 	Send(data []byte) model.JsonRes
 }
 
@@ -17,8 +17,8 @@ type NoticeRPC struct {
 	Client *rpc.Client
 }
 
-func (g *NoticeRPC) Info() model.ModuleInfo {
-	var resp model.ModuleInfo
+func (g *NoticeRPC) Info() model.PluginInfo {
+	var resp model.PluginInfo
 	err := g.Client.Call("Plugin.Info", new(interface{}), &resp)
 	if err != nil {
 		panic(err)
@@ -40,7 +40,7 @@ type NoticeRPCServer struct {
 	Impl Notice
 }
 
-func (s *NoticeRPCServer) Info(args interface{}, resp *model.ModuleInfo) error {
+func (s *NoticeRPCServer) Info(args interface{}, resp *model.PluginInfo) error {
 	*resp = s.Impl.Info()
 	return nil
 }

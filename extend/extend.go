@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/sagoo-cloud/sagooiot/extend/consts/PluginType"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	"github.com/sagoo-cloud/sagooiot/extend/module"
 	"sync"
@@ -14,13 +15,6 @@ type SysPlugin struct {
 	pluginManager *Manager
 }
 
-const (
-	// NoticePluginTypeName 通知类插件
-	NoticePluginTypeName = "notice"
-	// ProtocolPluginTypeName 协议类插件
-	ProtocolPluginTypeName = "protocol"
-)
-
 var ins *SysPlugin
 var once sync.Once
 
@@ -28,7 +22,7 @@ var once sync.Once
 func GetNoticePlugin() *SysPlugin {
 	once.Do(func() {
 		ins = &SysPlugin{}
-		pm, err := pluginInit(NoticePluginTypeName)
+		pm, err := pluginInit(PluginType.Notice)
 		if err != nil {
 			g.Log().Error(context.TODO(), err.Error())
 		}
@@ -42,7 +36,7 @@ func GetNoticePlugin() *SysPlugin {
 func GetProtocolPlugin() *SysPlugin {
 	once.Do(func() {
 		ins = &SysPlugin{}
-		pm, err := pluginInit(ProtocolPluginTypeName)
+		pm, err := pluginInit(PluginType.Protocol)
 		if err != nil {
 			g.Log().Error(context.TODO(), err.Error())
 		}
@@ -58,13 +52,13 @@ func pluginInit(sysPluginType string) (pm *Manager, err error) {
 	pluginsPath := g.Cfg().MustGet(context.TODO(), "system.pluginsPath").String()
 	//pluginsPath := "../plugins/built"
 	switch sysPluginType {
-	case NoticePluginTypeName:
-		pm = NewManager(sysPluginType, NoticePluginTypeName+"-*", pluginsPath, &module.NoticePlugin{})
+	case PluginType.Notice:
+		pm = NewManager(sysPluginType, PluginType.Notice+"-*", pluginsPath, &module.NoticePlugin{})
 		defer pm.Dispose()
 
 		break
-	case ProtocolPluginTypeName:
-		pm = NewManager(sysPluginType, ProtocolPluginTypeName+"-*", pluginsPath, &module.ProtocolPlugin{})
+	case PluginType.Protocol:
+		pm = NewManager(sysPluginType, PluginType.Protocol+"-*", pluginsPath, &module.ProtocolPlugin{})
 		defer pm.Dispose()
 
 		break
@@ -118,7 +112,7 @@ func (pm *SysPlugin) NoticeSend(noticeName string, msg model.NoticeInfoData) (re
 
 	var nd = new(model.NoticeData)
 	nd.Msg = msg
-	cfgData, err := getPluginsConfigData(NoticePluginTypeName, noticeName)
+	cfgData, err := getPluginsConfigData(PluginType.Notice, noticeName)
 	if err != nil {
 		return
 	}

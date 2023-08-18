@@ -33,6 +33,9 @@ func TestProtocolInfo(t *testing.T) {
 	if err != nil {
 		return
 	}
+	t.Log(p.Info().Name)
+	t.Log(p.Info().Types)
+	t.Log(p.Info().HandleType)
 	t.Log(p.Info())
 }
 

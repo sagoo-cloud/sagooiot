@@ -17,7 +17,7 @@ func init() {
 
 // Protocol 协议解析插件接口
 type Protocol interface {
-	Info() model.ModuleInfo
+	Info() model.PluginInfo
 	Encode(args interface{}) model.JsonRes
 	Decode(data model.DataReq) model.JsonRes
 }
@@ -27,8 +27,8 @@ type ProtocolRPC struct {
 	Client *rpc.Client
 }
 
-func (p *ProtocolRPC) Info() model.ModuleInfo {
-	var resp model.ModuleInfo
+func (p *ProtocolRPC) Info() model.PluginInfo {
+	var resp model.PluginInfo
 	err := p.Client.Call("Plugin.Info", new(interface{}), &resp)
 	if err != nil {
 		//希望接口返回错误
@@ -74,7 +74,7 @@ type ProtocolRPCServer struct {
 	Impl Protocol
 }
 
-func (s *ProtocolRPCServer) Info(args interface{}, resp *model.ModuleInfo) error {
+func (s *ProtocolRPCServer) Info(args interface{}, resp *model.PluginInfo) error {
 	*resp = s.Impl.Info()
 	return nil
 }

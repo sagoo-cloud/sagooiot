@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/util/gconv"
 	gplugin "github.com/hashicorp/go-plugin"
+	"github.com/sagoo-cloud/sagooiot/extend/consts/PluginType"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	extend "github.com/sagoo-cloud/sagooiot/extend/module"
 	"github.com/sagoo-cloud/sagooiot/extend/sdk"
@@ -18,15 +19,16 @@ type Options struct {
 	Body       string
 }
 
-//NoticeDingding 实现
+// NoticeDingding 实现
 type NoticeDingding struct{}
 
-func (NoticeDingding) Info() model.ModuleInfo {
-	var res = model.ModuleInfo{}
+func (NoticeDingding) Info() model.PluginInfo {
+	var res = model.PluginInfo{}
+	res.Types = PluginType.Notice
 	res.Name = "dingding"
 	res.Title = "Ding Ding"
 	res.Author = "Microrain"
-	res.Intro = "通过钉钉方式发送通知"
+	res.Description = "通过钉钉方式发送通知"
 	res.Version = "0.01"
 	return res
 }
@@ -61,10 +63,10 @@ func (NoticeDingding) Send(data []byte) (res model.JsonRes) {
 	return
 }
 
-//DingdingPlugin 插件接口实现
+// DingdingPlugin 插件接口实现
 type DingdingPlugin struct{}
 
-//Server 此方法由插件进程延迟调
+// Server 此方法由插件进程延迟调
 func (DingdingPlugin) Server(*gplugin.MuxBroker) (interface{}, error) {
 	return &extend.NoticeRPCServer{Impl: new(NoticeDingding)}, nil
 }

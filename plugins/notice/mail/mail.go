@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/util/gconv"
 	gplugin "github.com/hashicorp/go-plugin"
+	"github.com/sagoo-cloud/sagooiot/extend/consts/PluginType"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	extend "github.com/sagoo-cloud/sagooiot/extend/module"
 	"github.com/sagoo-cloud/sagooiot/extend/sdk"
@@ -14,15 +15,16 @@ import (
 
 var logger *glog.Logger
 
-//NoticeMail 实现
+// NoticeMail 实现
 type NoticeMail struct{}
 
-func (NoticeMail) Info() model.ModuleInfo {
-	var res = model.ModuleInfo{}
+func (NoticeMail) Info() model.PluginInfo {
+	var res = model.PluginInfo{}
+	res.Types = PluginType.Notice
 	res.Name = "mail"
 	res.Title = "电子邮件通知"
 	res.Author = "Microrain"
-	res.Intro = "通过电子邮件发送通知"
+	res.Description = "通过电子邮件发送通知"
 	res.Version = "0.01"
 	return res
 }
@@ -60,10 +62,10 @@ func (NoticeMail) Send(data []byte) (res model.JsonRes) {
 	return res
 }
 
-//MailPlugin 插件接口实现
+// MailPlugin 插件接口实现
 type MailPlugin struct{}
 
-//Server 此方法由插件进程延迟调
+// Server 此方法由插件进程延迟调
 func (MailPlugin) Server(*gplugin.MuxBroker) (interface{}, error) {
 	return &extend.NoticeRPCServer{Impl: new(NoticeMail)}, nil
 }

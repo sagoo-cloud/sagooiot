@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	gplugin "github.com/hashicorp/go-plugin"
+	"github.com/sagoo-cloud/sagooiot/extend/consts/PluginType"
 	"github.com/sagoo-cloud/sagooiot/extend/model"
 	extend "github.com/sagoo-cloud/sagooiot/extend/module"
 	"github.com/sagoo-cloud/sagooiot/extend/sdk"
@@ -20,15 +21,16 @@ type Options struct {
 	Body       string
 }
 
-//NoticeWework 实现
+// NoticeWework 实现
 type NoticeWework struct{}
 
-func (NoticeWework) Info() model.ModuleInfo {
-	var res = model.ModuleInfo{}
+func (NoticeWework) Info() model.PluginInfo {
+	var res = model.PluginInfo{}
+	res.Types = PluginType.Notice
 	res.Name = "wework"
 	res.Title = "企业微信通知"
 	res.Author = "Microrain"
-	res.Intro = "通过企业微信方式发送通知"
+	res.Description = "通过企业微信方式发送通知"
 	res.Version = "0.01"
 	return res
 }
@@ -72,10 +74,10 @@ func (NoticeWework) Send(data []byte) (res model.JsonRes) {
 	return
 }
 
-//WeworkPlugin 插件接口实现
+// WeworkPlugin 插件接口实现
 type WeworkPlugin struct{}
 
-//Server 此方法由插件进程延迟调
+// Server 此方法由插件进程延迟调
 func (WeworkPlugin) Server(*gplugin.MuxBroker) (interface{}, error) {
 	return &extend.NoticeRPCServer{Impl: new(NoticeWework)}, nil
 }
