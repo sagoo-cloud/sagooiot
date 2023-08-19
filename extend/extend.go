@@ -76,7 +76,7 @@ func pluginInit(sysPluginType string) (pm *Manager, err error) {
 	return
 }
 
-// GetProtocolPlugin 获取指协议名称的插件
+// Deprecated: GetProtocolPlugin 这个方法已经废弃，不建议使用。请使用GetProtocolByName
 func (pm *SysPlugin) GetProtocolPlugin(protocolName string) (obj module.Protocol, err error) {
 	//获取插件
 	p, err := pm.pluginManager.GetInterface(protocolName)
@@ -84,6 +84,29 @@ func (pm *SysPlugin) GetProtocolPlugin(protocolName string) (obj module.Protocol
 		return
 	}
 	obj = p.(module.Protocol)
+	return
+}
+
+// GetProtocolByName 获取指协议名称的插件
+func (pm *SysPlugin) GetProtocolByName(protocolName string) (obj module.Protocol, err error) {
+	//获取插件
+	p, err := pm.pluginManager.GetInterface(protocolName)
+	if err != nil {
+		return
+	}
+	obj = p.(module.Protocol)
+	return
+}
+
+// GetNoticeByName 获取指定通知名称的插件
+func (pm *SysPlugin) GetNoticeByName(noticeName string) (obj module.Notice, err error) {
+	//获取插件
+	p, err := pm.pluginManager.GetInterface(noticeName)
+	if err != nil {
+		g.Log().Error(context.Background(), err.Error())
+		return
+	}
+	obj = p.(module.Notice)
 	return
 }
 
