@@ -33,6 +33,7 @@ type ListForPageRes struct {
 
 type ListReq struct {
 	g.Meta `path:"/list" method:"get" summary:"产品列表" tags:"产品"`
+	*model.ListProductInput
 }
 type ListRes struct {
 	Product []*model.ProductOutput `json:"product" dc:"产品列表"`

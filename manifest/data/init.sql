@@ -3055,4 +3055,26 @@ INSERT INTO `sys_user_role` (`user_id`, `role_id`) VALUES (1, 1);
 INSERT INTO `sys_user_role` (`user_id`, `role_id`) VALUES (10, 7);
 COMMIT;
 
+
+-- ----------------------------
+-- Table structure for remoteconf
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `sagoo_iot`.`remoteconf`  (
+                                         `id` char(32) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '配置ID',
+                                         `config_name` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '配置名称',
+                                         `config_format` varchar(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '配置格式，json等',
+                                         `config_content` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '配置内容',
+                                         `config_size` int NOT NULL COMMENT '配置文件大小（按字节计算）',
+                                         `product_key` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '产品key',
+                                         `scope` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '配置范围：产品=product 设备=device',
+                                         `status` int NOT NULL COMMENT '状态： 0=停用 1=启用',
+                                         `contained_oss_url` tinyint(1) NULL DEFAULT NULL COMMENT '包含OssURL',
+                                         `oss_path` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'Oss文件位置',
+                                         `oss_url` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'Oss链接',
+                                         `sign` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '签名',
+                                         `sign_method` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '签名方式，sha256等',
+                                         `gmt_create` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '创建时间',
+                                         `utc_create` datetime(0) NOT NULL COMMENT 'UTC格式的创建时间',
+                                         PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
 SET FOREIGN_KEY_CHECKS = 1;

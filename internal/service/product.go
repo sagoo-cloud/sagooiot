@@ -51,7 +51,7 @@ type (
 		Detail(ctx context.Context, id uint) (out *model.DetailProductOutput, err error)
 		GetNameByIds(ctx context.Context, productIds []uint) (names map[uint]string, err error)
 		ListForPage(ctx context.Context, in *model.ListForPageInput) (out *model.ListForPageOutput, err error)
-		List(ctx context.Context) (list []*model.ProductOutput, err error)
+		List(ctx context.Context, in *model.ListProductInput) (list []*model.ProductOutput, err error)
 		Add(ctx context.Context, in *model.AddProductInput) (err error)
 		Edit(ctx context.Context, in *model.EditProductInput) (err error)
 		Del(ctx context.Context, ids []uint) (err error)

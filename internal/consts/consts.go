@@ -79,3 +79,8 @@ const (
 const (
 	DefaultProtocol = "SagooMqtt"
 )
+
+// RemoteconfLimit 远程配置文件限制
+const (
+	RemoteconfLimit = 65535
+)

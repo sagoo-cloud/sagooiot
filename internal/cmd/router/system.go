@@ -4,6 +4,7 @@ import (
 	"context"
 	alarmController "github.com/sagoo-cloud/sagooiot/internal/controller/alarm"
 	commonController "github.com/sagoo-cloud/sagooiot/internal/controller/common"
+	monitoropsController "github.com/sagoo-cloud/sagooiot/internal/controller/monitorops"
 	networkController "github.com/sagoo-cloud/sagooiot/internal/controller/network"
 	noticeController "github.com/sagoo-cloud/sagooiot/internal/controller/notice"
 	productController "github.com/sagoo-cloud/sagooiot/internal/controller/product"
@@ -11,7 +12,6 @@ import (
 	systemController "github.com/sagoo-cloud/sagooiot/internal/controller/system"
 	tdengineController "github.com/sagoo-cloud/sagooiot/internal/controller/tdengine"
 	thingController "github.com/sagoo-cloud/sagooiot/internal/controller/thing"
-
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -141,6 +141,14 @@ func System(ctx context.Context, group *ghttp.RouterGroup) {
 			noticeController.NoticeConfig,
 			noticeController.NoticeTemplate,
 			noticeController.NoticeLog,
+		)
+	})
+
+	// 监控运维相关路由
+	group.Group("/monitorops", func(group *ghttp.RouterGroup) {
+		group.Middleware(service.Middleware().Auth)
+		group.Bind(
+			monitoropsController.Remoteconf,
 		)
 	})
 

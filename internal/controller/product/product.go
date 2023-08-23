@@ -39,7 +39,7 @@ func (c *cProduct) ListForPage(ctx context.Context, req *product.ListForPageReq)
 }
 
 func (c *cProduct) List(ctx context.Context, req *product.ListReq) (res *product.ListRes, err error) {
-	list, err := service.DevProduct().List(ctx)
+	list, err := service.DevProduct().List(ctx, req.ListProductInput)
 	res = &product.ListRes{
 		Product: list,
 	}

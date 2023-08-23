@@ -18,6 +18,11 @@ type ListForPageOutput struct {
 	PaginationOutput
 }
 
+type ListProductInput struct {
+	Status string `json:"status" dc:"发布状态：0=未发布，1=已发布"`
+	Name   string `json:"name" dc:"产品名称" `
+}
+
 type ProductInput struct {
 	Name             string   `json:"name" dc:"产品名称" `
 	CategoryId       uint     `json:"categoryId" dc:"所属品类"`

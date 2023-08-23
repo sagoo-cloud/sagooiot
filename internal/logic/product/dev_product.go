@@ -158,10 +158,13 @@ func (s *sDevProduct) ListForPage(ctx context.Context, in *model.ListForPageInpu
 	return
 }
 
-func (s *sDevProduct) List(ctx context.Context) (list []*model.ProductOutput, err error) {
-	err = dao.DevProduct.Ctx(ctx).WithAll().
-		Where(dao.DevProduct.Columns().Status, model.ProductStatusOn).
-		OrderDesc(dao.DevProduct.Columns().Id).
+func (s *sDevProduct) List(ctx context.Context,in *model.ListProductInput) (list []*model.ProductOutput, err error) {
+	m := dao.DevProduct.Ctx(ctx).WithAll().
+		Where(dao.DevProduct.Columns().Status, in.Status)
+	if in.Name != "" {
+		m = m.Where(dao.DevProduct.Columns().Name+" like ?", "%"+in.Name+"%")
+	}
+	err = m.OrderDesc(dao.DevProduct.Columns().Id).
 		Scan(&list)
 	if err != nil || len(list) == 0 {
 		return
