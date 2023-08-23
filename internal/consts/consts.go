@@ -80,7 +80,13 @@ const (
 	DefaultProtocol = "SagooMqtt"
 )
 
-// RemoteconfLimit 远程配置文件限制
+// 远程配置文件限制
 const (
 	RemoteconfLimit = 65535
+)
+
+// 远程配置文件推送设备范围
+const (
+	DeviceScopeProduct = "product"
+	DeviceScopeeDvice = "device"
 )

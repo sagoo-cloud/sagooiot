@@ -16,14 +16,14 @@ type GetRemoteconfListRes struct {
 
 // AddRemoteconfReq 添加数据
 type AddRemoteconfReq struct {
-	g.Meta          `path:"/remoteconf/addThingConfig" method:"post" summary:"添加远程配置" tags:"监控运维"`
+	g.Meta `path:"/remoteconf/addThingConfig" method:"post" summary:"保存远程配置" tags:"监控运维"`
 	*model.RemoteconfAddInput
 }
 type AddRemoteconfRes struct{}
 
-// EditRemoteconfReq 编辑数据api
+// EditRemoteconfReq 批量更新配置api
 type EditRemoteconfReq struct {
-	g.Meta          `path:"/remoteconf/edit" method:"put" summary:"编辑远程配置" tags:"监控运维"`
+	g.Meta `path:"/remoteconf/pushThingConfig" method:"post" summary:"批量更新配置" tags:"监控运维"`
 	*model.RemoteconfEditInput
 }
 type EditRemoteconfRes struct{}

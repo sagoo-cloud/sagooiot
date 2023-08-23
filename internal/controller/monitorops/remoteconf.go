@@ -8,7 +8,6 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/sagoo-cloud/sagooiot/api/v1/monitorops"
 	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 )
 
@@ -58,10 +57,8 @@ func (u *cMonitoropsRemoteconf) EditRemoteconf(ctx context.Context, req *monitor
 		err = gerror.New("未登录或TOKEN失效,请重新登录")
 		return
 	}
-	var data = model.RemoteconfEditInput{}
-	gconv.Scan(req, &data)
 	// data.UpdateBy = userInfo.Id //如果需要保存信息，把这个打开
-	err = service.MonitoropsRemoteconf().EditRemoteconf(ctx, data)
+	err = service.MonitoropsRemoteconf().EditRemoteconf(ctx, *req.RemoteconfEditInput)
 	return
 }
 

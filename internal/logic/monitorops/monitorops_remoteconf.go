@@ -87,7 +87,28 @@ func (s *sMonitoropsRemoteconf) AddRemoteconf(ctx context.Context, in model.Remo
 
 // EditRemoteconf 修改数据
 func (s *sMonitoropsRemoteconf) EditRemoteconf(ctx context.Context, in model.RemoteconfEditInput) (err error) {
-	dao.Remoteconf.Ctx(ctx).FieldsEx(dao.Remoteconf.Columns().Id).Where(dao.Remoteconf.Columns().Id, in.Id).Update(in)
+	var c *entity.Remoteconf
+	err = dao.Remoteconf.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.Id).Scan(&c)
+	if err != nil {
+		return
+	}
+	if c == nil {
+		return gerror.New("远程配置文件不存在")
+	}
+	var p []*entity.DevProduct
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, c.ProductKey).Scan(&p)
+	if err != nil {
+		return
+	}
+	if p == nil {
+		return gerror.New("产品不存在")
+	}
+	//todo 向所有设备推送配置文件
+	if c.Scope == consts.DeviceScopeProduct {
+
+	}
+
+
 	return
 }
 
