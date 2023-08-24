@@ -41,7 +41,11 @@ func (u *cMonitoropsRemoteconf) AddRemoteconf(ctx context.Context, req *monitoro
 		return
 	}
 	glog.Infof(ctx,fmt.Sprintf("配置文件字节数：%d", len([]byte(req.ConfigContent))))
-	if len([]byte(req.ConfigContent)) > consts.RemoteconfLimit {
+	if len(req.ConfigSize) > consts.RemoteconfLimitKB {
+		err = gerror.New("配置文件上限64KB,请重新修改配置")
+		return
+	}
+	if len([]byte(req.ConfigContent)) > consts.RemoteconfLimitB {
 		err = gerror.New("配置文件上限64KB,请重新修改配置")
 		return
 	}

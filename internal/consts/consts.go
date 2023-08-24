@@ -82,7 +82,8 @@ const (
 
 // 远程配置文件限制
 const (
-	RemoteconfLimit = 65535
+	RemoteconfLimitB = 65535
+	RemoteconfLimitKB = 64
 )
 
 // 远程配置文件推送设备范围

@@ -80,6 +80,7 @@ func (s *sMonitoropsRemoteconf) AddRemoteconf(ctx context.Context, in model.Remo
 	param.Id = guid.S()
 	param.UtcCreate = gtime.Now().UTC()
 	param.GmtCreate = gtime.Now().Format("Y/m/d H:i:s")
+	param.ConfigName = fmt.Sprintf("%d", gtime.Now().UnixMilli())
 
 	_, err = dao.Remoteconf.Ctx(ctx).Insert(param)
 	return
