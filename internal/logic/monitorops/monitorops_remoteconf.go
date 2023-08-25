@@ -27,7 +27,7 @@ func init() {
 }
 
 // GetRemoteconfList 获取列表数据
-func (s *sMonitoropsRemoteconf) GetRemoteconfList(ctx context.Context, in *model.GetRemoteconfListInput) (total, page int, list []*model.RemoteconfOutput, err error) {
+func (s *sMonitoropsRemoteconf) GetRemoteconfList(ctx context.Context, in *model.GetRemoteconfListInput) (list []*model.RemoteconfOutput, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
 		m := dao.Remoteconf.Ctx(ctx)
 		c := dao.Remoteconf.Columns()
@@ -35,15 +35,10 @@ func (s *sMonitoropsRemoteconf) GetRemoteconfList(ctx context.Context, in *model
 			err = gerror.New("获取总行数失败")
 			return
 		}
-		page = in.PageNum
-		if in.PageSize == 0 {
-			in.PageSize = consts.PageSize
-		}
 		if in.ProductKey != "" {
 			m = m.Where(c.ProductKey, in.ProductKey)
 		}
-		total, err = m.Count()
-		err = m.Page(page, in.PageSize).Order("utc_create desc").Scan(&list)
+		err = m.Order("utc_create desc").Scan(&list)
 		if err != nil {
 			err = gerror.New("获取数据失败")
 		}
@@ -70,6 +65,7 @@ func (s *sMonitoropsRemoteconf) AddRemoteconf(ctx context.Context, in model.Remo
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
+
 	var param *do.Remoteconf
 	err = gconv.Scan(in, &param)
 	if err != nil {
@@ -81,8 +77,31 @@ func (s *sMonitoropsRemoteconf) AddRemoteconf(ctx context.Context, in model.Remo
 	param.UtcCreate = gtime.Now().UTC()
 	param.GmtCreate = gtime.Now().Format("Y/m/d H:i:s")
 	param.ConfigName = fmt.Sprintf("%d", gtime.Now().UnixMilli())
-
 	_, err = dao.Remoteconf.Ctx(ctx).Insert(param)
+	if err != nil {
+		glog.Error(ctx, err)
+		return
+	}
+
+	// 只保留最新11条记录
+	var r []*entity.Remoteconf
+	err = dao.Remoteconf.Ctx(ctx).Where(dao.Remoteconf.Columns().ProductKey, in.ProductKey).OrderDesc(dao.Remoteconf.Columns().UtcCreate).Scan(&r)
+	if err != nil {
+		glog.Error(ctx, err)
+		return
+	}
+	ids := []string{}
+	if r != nil && len(r) <= 11 {
+		return
+	}
+	for _, v := range r {
+		ids = append(ids, v.Id)
+	}
+	_, err = dao.Remoteconf.Ctx(ctx).Delete(dao.Remoteconf.Columns().Id+" in (?)", ids[11:])
+	if err != nil {
+		glog.Error(ctx, err)
+		return
+	}
 	return
 }
 

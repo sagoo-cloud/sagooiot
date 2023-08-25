@@ -14,7 +14,7 @@ import (
 type (
 	IMonitoropsRemoteconf interface {
 		// GetRemoteconfList 获取列表数据
-		GetRemoteconfList(ctx context.Context, in *model.GetRemoteconfListInput) (total, page int, list []*model.RemoteconfOutput, err error)
+		GetRemoteconfList(ctx context.Context, in *model.GetRemoteconfListInput) (list []*model.RemoteconfOutput, err error)
 		// GetRemoteconfById 获取指定ID数据
 		GetRemoteconfById(ctx context.Context, id int) (out *model.RemoteconfOutput, err error)
 		// AddRemoteconf 添加数据

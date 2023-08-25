@@ -1,7 +1,6 @@
 package model
 
 type GetRemoteconfListInput struct {
-	PaginationInput
 	RemoteconfInput
 }
 type RemoteconfInput struct {
@@ -9,7 +8,6 @@ type RemoteconfInput struct {
 }
 type RemoteconfListOutput struct {
 	Data []*RemoteconfOutput `json:"remoteconf" dc:"远程配置列表"`
-	PaginationOutput
 }
 type RemoteconfOutput struct {
 	ConfigContent string `json:"configContent"          description:"配置内容"`

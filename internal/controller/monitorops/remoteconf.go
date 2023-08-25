@@ -17,11 +17,9 @@ type cMonitoropsRemoteconf struct{}
 
 // GetRemoteconfList 获取列表
 func (u *cMonitoropsRemoteconf) GetRemoteconfList(ctx context.Context, req *monitorops.GetRemoteconfListReq) (res *monitorops.GetRemoteconfListRes, err error) {
-	total, currentPage, dataList, err := service.MonitoropsRemoteconf().GetRemoteconfList(ctx, &req.GetRemoteconfListInput)
+	dataList, err := service.MonitoropsRemoteconf().GetRemoteconfList(ctx, &req.GetRemoteconfListInput)
 	res = new(monitorops.GetRemoteconfListRes)
 	res.Data = dataList
-	res.Total = total
-	res.CurrentPage = currentPage
 	return
 }
 
