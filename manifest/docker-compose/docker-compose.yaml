@@ -1,0 +1,52 @@
+services:
+  redis:
+    image: redis:7.0.11
+    container_name: redis-server
+    restart: always
+    volumes:
+      - "./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./redis/data:/data"
+      - "./redis/logs:/logs"
+    command: ["redis-server","/usr/local/etc/redis/redis.conf"]
+    ports:
+      - 6379:6379
+  tdengine:
+    image: tdengine/tdengine:3.0.1.4
+    container_name: tdengine-server
+    restart: always
+    ports:
+      - 6030:6030
+      - 6041:6041
+  emqx:
+    image: emqx/emqx:5.0.26
+    restart: always
+    container_name: emqx-server
+    ports:
+      - 1883:1883
+      - 8083:8083
+      - 8084:8084
+      - 8883:8883
+      - 18083:18083
+  mysql:
+    image: mysql:8.0.25
+    container_name: mysql-server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: DbyTYGu3s4WuAF4TTq7
+      MYSQL_DATABASE: sagoo_iot_open
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+  nginx:
+    image: nginx:1.25.1
+    restart: always
+    container_name: nginx
+    privileged: true
+    ports:
+      - 80:80
+    volumes:
+      - "./nginx/conf/nginx.conf:/etc/nginx/nginx.conf"
+      - "./nginx/html/:/usr/share/nginx/html/"
+      - "./nginx/logs/:/var/log/nginx/"
+      
