@@ -1,8 +1,7 @@
 # 配置文件的键名命名方式统一使用小驼峰。
-
 # HTTP Server.
 server:
-  address: ":8199"
+  address: ":8200"
   serverRoot: "resource/public"
   dumpRouterMap: false
   routeOverWrite: true
@@ -19,47 +18,39 @@ server:
   errorLogPattern: "error-{Ymd}.log"  # 异常错误日志文件格式。默认为"error-{Ymd}.log"
   accessLogEnabled: true              # 是否记录访问日志。默认为false
   accessLogPattern: "access-{Ymd}.log" # 访问日志文件格式。默认为"access-{Ymd}.log"
+  https: false
+  httpsCertFile: ""
+  httpsKeyFile: ""
 
 # 数据库连接配置
 database:
   logger:
-    path: "logs/sql"
-    level: "all"
-    stdout: true
-    ctxKeys: [ "RequestId" ]
-
+  path: "resource/log/sql"
+  level: "all"
+  stdout: true
+  ctxKeys: [ "RequestId" ]
   default:
-    link: "mysql:zhgy_sagoo_cn:aasdasdaHDc6i@tcp(101.200.200.249:3306)/zhgy_sagoo_cn?loc=Local&parseTime=true"
-    debug: false #开启调试模式
-    charset: "utf8mb4" #数据库编码(如: utf8/gbk/gb2312)，一般设置为utf8
-    dryRun: false #ORM空跑(只读不写)
-    maxIdle: 10 #连接池最大闲置的连接数
-    maxOpen: 10 #连接池最大打开的连接数
-    maxLifetime: 30 #(单位秒)连接对象可重复使用的时间长度
+      link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3306)/sagoo_iot_open?loc=Local&parseTime=true"
+      debug: false #开启调试模式
+      charset: "utf8mb4" #数据库编码(如: utf8/gbk/gb2312)，一般设置为utf8
+      dryRun: false #ORM空跑(只读不写)
+      maxIdle: 10 #连接池最大闲置的连接数
+      maxOpen: 10 #连接池最大打开的连接数
+      maxLifetime: 30 #(单位秒)连接对象可重复使用的时间长度
 
-#  dataCenter:
-#    link: "mysql:zhgy_sagoo_cn:aRwerwqrewrc6i@tcp(101.200.200.249:3306)/zhgy_sagoo_cn"
-#    debug: true
-#    charset: "utf8mb4" #数据库编码
-#    dryRun: false #ORM空跑(只读不写)
-#    maxIdle: 10 #连接池最大闲置的连接数
-#    maxOpen: 10 #连接池最大打开的连接数
-#    maxLifetime: 30 #(单位秒)连接对象可重复使用的时间长度
-
-# TDengine配置
+#TDengine配置
 tdengine:
   type: "taosRestful" #http连接方式，端口是6041
-  dsn: "zhgy_iot:sdfsdfsdf@http(101.200.200.249:6041)/"
+  dsn: "root:taosdata@http(127.0.0.1:6041)/"
   dbName: "sagoo_iot"
-
-# 采用原生的时候，需要将sagoo-admin/internal/logic/tdengine下的td_engine.go文件里import中的原生驱动打开
-#  type: "taosSql" #原生连接方式，端口是6030
-#  dsn: "zhgy_iot:fsfadfas@tcp(101.200.200.249:6030)/"
+  maxOpenConns: 10
+  maxIdleConns: 5
 
 # 文件上传设置
 upload:
   path: "upload"
 
+#日志文件
 logger:
   path: "resource/log/run"
   file: "{Y-m-d}.log"
@@ -72,31 +63,32 @@ gfToken:
   timeOut: 10800         #token超时时间（秒）
   maxRefresh: 5400       #token自动刷新时间（秒）
   multiLogin: true       #是否允许一个账号多人同时登录
-  encryptKey: "49c54195e750b09e74a8429b17896321"    #加密key (32位)
+  encryptKey: "49c54195e750b04e74a8429b17896586"    #加密key (32位)
   excludePaths: #排除不做登录验证的路由地址
-    - "/api/v1/login"
+        - "/api/v1/login"
 
 # Redis 配置示例
 redis:
   # 单实例配置
   default:
-    address: r-2zesfsdfsdfdasda.redis.rds.aliyuncs.com:6379
-    db: 1
-    pass: FDassfsdfsdut
-    idleTimeout: 600
-    maxActive: 100
+     address: 127.0.0.1:6379
+     db: 0
+     pass: FDXLK3LdGYYk9mut
+     idleTimeout: 600
+     maxActive: 100
 
-# 这个mqtt客户端主要是服务端内部处理消息使用的通道
+#这个mqtt客户端主要是服务端内部处理消息使用的通道
 mqtt:
-  addr: 101.200.200.249:1883
+  addr: 127.0.0.1:1883
   # 最好带上服务名称，变成唯一id
-  clientId: example1233
-  auth:
-    userName: fadaad
-    userPassWorld: 123456
+  clientId: sagoo-iot-open-001
+  deviceLiveDuration: 30
+#  auth:
+#    userName: admin
+#    userPassWorld: 123456
 
 system:
   pluginsPath: "./plugins/built"
   cache:
-    prefix: "SagooZhgy_" #缓存前缀
+    prefix: "SagooIOT_" #缓存前缀
     model: "redis"  #存储引擎 （memory使用内存|redis使用redis）

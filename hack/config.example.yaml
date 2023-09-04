@@ -1,0 +1,19 @@
+
+# 工具相关配置
+gfcli:
+  # 工具编译配置
+  build:
+    name:     "focus"
+    arch:     "amd64"
+    system:   "linux,darwin,windows"
+    mod:      ""
+    cgo:      0
+
+  # dao生成
+  gen:
+    dao:
+      - link:   "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3306)/sagoo_iot_open?loc=Local&parseTime=true"
+        tables:         "network_server"
+        removePrefix:    "gf_"
+        descriptionTag:  true
+        noModelComment:  true

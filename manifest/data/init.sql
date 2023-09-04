@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : Sagoo IOT
+ Source Server         : 本地-MYSQL
  Source Server Type    : MySQL
- Source Server Version : 50650 (5.6.50-log)
- Source Host           : 101.200.198.249:3306
- Source Schema         : sagoo-iot
+ Source Server Version : 80030 (8.0.30)
+ Source Host           : localhost:3306
+ Source Schema         : sagoo_iot_open
 
  Target Server Type    : MySQL
- Target Server Version : 50650 (5.6.50-log)
+ Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 01/01/2023 22:52:58
+ Date: 04/09/2023 17:04:30
 */
 
 SET NAMES utf8mb4;
@@ -22,10 +22,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `alarm_level`;
 CREATE TABLE `alarm_level` (
-  `level` int(10) unsigned NOT NULL COMMENT '告警级别',
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
-  PRIMARY KEY (`level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                               `level` int unsigned NOT NULL COMMENT '告警级别',
+                               `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+                               PRIMARY KEY (`level`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Records of alarm_level
@@ -43,21 +43,21 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `alarm_log`;
 CREATE TABLE `alarm_log` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `type` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '告警类型：1=规则告警，2=设备自主告警',
-  `rule_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '规则id',
-  `rule_name` varchar(255) NOT NULL DEFAULT '' COMMENT '规则名称',
-  `level` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '告警级别',
-  `data` text COMMENT '触发告警的数据',
-  `product_key` varchar(255) NOT NULL DEFAULT '' COMMENT '产品标识',
-  `device_key` varchar(255) NOT NULL DEFAULT '' COMMENT '设备标识',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '告警状态：0=未处理，1=已处理',
-  `created_at` datetime DEFAULT NULL COMMENT '告警时间',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '告警处理人员',
-  `updated_at` datetime DEFAULT NULL COMMENT '处理时间',
-  `content` varchar(500) NOT NULL COMMENT '处理意见',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=136208 DEFAULT CHARSET=utf8;
+                             `id` bigint NOT NULL AUTO_INCREMENT,
+                             `type` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '告警类型：1=规则告警，2=设备自主告警',
+                             `rule_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '规则id',
+                             `rule_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '规则名称',
+                             `level` int unsigned NOT NULL DEFAULT '0' COMMENT '告警级别',
+                             `data` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '触发告警的数据',
+                             `product_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '产品标识',
+                             `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                             `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '告警状态：0=未处理，1=已处理',
+                             `created_at` datetime DEFAULT NULL COMMENT '告警时间',
+                             `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '告警处理人员',
+                             `updated_at` datetime DEFAULT NULL COMMENT '处理时间',
+                             `content` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '处理意见',
+                             PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=136208 DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Records of alarm_log
@@ -71,23 +71,23 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `alarm_rule`;
 CREATE TABLE `alarm_rule` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '告警规则名称',
-  `level` int(10) unsigned NOT NULL DEFAULT '4' COMMENT '告警级别，默认：4（一般）',
-  `product_key` varchar(255) NOT NULL DEFAULT '' COMMENT '产品标识',
-  `device_key` varchar(255) NOT NULL DEFAULT '' COMMENT '设备标识',
-  `trigger_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型：1=上线，2=离线，3=属性上报',
-  `trigger_condition` text COMMENT '触发条件',
-  `action` text COMMENT '执行动作',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未启用，1=已启用',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+                              `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                              `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '告警规则名称',
+                              `level` int unsigned NOT NULL DEFAULT '4' COMMENT '告警级别，默认：4（一般）',
+                              `product_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '产品标识',
+                              `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                              `trigger_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型：1=上线，2=离线，3=属性上报',
+                              `trigger_condition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '触发条件',
+                              `action` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '执行动作',
+                              `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未启用，1=已启用',
+                              `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                              `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                              `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                              `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                              `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                              `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                              PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Records of alarm_rule
@@ -116,24 +116,24 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `base_db_link`;
 CREATE TABLE `base_db_link` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL COMMENT '名称',
-  `types` varchar(20) NOT NULL COMMENT '驱动类型 mysql或oracle',
-  `host` varchar(255) NOT NULL COMMENT '主机地址',
-  `port` int(11) NOT NULL COMMENT '端口号',
-  `user_name` varchar(30) NOT NULL COMMENT '用户名称',
-  `password` varchar(50) NOT NULL COMMENT '密码',
-  `description` varchar(255) DEFAULT NULL COMMENT '描述',
-  `status` int(11) NOT NULL COMMENT '状态 0 停用 1启用',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_by` int(11) DEFAULT NULL COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='数据源连接';
+                                `id` int NOT NULL AUTO_INCREMENT,
+                                `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
+                                `types` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '驱动类型 mysql或oracle',
+                                `host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主机地址',
+                                `port` int NOT NULL COMMENT '端口号',
+                                `user_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户名称',
+                                `password` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '密码',
+                                `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+                                `status` int NOT NULL COMMENT '状态 0 停用 1启用',
+                                `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                `updated_by` int DEFAULT NULL COMMENT '修改人',
+                                `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='数据源连接';
 
 -- ----------------------------
 -- Records of base_db_link
@@ -148,14 +148,14 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `casbin_rule`;
 CREATE TABLE `casbin_rule` (
-  `ptype` varchar(10) DEFAULT NULL,
-  `v0` varchar(256) DEFAULT NULL,
-  `v1` varchar(256) DEFAULT NULL,
-  `v2` varchar(256) DEFAULT NULL,
-  `v3` varchar(256) DEFAULT NULL,
-  `v4` varchar(256) DEFAULT NULL,
-  `v5` varchar(256) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
+                               `ptype` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                               `v0` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                               `v1` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                               `v2` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                               `v3` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                               `v4` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+                               `v5` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of casbin_rule
@@ -168,21 +168,21 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `city_data`;
 CREATE TABLE `city_data` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL COMMENT '名字',
-  `code` varchar(50) NOT NULL COMMENT '编码',
-  `parent_id` int(11) NOT NULL COMMENT '父ID',
-  `sort` int(11) DEFAULT NULL COMMENT '排序',
-  `status` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '状态;0:禁用;1:正常',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(11) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建日期',
-  `updated_by` int(11) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COMMENT='城市结构表';
+                             `id` int NOT NULL AUTO_INCREMENT,
+                             `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '名字',
+                             `code` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '编码',
+                             `parent_id` int NOT NULL COMMENT '父ID',
+                             `sort` int DEFAULT NULL COMMENT '排序',
+                             `status` int unsigned NOT NULL DEFAULT '0' COMMENT '状态;0:禁用;1:正常',
+                             `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                             `created_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                             `created_at` datetime DEFAULT NULL COMMENT '创建日期',
+                             `updated_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                             `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
+                             `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                             `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                             PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COMMENT='城市结构表';
 
 -- ----------------------------
 -- Records of city_data
@@ -214,22 +214,22 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `data_node`;
 CREATE TABLE `data_node` (
-  `node_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `source_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '数据节点名称',
-  `key` varchar(255) NOT NULL DEFAULT '' COMMENT '数据节点标识',
-  `data_type` varchar(255) NOT NULL DEFAULT '' COMMENT '数据类型',
-  `value` varchar(255) NOT NULL DEFAULT '' COMMENT '取值项',
-  `is_pk` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主键：0=否，1=是',
-  `rule` text COMMENT '规则配置json',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`node_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=389 DEFAULT CHARSET=utf8 COMMENT='数据节点';
+                             `node_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                             `source_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
+                             `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据节点名称',
+                             `key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据节点标识',
+                             `data_type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据类型',
+                             `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '取值项',
+                             `is_pk` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主键：0=否，1=是',
+                             `rule` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '规则配置json',
+                             `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                             `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                             `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                             `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                             `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                             `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                             PRIMARY KEY (`node_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=389 DEFAULT CHARSET=utf8mb3 COMMENT='数据节点';
 
 -- ----------------------------
 -- Records of data_node
@@ -271,24 +271,24 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source`;
 CREATE TABLE `data_source` (
-  `source_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '数据源名称',
-  `key` varchar(255) NOT NULL DEFAULT '' COMMENT '数据源标识',
-  `desc` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
-  `from` tinyint(1) NOT NULL DEFAULT '1' COMMENT '数据来源：1=api导入，2=数据库，3=文件，4=设备',
-  `config` text COMMENT '数据源配置json：api配置、数据库配置、文件配置',
-  `rule` text COMMENT '规则配置json',
-  `lock_key` tinyint(1) NOT NULL DEFAULT '1' COMMENT '锁定key标识：0=未锁定，1=锁定，不允许修改',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未发布，1=已发布',
-  `data_table` varchar(255) NOT NULL DEFAULT '' COMMENT '数据表名称',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`source_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8 COMMENT='数据源';
+                               `source_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                               `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据源名称',
+                               `key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据源标识',
+                               `desc` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '描述',
+                               `from` tinyint(1) NOT NULL DEFAULT '1' COMMENT '数据来源：1=api导入，2=数据库，3=文件，4=设备',
+                               `config` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '数据源配置json：api配置、数据库配置、文件配置',
+                               `rule` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '规则配置json',
+                               `lock_key` tinyint(1) NOT NULL DEFAULT '1' COMMENT '锁定key标识：0=未锁定，1=锁定，不允许修改',
+                               `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未发布，1=已发布',
+                               `data_table` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据表名称',
+                               `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                               `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                               `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                               `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                               `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                               `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                               PRIMARY KEY (`source_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb3 COMMENT='数据源';
 
 -- ----------------------------
 -- Records of data_source
@@ -303,70 +303,598 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source_78`;
 CREATE TABLE `data_source_78` (
-  `adcode` int(11) DEFAULT '0' COMMENT '区域编码',
-  `weather` varchar(500) DEFAULT '' COMMENT '天气现象',
-  `temperature` varchar(500) DEFAULT '' COMMENT '实时气温，单位：摄氏度',
-  `winddirection` varchar(500) DEFAULT '' COMMENT '风向描述',
-  `windpower` varchar(500) DEFAULT '' COMMENT '风力级别',
-  `humidity` varchar(500) DEFAULT '' COMMENT '空气湿度',
-  `reporttime` datetime DEFAULT NULL COMMENT '数据发布时间',
-  `province` varchar(500) DEFAULT '' COMMENT '省份名',
-  `city` varchar(500) DEFAULT '' COMMENT '城市名',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `rcity` varchar(255) DEFAULT '' COMMENT '关联字段'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                                  `adcode` int DEFAULT '0' COMMENT '区域编码',
+                                  `weather` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '天气现象',
+                                  `temperature` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '实时气温，单位：摄氏度',
+                                  `winddirection` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风向描述',
+                                  `windpower` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风力级别',
+                                  `humidity` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '空气湿度',
+                                  `reporttime` datetime DEFAULT NULL COMMENT '数据发布时间',
+                                  `province` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '省份名',
+                                  `city` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '城市名',
+                                  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                  `rcity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '关联字段'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- ----------------------------
+-- Records of data_source_78
+-- ----------------------------
+BEGIN;
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '东', '≤3', '74', '2023-03-13 23:47:50', '辽宁', '沈阳市', '2023-03-14 00:00:01', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '3', '东南', '≤3', '68', '2023-03-13 23:47:49', '辽宁', '丹东市', '2023-03-14 00:00:01', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '东', '≤3', '24', '2023-03-13 23:50:32', '吉林', '长春市', '2023-03-14 00:00:01', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '东', '≤3', '67', '2023-03-13 23:47:52', '辽宁', '辽阳市', '2023-03-14 00:00:01', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东', '≤3', '49', '2023-03-13 23:47:51', '辽宁', '开原市', '2023-03-14 00:00:01', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '46', '2023-03-13 23:47:51', '辽宁', '铁岭市', '2023-03-14 00:00:01', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '东南', '≤3', '75', '2023-03-14 00:47:58', '辽宁', '沈阳市', '2023-03-14 01:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '≤3', '71', '2023-03-14 00:47:57', '辽宁', '丹东市', '2023-03-14 01:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '24', '2023-03-14 00:50:21', '吉林', '长春市', '2023-03-14 01:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '东', '≤3', '68', '2023-03-14 00:48:00', '辽宁', '辽阳市', '2023-03-14 01:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '51', '2023-03-14 00:47:59', '辽宁', '开原市', '2023-03-14 01:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '51', '2023-03-14 00:47:59', '辽宁', '铁岭市', '2023-03-14 01:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '2', '东', '≤3', '73', '2023-03-14 01:47:48', '辽宁', '沈阳市', '2023-03-14 02:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '≤3', '72', '2023-03-14 01:47:47', '辽宁', '丹东市', '2023-03-14 02:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '26', '2023-03-14 01:50:13', '吉林', '长春市', '2023-03-14 02:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '东', '≤3', '67', '2023-03-14 01:47:50', '辽宁', '辽阳市', '2023-03-14 02:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '49', '2023-03-14 01:47:49', '辽宁', '开原市', '2023-03-14 02:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '55', '2023-03-14 01:47:49', '辽宁', '铁岭市', '2023-03-14 02:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '2', '东', '≤3', '73', '2023-03-14 02:47:56', '辽宁', '沈阳市', '2023-03-14 03:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '≤3', '74', '2023-03-14 02:47:56', '辽宁', '丹东市', '2023-03-14 03:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '27', '2023-03-14 02:50:25', '吉林', '长春市', '2023-03-14 03:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '东南', '≤3', '67', '2023-03-14 02:47:58', '辽宁', '辽阳市', '2023-03-14 03:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '52', '2023-03-14 02:47:57', '辽宁', '开原市', '2023-03-14 03:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '60', '2023-03-14 02:47:57', '辽宁', '铁岭市', '2023-03-14 03:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '东', '≤3', '77', '2023-03-14 03:47:48', '辽宁', '沈阳市', '2023-03-14 04:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '≤3', '75', '2023-03-14 03:47:47', '辽宁', '丹东市', '2023-03-14 04:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '33', '2023-03-14 03:50:16', '吉林', '长春市', '2023-03-14 04:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '东北', '≤3', '68', '2023-03-14 03:47:50', '辽宁', '辽阳市', '2023-03-14 04:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '55', '2023-03-14 03:47:49', '辽宁', '开原市', '2023-03-14 04:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '63', '2023-03-14 03:47:49', '辽宁', '铁岭市', '2023-03-14 04:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '东北', '≤3', '85', '2023-03-14 04:47:48', '辽宁', '沈阳市', '2023-03-14 05:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '≤3', '76', '2023-03-14 04:47:47', '辽宁', '丹东市', '2023-03-14 05:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '38', '2023-03-14 04:50:11', '吉林', '长春市', '2023-03-14 05:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '东', '≤3', '68', '2023-03-14 04:47:50', '辽宁', '辽阳市', '2023-03-14 05:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '59', '2023-03-14 04:47:49', '辽宁', '开原市', '2023-03-14 05:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '65', '2023-03-14 04:47:49', '辽宁', '铁岭市', '2023-03-14 05:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西北', '≤3', '85', '2023-03-14 05:48:40', '辽宁', '沈阳市', '2023-03-14 06:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '4', '77', '2023-03-14 05:48:39', '辽宁', '丹东市', '2023-03-14 06:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '42', '2023-03-14 05:51:54', '吉林', '长春市', '2023-03-14 06:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '东南', '≤3', '67', '2023-03-14 05:48:46', '辽宁', '辽阳市', '2023-03-14 06:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '61', '2023-03-14 05:48:42', '辽宁', '开原市', '2023-03-14 06:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东南', '≤3', '67', '2023-03-14 05:48:42', '辽宁', '铁岭市', '2023-03-14 06:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '东北', '≤3', '88', '2023-03-14 06:47:49', '辽宁', '沈阳市', '2023-03-14 07:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '4', '78', '2023-03-14 06:47:48', '辽宁', '丹东市', '2023-03-14 07:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '东', '≤3', '44', '2023-03-14 06:50:24', '吉林', '长春市', '2023-03-14 07:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '6', '东南', '≤3', '67', '2023-03-14 06:47:51', '辽宁', '辽阳市', '2023-03-14 07:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '东北', '≤3', '64', '2023-03-14 06:47:50', '辽宁', '开原市', '2023-03-14 07:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '68', '2023-03-14 06:47:49', '辽宁', '铁岭市', '2023-03-14 07:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '东南', '≤3', '88', '2023-03-14 07:48:23', '辽宁', '沈阳市', '2023-03-14 08:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东南', '4', '78', '2023-03-14 07:48:22', '辽宁', '丹东市', '2023-03-14 08:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '东', '≤3', '46', '2023-03-14 07:51:57', '吉林', '长春市', '2023-03-14 08:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '6', '东南', '≤3', '67', '2023-03-14 07:48:26', '辽宁', '辽阳市', '2023-03-14 08:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '1', '东北', '≤3', '67', '2023-03-14 07:48:24', '辽宁', '开原市', '2023-03-14 08:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '东', '≤3', '69', '2023-03-14 07:48:24', '辽宁', '铁岭市', '2023-03-14 08:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '南', '≤3', '72', '2023-03-14 08:47:49', '辽宁', '沈阳市', '2023-03-14 09:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '东南', '4', '78', '2023-03-14 08:47:48', '辽宁', '丹东市', '2023-03-14 09:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '东', '≤3', '45', '2023-03-14 08:50:14', '吉林', '长春市', '2023-03-14 09:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '7', '东南', '≤3', '64', '2023-03-14 08:47:51', '辽宁', '辽阳市', '2023-03-14 09:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '东北', '≤3', '65', '2023-03-14 08:47:49', '辽宁', '开原市', '2023-03-14 09:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '东', '≤3', '66', '2023-03-14 08:47:49', '辽宁', '铁岭市', '2023-03-14 09:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '7', '南', '≤3', '61', '2023-03-14 09:47:45', '辽宁', '沈阳市', '2023-03-14 10:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '东南', '≤3', '78', '2023-03-14 09:47:45', '辽宁', '丹东市', '2023-03-14 10:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '东南', '≤3', '45', '2023-03-14 09:50:04', '吉林', '长春市', '2023-03-14 10:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '9', '东南', '≤3', '59', '2023-03-14 09:47:47', '辽宁', '辽阳市', '2023-03-14 10:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '东北', '≤3', '63', '2023-03-14 09:47:46', '辽宁', '开原市', '2023-03-14 10:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '6', '东', '≤3', '59', '2023-03-14 09:47:46', '辽宁', '铁岭市', '2023-03-14 10:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '8', '南', '≤3', '58', '2023-03-14 10:47:43', '辽宁', '沈阳市', '2023-03-14 11:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '东南', '4', '78', '2023-03-14 10:47:43', '辽宁', '丹东市', '2023-03-14 11:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '东南', '≤3', '50', '2023-03-14 10:49:56', '吉林', '长春市', '2023-03-14 11:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '9', '南', '≤3', '58', '2023-03-14 10:47:45', '辽宁', '辽阳市', '2023-03-14 11:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '6', '东南', '≤3', '59', '2023-03-14 10:47:44', '辽宁', '开原市', '2023-03-14 11:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '8', '西北', '≤3', '55', '2023-03-14 10:47:44', '辽宁', '铁岭市', '2023-03-14 11:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '10', '南', '≤3', '48', '2023-03-14 11:47:44', '辽宁', '沈阳市', '2023-03-14 12:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '5', '75', '2023-03-14 11:47:43', '辽宁', '丹东市', '2023-03-14 12:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '2', '东南', '≤3', '56', '2023-03-14 11:50:08', '吉林', '长春市', '2023-03-14 12:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '11', '东南', '≤3', '52', '2023-03-14 11:47:46', '辽宁', '辽阳市', '2023-03-14 12:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '8', '南', '≤3', '55', '2023-03-14 11:47:45', '辽宁', '开原市', '2023-03-14 12:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '9', '西', '≤3', '52', '2023-03-14 11:47:45', '辽宁', '铁岭市', '2023-03-14 12:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '11', '南', '≤3', '44', '2023-03-14 12:47:48', '辽宁', '沈阳市', '2023-03-14 13:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '76', '2023-03-14 12:47:47', '辽宁', '丹东市', '2023-03-14 13:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '大雪', '1', '东南', '≤3', '79', '2023-03-14 12:50:14', '吉林', '长春市', '2023-03-14 13:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '12', '南', '≤3', '46', '2023-03-14 12:47:50', '辽宁', '辽阳市', '2023-03-14 13:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '9', '南', '≤3', '52', '2023-03-14 12:47:49', '辽宁', '开原市', '2023-03-14 13:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '9', '西', '≤3', '49', '2023-03-14 12:47:49', '辽宁', '铁岭市', '2023-03-14 13:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '13', '南', '≤3', '42', '2023-03-14 13:47:44', '辽宁', '沈阳市', '2023-03-14 14:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '75', '2023-03-14 13:47:43', '辽宁', '丹东市', '2023-03-14 14:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '大雪', '1', '东南', '≤3', '94', '2023-03-14 13:49:59', '吉林', '长春市', '2023-03-14 14:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '12', '南', '≤3', '46', '2023-03-14 13:47:46', '辽宁', '辽阳市', '2023-03-14 14:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '9', '西南', '≤3', '50', '2023-03-14 13:47:45', '辽宁', '开原市', '2023-03-14 14:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '10', '西', '≤3', '47', '2023-03-14 13:47:45', '辽宁', '铁岭市', '2023-03-14 14:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '12', '东南', '≤3', '44', '2023-03-14 14:48:01', '辽宁', '沈阳市', '2023-03-14 15:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '4', '76', '2023-03-14 14:48:00', '辽宁', '丹东市', '2023-03-14 15:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '雨夹雪', '1', '东', '≤3', '94', '2023-03-14 14:50:33', '吉林', '长春市', '2023-03-14 15:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '13', '东南', '≤3', '44', '2023-03-14 14:48:04', '辽宁', '辽阳市', '2023-03-14 15:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '11', '南', '≤3', '45', '2023-03-14 14:48:02', '辽宁', '开原市', '2023-03-14 15:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '12', '西', '≤3', '44', '2023-03-14 14:48:02', '辽宁', '铁岭市', '2023-03-14 15:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '12', '东南', '≤3', '46', '2023-03-14 15:48:01', '辽宁', '沈阳市', '2023-03-14 16:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '74', '2023-03-14 15:48:00', '辽宁', '丹东市', '2023-03-14 16:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '雾', '3', '东', '≤3', '90', '2023-03-14 15:50:25', '吉林', '长春市', '2023-03-14 16:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '13', '东南', '≤3', '42', '2023-03-14 15:48:03', '辽宁', '辽阳市', '2023-03-14 16:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '11', '西南', '≤3', '43', '2023-03-14 15:48:02', '辽宁', '开原市', '2023-03-14 16:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '12', '西', '≤3', '42', '2023-03-14 15:48:02', '辽宁', '铁岭市', '2023-03-14 16:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '11', '东南', '≤3', '47', '2023-03-14 16:48:08', '辽宁', '沈阳市', '2023-03-14 17:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '74', '2023-03-14 16:48:06', '辽宁', '丹东市', '2023-03-14 17:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '小雨', '3', '东', '≤3', '89', '2023-03-14 16:50:25', '吉林', '长春市', '2023-03-14 17:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '12', '南', '≤3', '46', '2023-03-14 16:48:10', '辽宁', '辽阳市', '2023-03-14 17:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '8', '西南', '≤3', '58', '2023-03-14 16:48:08', '辽宁', '开原市', '2023-03-14 17:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '8', '西南', '≤3', '56', '2023-03-14 16:48:08', '辽宁', '铁岭市', '2023-03-14 17:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '10', '南', '≤3', '50', '2023-03-14 17:48:00', '辽宁', '沈阳市', '2023-03-14 18:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '76', '2023-03-14 17:47:59', '辽宁', '丹东市', '2023-03-14 18:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '小雨', '3', '东北', '≤3', '93', '2023-03-14 17:50:35', '吉林', '长春市', '2023-03-14 18:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '11', '南', '≤3', '47', '2023-03-14 17:48:02', '辽宁', '辽阳市', '2023-03-14 18:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '6', '西', '≤3', '61', '2023-03-14 17:48:01', '辽宁', '开原市', '2023-03-14 18:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '7', '西南', '≤3', '61', '2023-03-14 17:48:01', '辽宁', '铁岭市', '2023-03-14 18:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '10', '南', '≤3', '53', '2023-03-14 18:47:51', '辽宁', '沈阳市', '2023-03-14 19:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '南', '≤3', '78', '2023-03-14 18:47:50', '辽宁', '丹东市', '2023-03-14 19:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '小雨', '2', '西南', '≤3', '98', '2023-03-14 18:50:25', '吉林', '长春市', '2023-03-14 19:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '10', '南', '≤3', '52', '2023-03-14 18:47:53', '辽宁', '辽阳市', '2023-03-14 19:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '5', '西南', '≤3', '65', '2023-03-14 18:47:51', '辽宁', '开原市', '2023-03-14 19:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '6', '西南', '≤3', '63', '2023-03-14 18:47:51', '辽宁', '铁岭市', '2023-03-14 19:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '9', '东南', '≤3', '58', '2023-03-14 19:47:50', '辽宁', '沈阳市', '2023-03-14 20:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '东南', '4', '79', '2023-03-14 19:47:49', '辽宁', '丹东市', '2023-03-14 20:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '小雨', '3', '西南', '≤3', '92', '2023-03-14 19:50:12', '吉林', '长春市', '2023-03-14 20:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '9', '南', '≤3', '59', '2023-03-14 19:47:52', '辽宁', '辽阳市', '2023-03-14 20:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '中雨', '4', '西', '≤3', '86', '2023-03-14 19:47:51', '辽宁', '开原市', '2023-03-14 20:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '小雨', '4', '西南', '≤3', '74', '2023-03-14 19:47:51', '辽宁', '铁岭市', '2023-03-14 20:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '小雨', '8', '西', '≤3', '64', '2023-03-14 20:48:00', '辽宁', '沈阳市', '2023-03-14 21:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '78', '2023-03-14 20:47:59', '辽宁', '丹东市', '2023-03-14 21:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '小雨', '3', '西南', '≤3', '84', '2023-03-14 20:50:27', '吉林', '长春市', '2023-03-14 21:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '9', '南', '≤3', '63', '2023-03-14 20:48:02', '辽宁', '辽阳市', '2023-03-14 21:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '小雨', '3', '东南', '≤3', '90', '2023-03-14 20:48:01', '辽宁', '开原市', '2023-03-14 21:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '小雨', '4', '西南', '≤3', '100', '2023-03-14 20:48:01', '辽宁', '铁岭市', '2023-03-14 21:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '小雨', '6', '西', '4', '75', '2023-03-14 21:47:58', '辽宁', '沈阳市', '2023-03-14 22:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '78', '2023-03-14 21:47:57', '辽宁', '丹东市', '2023-03-14 22:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '雾', '2', '西南', '4', '80', '2023-03-14 21:50:28', '吉林', '长春市', '2023-03-14 22:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '8', '西', '≤3', '67', '2023-03-14 21:48:00', '辽宁', '辽阳市', '2023-03-14 22:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '南', '≤3', '88', '2023-03-14 21:47:59', '辽宁', '开原市', '2023-03-14 22:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '雾', '5', '西', '≤3', '94', '2023-03-14 21:47:59', '辽宁', '铁岭市', '2023-03-14 22:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '小雨', '5', '西', '≤3', '81', '2023-03-14 22:48:02', '辽宁', '沈阳市', '2023-03-14 23:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '南', '≤3', '81', '2023-03-14 22:48:01', '辽宁', '丹东市', '2023-03-14 23:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '2', '西', '4', '64', '2023-03-14 22:50:40', '吉林', '长春市', '2023-03-14 23:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '小雨', '8', '北', '≤3', '66', '2023-03-14 22:48:04', '辽宁', '辽阳市', '2023-03-14 23:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '西', '≤3', '65', '2023-03-14 22:48:03', '辽宁', '开原市', '2023-03-14 23:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '5', '西南', '≤3', '61', '2023-03-14 22:48:03', '辽宁', '铁岭市', '2023-03-14 23:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '6', '西北', '≤3', '27', '2023-03-14 23:47:48', '辽宁', '沈阳市', '2023-03-15 00:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '南', '≤3', '84', '2023-03-14 23:47:47', '辽宁', '丹东市', '2023-03-15 00:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '4', '45', '2023-03-14 23:50:13', '吉林', '长春市', '2023-03-15 00:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '7', '西北', '≤3', '38', '2023-03-14 23:47:50', '辽宁', '辽阳市', '2023-03-15 00:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '西', '4', '41', '2023-03-14 23:47:49', '辽宁', '开原市', '2023-03-15 00:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '5', '西南', '≤3', '38', '2023-03-14 23:47:49', '辽宁', '铁岭市', '2023-03-15 00:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '5', '西北', '≤3', '25', '2023-03-15 00:47:57', '辽宁', '沈阳市', '2023-03-15 01:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '南', '≤3', '85', '2023-03-15 00:47:56', '辽宁', '丹东市', '2023-03-15 01:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '4', '43', '2023-03-15 00:50:11', '吉林', '长春市', '2023-03-15 01:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '6', '北', '≤3', '28', '2023-03-15 00:47:59', '辽宁', '辽阳市', '2023-03-15 01:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '西', '≤3', '40', '2023-03-15 00:47:58', '辽宁', '开原市', '2023-03-15 01:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '3', '西南', '≤3', '35', '2023-03-15 00:47:58', '辽宁', '铁岭市', '2023-03-15 01:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西北', '≤3', '24', '2023-03-15 01:47:50', '辽宁', '沈阳市', '2023-03-15 02:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '南', '≤3', '88', '2023-03-15 01:47:49', '辽宁', '丹东市', '2023-03-15 02:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西', '4', '47', '2023-03-15 01:50:15', '吉林', '长春市', '2023-03-15 02:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '北', '≤3', '29', '2023-03-15 01:47:52', '辽宁', '辽阳市', '2023-03-15 02:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '西', '≤3', '37', '2023-03-15 01:47:51', '辽宁', '开原市', '2023-03-15 02:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西北', '≤3', '35', '2023-03-15 01:47:51', '辽宁', '铁岭市', '2023-03-15 02:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西', '≤3', '26', '2023-03-15 03:48:01', '辽宁', '沈阳市', '2023-03-15 04:00:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '小雨', '4', '北', '4', '77', '2023-03-15 03:48:01', '辽宁', '丹东市', '2023-03-15 04:00:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '西南', '4', '52', '2023-03-15 03:50:12', '吉林', '长春市', '2023-03-15 04:00:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '3', '西北', '≤3', '30', '2023-03-15 03:48:04', '辽宁', '辽阳市', '2023-03-15 04:00:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '西南', '≤3', '45', '2023-03-15 03:48:02', '辽宁', '开原市', '2023-03-15 04:00:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西北', '≤3', '35', '2023-03-15 03:48:02', '辽宁', '铁岭市', '2023-03-15 04:00:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '2', '西', '≤3', '27', '2023-03-15 04:47:44', '辽宁', '沈阳市', '2023-03-15 05:00:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '北', '4', '56', '2023-03-15 04:47:43', '辽宁', '丹东市', '2023-03-15 05:00:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西南', '4', '53', '2023-03-15 04:49:57', '吉林', '长春市', '2023-03-15 05:00:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '2', '北', '≤3', '33', '2023-03-15 04:47:46', '辽宁', '辽阳市', '2023-03-15 05:00:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西', '≤3', '47', '2023-03-15 04:47:45', '辽宁', '开原市', '2023-03-15 05:00:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '41', '2023-03-15 04:47:45', '辽宁', '铁岭市', '2023-03-15 05:00:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '西北', '≤3', '30', '2023-03-15 05:48:38', '辽宁', '沈阳市', '2023-03-15 06:00:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '北', '5', '44', '2023-03-15 05:48:37', '辽宁', '丹东市', '2023-03-15 06:00:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西', '4', '53', '2023-03-15 05:52:59', '吉林', '长春市', '2023-03-15 06:00:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '2', '西', '≤3', '33', '2023-03-15 05:48:41', '辽宁', '辽阳市', '2023-03-15 06:00:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西南', '≤3', '46', '2023-03-15 05:48:40', '辽宁', '开原市', '2023-03-15 06:00:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '41', '2023-03-15 05:48:40', '辽宁', '铁岭市', '2023-03-15 06:00:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西北', '≤3', '32', '2023-03-15 06:47:46', '辽宁', '沈阳市', '2023-03-15 07:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '北', '4', '36', '2023-03-15 06:47:45', '辽宁', '丹东市', '2023-03-15 07:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西', '4', '52', '2023-03-15 06:50:03', '吉林', '长春市', '2023-03-15 07:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '1', '西', '≤3', '31', '2023-03-15 06:47:48', '辽宁', '辽阳市', '2023-03-15 07:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-2', '南', '≤3', '49', '2023-03-15 06:47:47', '辽宁', '开原市', '2023-03-15 07:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-1', '西南', '≤3', '39', '2023-03-15 06:47:46', '辽宁', '铁岭市', '2023-03-15 07:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西', '≤3', '30', '2023-03-15 07:48:20', '辽宁', '沈阳市', '2023-03-15 08:01:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '北', '4', '33', '2023-03-15 07:48:18', '辽宁', '丹东市', '2023-03-15 08:01:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西南', '4', '49', '2023-03-15 07:51:39', '吉林', '长春市', '2023-03-15 08:01:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '1', '西', '≤3', '29', '2023-03-15 07:48:22', '辽宁', '辽阳市', '2023-03-15 08:01:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西', '≤3', '47', '2023-03-15 07:48:21', '辽宁', '开原市', '2023-03-15 08:01:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '38', '2023-03-15 07:48:21', '辽宁', '铁岭市', '2023-03-15 08:01:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西北', '≤3', '23', '2023-03-15 08:48:00', '辽宁', '沈阳市', '2023-03-15 09:01:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '北', '≤3', '31', '2023-03-15 08:47:59', '辽宁', '丹东市', '2023-03-15 09:01:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '西', '4', '46', '2023-03-15 08:50:24', '吉林', '长春市', '2023-03-15 09:01:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '1', '西', '≤3', '24', '2023-03-15 08:48:02', '辽宁', '辽阳市', '2023-03-15 09:01:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '西南', '4', '36', '2023-03-15 08:48:01', '辽宁', '开原市', '2023-03-15 09:01:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '32', '2023-03-15 08:48:01', '辽宁', '铁岭市', '2023-03-15 09:01:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '西北', '≤3', '20', '2023-03-15 09:47:57', '辽宁', '沈阳市', '2023-03-15 10:00:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '西北', '4', '28', '2023-03-15 09:47:56', '辽宁', '丹东市', '2023-03-15 10:00:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西南', '≤3', '43', '2023-03-15 09:50:32', '吉林', '长春市', '2023-03-15 10:00:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '2', '西', '≤3', '20', '2023-03-15 09:47:59', '辽宁', '辽阳市', '2023-03-15 10:00:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '西', '≤3', '32', '2023-03-15 09:47:58', '辽宁', '开原市', '2023-03-15 10:00:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '30', '2023-03-15 09:47:58', '辽宁', '铁岭市', '2023-03-15 10:00:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '2', '西', '4', '19', '2023-03-15 10:47:47', '辽宁', '沈阳市', '2023-03-15 11:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '北', '≤3', '27', '2023-03-15 10:47:46', '辽宁', '丹东市', '2023-03-15 11:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '4', '39', '2023-03-15 10:50:10', '吉林', '长春市', '2023-03-15 11:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '3', '西', '≤3', '18', '2023-03-15 10:47:49', '辽宁', '辽阳市', '2023-03-15 11:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '1', '西', '≤3', '31', '2023-03-15 10:47:47', '辽宁', '开原市', '2023-03-15 11:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '西', '≤3', '30', '2023-03-15 10:47:47', '辽宁', '铁岭市', '2023-03-15 11:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西', '≤3', '19', '2023-03-15 11:47:55', '辽宁', '沈阳市', '2023-03-15 12:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '北', '≤3', '24', '2023-03-15 11:47:55', '辽宁', '丹东市', '2023-03-15 12:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '4', '35', '2023-03-15 11:50:24', '吉林', '长春市', '2023-03-15 12:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '西', '≤3', '18', '2023-03-15 11:47:58', '辽宁', '辽阳市', '2023-03-15 12:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '西南', '≤3', '29', '2023-03-15 11:47:56', '辽宁', '开原市', '2023-03-15 12:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西南', '4', '28', '2023-03-15 11:47:56', '辽宁', '铁岭市', '2023-03-15 12:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西南', '5', '20', '2023-03-15 12:47:47', '辽宁', '沈阳市', '2023-03-15 13:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '西', '≤3', '16', '2023-03-15 12:47:46', '辽宁', '丹东市', '2023-03-15 13:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '5', '32', '2023-03-15 12:50:13', '吉林', '长春市', '2023-03-15 13:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '西', '≤3', '20', '2023-03-15 12:47:49', '辽宁', '辽阳市', '2023-03-15 13:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '西南', '4', '28', '2023-03-15 12:47:48', '辽宁', '开原市', '2023-03-15 13:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '3', '西南', '4', '27', '2023-03-15 12:47:48', '辽宁', '铁岭市', '2023-03-15 13:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '≤3', '19', '2023-03-15 13:47:49', '辽宁', '沈阳市', '2023-03-15 14:00:01', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '西北', '≤3', '14', '2023-03-15 13:47:49', '辽宁', '丹东市', '2023-03-15 14:00:01', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '5', '31', '2023-03-15 13:50:21', '吉林', '长春市', '2023-03-15 14:00:01', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '西', '≤3', '19', '2023-03-15 13:47:52', '辽宁', '辽阳市', '2023-03-15 14:00:01', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '西', '≤3', '26', '2023-03-15 13:47:50', '辽宁', '开原市', '2023-03-15 14:00:01', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '4', '23', '2023-03-15 13:47:50', '辽宁', '铁岭市', '2023-03-15 14:00:01', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '≤3', '19', '2023-03-15 13:47:49', '辽宁', '沈阳市', '2023-03-15 14:01:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '西北', '≤3', '14', '2023-03-15 13:47:49', '辽宁', '丹东市', '2023-03-15 14:01:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '5', '31', '2023-03-15 13:50:21', '吉林', '长春市', '2023-03-15 14:01:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '西', '≤3', '19', '2023-03-15 13:47:52', '辽宁', '辽阳市', '2023-03-15 14:01:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '西', '≤3', '26', '2023-03-15 13:47:50', '辽宁', '开原市', '2023-03-15 14:01:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '4', '23', '2023-03-15 13:47:50', '辽宁', '铁岭市', '2023-03-15 14:01:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '4', '18', '2023-03-15 14:47:47', '辽宁', '沈阳市', '2023-03-15 15:01:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '西', '≤3', '14', '2023-03-15 14:47:46', '辽宁', '丹东市', '2023-03-15 15:01:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '5', '31', '2023-03-15 14:50:11', '吉林', '长春市', '2023-03-15 15:01:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '西', '4', '19', '2023-03-15 14:47:49', '辽宁', '辽阳市', '2023-03-15 15:01:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '西', '≤3', '25', '2023-03-15 14:47:48', '辽宁', '开原市', '2023-03-15 15:01:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '4', '22', '2023-03-15 14:47:48', '辽宁', '铁岭市', '2023-03-15 15:01:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '≤3', '18', '2023-03-15 15:47:59', '辽宁', '沈阳市', '2023-03-15 16:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '西', '4', '12', '2023-03-15 15:47:59', '辽宁', '丹东市', '2023-03-15 16:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '4', '33', '2023-03-15 15:50:28', '吉林', '长春市', '2023-03-15 16:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '西', '4', '18', '2023-03-15 15:48:01', '辽宁', '辽阳市', '2023-03-15 16:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '5', '西', '≤3', '23', '2023-03-15 15:48:00', '辽宁', '开原市', '2023-03-15 16:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '4', '22', '2023-03-15 15:48:00', '辽宁', '铁岭市', '2023-03-15 16:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '5', '西', '≤3', '17', '2023-03-15 16:47:42', '辽宁', '沈阳市', '2023-03-15 17:00:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '西', '4', '14', '2023-03-15 16:47:41', '辽宁', '丹东市', '2023-03-15 17:00:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '4', '37', '2023-03-15 16:49:54', '吉林', '长春市', '2023-03-15 17:00:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '西', '≤3', '18', '2023-03-15 16:47:44', '辽宁', '辽阳市', '2023-03-15 17:00:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '西', '≤3', '23', '2023-03-15 16:47:43', '辽宁', '开原市', '2023-03-15 17:00:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '4', '20', '2023-03-15 16:47:43', '辽宁', '铁岭市', '2023-03-15 17:00:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '≤3', '16', '2023-03-15 17:48:02', '辽宁', '沈阳市', '2023-03-15 18:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '6', '西', '≤3', '17', '2023-03-15 17:48:01', '辽宁', '丹东市', '2023-03-15 18:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '4', '35', '2023-03-15 17:50:09', '吉林', '长春市', '2023-03-15 18:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '西', '≤3', '18', '2023-03-15 17:48:04', '辽宁', '辽阳市', '2023-03-15 18:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '西', '≤3', '24', '2023-03-15 17:48:03', '辽宁', '开原市', '2023-03-15 18:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '≤3', '22', '2023-03-15 17:48:03', '辽宁', '铁岭市', '2023-03-15 18:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '≤3', '16', '2023-03-15 18:47:51', '辽宁', '沈阳市', '2023-03-15 19:00:01', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '北', '≤3', '20', '2023-03-15 18:47:50', '辽宁', '丹东市', '2023-03-15 19:00:01', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '≤3', '38', '2023-03-15 18:50:30', '吉林', '长春市', '2023-03-15 19:00:01', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '西', '≤3', '20', '2023-03-15 18:47:53', '辽宁', '辽阳市', '2023-03-15 19:00:01', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '西南', '≤3', '29', '2023-03-15 18:47:52', '辽宁', '开原市', '2023-03-15 19:00:01', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '3', '西南', '≤3', '25', '2023-03-15 18:47:52', '辽宁', '铁岭市', '2023-03-15 19:00:01', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西', '≤3', '17', '2023-03-15 19:47:52', '辽宁', '沈阳市', '2023-03-15 20:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '3', '西北', '≤3', '23', '2023-03-15 19:47:51', '辽宁', '丹东市', '2023-03-15 20:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '≤3', '41', '2023-03-15 19:50:40', '吉林', '长春市', '2023-03-15 20:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '3', '西', '≤3', '23', '2023-03-15 19:47:55', '辽宁', '辽阳市', '2023-03-15 20:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '1', '西南', '≤3', '31', '2023-03-15 19:47:53', '辽宁', '开原市', '2023-03-15 20:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西南', '≤3', '25', '2023-03-15 19:47:53', '辽宁', '铁岭市', '2023-03-15 20:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西', '≤3', '17', '2023-03-15 20:47:52', '辽宁', '沈阳市', '2023-03-15 21:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '2', '西北', '≤3', '25', '2023-03-15 20:47:51', '辽宁', '丹东市', '2023-03-15 21:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西', '≤3', '42', '2023-03-15 20:50:36', '吉林', '长春市', '2023-03-15 21:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '3', '西', '≤3', '23', '2023-03-15 20:47:54', '辽宁', '辽阳市', '2023-03-15 21:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '西南', '≤3', '38', '2023-03-15 20:47:53', '辽宁', '开原市', '2023-03-15 21:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西南', '≤3', '29', '2023-03-15 20:47:53', '辽宁', '铁岭市', '2023-03-15 21:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西', '≤3', '18', '2023-03-15 21:47:45', '辽宁', '沈阳市', '2023-03-15 22:01:01', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '2', '西北', '≤3', '25', '2023-03-15 21:18:10', '辽宁', '丹东市', '2023-03-15 22:01:01', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西', '≤3', '43', '2023-03-15 21:50:12', '吉林', '长春市', '2023-03-15 22:01:01', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '0', '南', '≤3', '35', '2023-03-15 21:47:47', '辽宁', '辽阳市', '2023-03-15 22:01:01', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '西南', '≤3', '38', '2023-03-15 21:47:45', '辽宁', '开原市', '2023-03-15 22:01:01', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西南', '≤3', '29', '2023-03-15 21:18:12', '辽宁', '铁岭市', '2023-03-15 22:01:01', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '2', '西', '≤3', '18', '2023-03-15 22:47:49', '辽宁', '沈阳市', '2023-03-15 23:01:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '0', '西', '≤3', '37', '2023-03-15 22:47:48', '辽宁', '丹东市', '2023-03-15 23:01:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '西南', '≤3', '44', '2023-03-15 22:50:17', '吉林', '长春市', '2023-03-15 23:01:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '-1', '南', '≤3', '41', '2023-03-15 22:47:51', '辽宁', '辽阳市', '2023-03-15 23:01:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '西南', '≤3', '43', '2023-03-15 22:47:50', '辽宁', '开原市', '2023-03-15 23:01:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '西南', '≤3', '32', '2023-03-15 22:47:50', '辽宁', '铁岭市', '2023-03-15 23:01:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '西南', '≤3', '22', '2023-03-15 23:47:50', '辽宁', '沈阳市', '2023-03-16 00:00:04', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '0', '西', '≤3', '34', '2023-03-15 23:47:49', '辽宁', '丹东市', '2023-03-16 00:00:04', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '西南', '≤3', '45', '2023-03-15 23:50:21', '吉林', '长春市', '2023-03-16 00:00:04', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '浮尘', '-2', '南', '≤3', '44', '2023-03-15 23:47:52', '辽宁', '辽阳市', '2023-03-16 00:00:04', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西南', '≤3', '45', '2023-03-15 23:47:51', '辽宁', '开原市', '2023-03-16 00:00:04', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '35', '2023-03-15 23:47:51', '辽宁', '铁岭市', '2023-03-16 00:00:04', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西南', '≤3', '26', '2023-03-16 00:47:51', '辽宁', '沈阳市', '2023-03-16 01:01:00', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '-1', '西', '≤3', '47', '2023-03-16 00:47:51', '辽宁', '丹东市', '2023-03-16 01:01:00', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西', '≤3', '49', '2023-03-16 00:50:32', '吉林', '长春市', '2023-03-16 01:01:00', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '-2', '西南', '≤3', '44', '2023-03-16 00:47:53', '辽宁', '辽阳市', '2023-03-16 01:01:00', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西', '≤3', '45', '2023-03-16 00:47:52', '辽宁', '开原市', '2023-03-16 01:01:00', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西南', '≤3', '39', '2023-03-16 00:47:52', '辽宁', '铁岭市', '2023-03-16 01:01:00', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '西', '≤3', '25', '2023-03-16 01:47:48', '辽宁', '沈阳市', '2023-03-16 02:01:01', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '-1', '西', '≤3', '41', '2023-03-16 01:47:47', '辽宁', '丹东市', '2023-03-16 02:01:01', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西', '≤3', '53', '2023-03-16 01:50:14', '吉林', '长春市', '2023-03-16 02:01:01', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '-2', '西南', '≤3', '46', '2023-03-16 01:47:50', '辽宁', '辽阳市', '2023-03-16 02:01:01', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西', '≤3', '47', '2023-03-16 01:47:49', '辽宁', '开原市', '2023-03-16 02:01:01', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-1', '西南', '≤3', '43', '2023-03-16 01:47:49', '辽宁', '铁岭市', '2023-03-16 02:01:01', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西', '≤3', '26', '2023-03-16 02:47:47', '辽宁', '沈阳市', '2023-03-16 03:00:06', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '0', '西', '≤3', '37', '2023-03-16 02:47:46', '辽宁', '丹东市', '2023-03-16 03:00:06', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-4', '西', '≤3', '55', '2023-03-16 02:50:08', '吉林', '长春市', '2023-03-16 03:00:06', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '-3', '南', '≤3', '54', '2023-03-16 02:47:49', '辽宁', '辽阳市', '2023-03-16 03:00:06', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-2', '西南', '≤3', '47', '2023-03-16 02:47:48', '辽宁', '开原市', '2023-03-16 03:00:06', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-1', '南', '≤3', '45', '2023-03-16 02:47:48', '辽宁', '铁岭市', '2023-03-16 03:00:06', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西', '≤3', '27', '2023-03-16 03:47:43', '辽宁', '沈阳市', '2023-03-16 04:01:02', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '0', '西', '≤3', '35', '2023-03-16 03:47:42', '辽宁', '丹东市', '2023-03-16 04:01:02', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-4', '西', '≤3', '57', '2023-03-16 03:50:00', '吉林', '长春市', '2023-03-16 04:01:02', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '-3', '西北', '≤3', '51', '2023-03-16 03:47:44', '辽宁', '辽阳市', '2023-03-16 04:01:02', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-2', '西南', '≤3', '49', '2023-03-16 03:47:43', '辽宁', '开原市', '2023-03-16 04:01:02', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-1', '西南', '≤3', '44', '2023-03-16 03:47:43', '辽宁', '铁岭市', '2023-03-16 04:01:02', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '西', '≤3', '32', '2023-03-16 08:47:45', '辽宁', '沈阳市', '2023-03-16 09:01:01', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '1', '东', '≤3', '58', '2023-03-16 08:47:45', '辽宁', '丹东市', '2023-03-16 09:01:01', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-3', '西', '≤3', '52', '2023-03-16 08:50:14', '吉林', '长春市', '2023-03-16 09:01:01', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '1', '西', '≤3', '35', '2023-03-16 08:47:47', '辽宁', '辽阳市', '2023-03-16 09:01:01', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '-1', '西', '≤3', '48', '2023-03-16 08:47:46', '辽宁', '开原市', '2023-03-16 09:01:01', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-1', '西南', '≤3', '45', '2023-03-16 08:47:46', '辽宁', '铁岭市', '2023-03-16 09:01:01', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西', '≤3', '26', '2023-03-16 11:47:49', '辽宁', '沈阳市', '2023-03-16 12:01:05', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '5', '西', '≤3', '18', '2023-03-16 11:47:48', '辽宁', '丹东市', '2023-03-16 12:01:05', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '4', '33', '2023-03-16 11:50:04', '吉林', '长春市', '2023-03-16 12:01:05', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '西', '≤3', '31', '2023-03-16 11:47:51', '辽宁', '辽阳市', '2023-03-16 12:01:05', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '1', '西', '≤3', '33', '2023-03-16 11:47:50', '辽宁', '开原市', '2023-03-16 12:01:05', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西南', '≤3', '30', '2023-03-16 11:47:50', '辽宁', '铁岭市', '2023-03-16 12:01:05', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西南', '≤3', '26', '2023-03-16 12:47:49', '辽宁', '沈阳市', '2023-03-16 13:01:05', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '6', '西北', '4', '18', '2023-03-16 12:47:48', '辽宁', '丹东市', '2023-03-16 13:01:05', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '≤3', '32', '2023-03-16 12:50:16', '吉林', '长春市', '2023-03-16 13:01:05', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '西', '≤3', '29', '2023-03-16 12:47:51', '辽宁', '辽阳市', '2023-03-16 13:01:05', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '西', '4', '30', '2023-03-16 12:47:50', '辽宁', '开原市', '2023-03-16 13:01:05', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '3', '西', '≤3', '29', '2023-03-16 12:47:50', '辽宁', '铁岭市', '2023-03-16 13:01:05', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西', '≤3', '22', '2023-03-16 17:47:57', '辽宁', '沈阳市', '2023-03-16 18:01:14', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '7', '西', '≤3', '20', '2023-03-16 17:47:57', '辽宁', '丹东市', '2023-03-16 18:01:14', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西', '≤3', '30', '2023-03-16 17:50:10', '吉林', '长春市', '2023-03-16 18:01:14', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '4', '西', '≤3', '28', '2023-03-16 17:47:59', '辽宁', '辽阳市', '2023-03-16 18:01:14', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '3', '西', '≤3', '25', '2023-03-16 17:47:58', '辽宁', '开原市', '2023-03-16 18:01:14', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '西南', '≤3', '25', '2023-03-16 17:47:58', '辽宁', '铁岭市', '2023-03-16 18:01:14', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '-1', '东', '≤3', '38', '2023-03-16 20:47:49', '辽宁', '沈阳市', '2023-03-16 21:01:22', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '1', '西', '≤3', '57', '2023-03-16 20:47:48', '辽宁', '丹东市', '2023-03-16 21:01:22', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西南', '4', '33', '2023-03-16 20:50:14', '吉林', '长春市', '2023-03-16 21:01:22', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '0', '南', '≤3', '41', '2023-03-16 20:47:51', '辽宁', '辽阳市', '2023-03-16 21:01:22', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '霾', '0', '南', '≤3', '47', '2023-03-16 20:47:50', '辽宁', '开原市', '2023-03-16 21:01:22', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西', '≤3', '34', '2023-03-16 20:47:50', '辽宁', '铁岭市', '2023-03-16 21:01:22', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '-3', '南', '≤3', '50', '2023-03-16 22:47:46', '辽宁', '沈阳市', '2023-03-16 23:01:24', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '0', '南', '≤3', '62', '2023-03-16 22:47:46', '辽宁', '丹东市', '2023-03-16 23:01:24', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西南', '≤3', '37', '2023-03-16 22:50:10', '吉林', '长春市', '2023-03-16 23:01:24', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '-1', '南', '≤3', '51', '2023-03-16 22:47:48', '辽宁', '辽阳市', '2023-03-16 23:01:24', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '霾', '-2', '东南', '≤3', '55', '2023-03-16 22:47:47', '辽宁', '开原市', '2023-03-16 23:01:24', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-1', '东', '≤3', '41', '2023-03-16 22:47:47', '辽宁', '铁岭市', '2023-03-16 23:01:24', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '东', '≤3', '49', '2023-03-17 08:47:52', '辽宁', '沈阳市', '2023-03-17 09:00:31', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '1', '东北', '≤3', '47', '2023-03-17 08:47:51', '辽宁', '丹东市', '2023-03-17 09:00:31', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-2', '西', '≤3', '39', '2023-03-17 08:50:10', '吉林', '长春市', '2023-03-17 09:00:31', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '2', '东', '≤3', '45', '2023-03-17 08:47:54', '辽宁', '辽阳市', '2023-03-17 09:00:31', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '南', '≤3', '47', '2023-03-17 08:47:53', '辽宁', '开原市', '2023-03-17 09:00:31', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '西', '≤3', '40', '2023-03-17 08:47:52', '辽宁', '铁岭市', '2023-03-17 09:00:31', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西南', '≤3', '32', '2023-03-17 09:47:45', '辽宁', '沈阳市', '2023-03-17 10:00:49', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '3', '东北', '≤3', '39', '2023-03-17 09:47:44', '辽宁', '丹东市', '2023-03-17 10:00:49', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '0', '西', '≤3', '34', '2023-03-17 09:50:09', '吉林', '长春市', '2023-03-17 10:00:49', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '5', '南', '≤3', '24', '2023-03-17 09:47:47', '辽宁', '辽阳市', '2023-03-17 10:00:49', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '西南', '≤3', '37', '2023-03-17 09:47:45', '辽宁', '开原市', '2023-03-17 10:00:49', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '西', '≤3', '36', '2023-03-17 09:47:45', '辽宁', '铁岭市', '2023-03-17 10:00:49', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '7', '南', '≤3', '17', '2023-03-17 12:47:51', '辽宁', '沈阳市', '2023-03-17 13:01:27', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '南', '≤3', '22', '2023-03-17 12:47:50', '辽宁', '丹东市', '2023-03-17 13:01:27', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '3', '西', '≤3', '22', '2023-03-17 12:50:31', '吉林', '长春市', '2023-03-17 13:01:27', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '8', '西南', '≤3', '17', '2023-03-17 12:47:53', '辽宁', '辽阳市', '2023-03-17 13:01:27', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '6', '西南', '≤3', '26', '2023-03-17 12:47:52', '辽宁', '开原市', '2023-03-17 13:01:27', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '7', '西南', '≤3', '26', '2023-03-17 12:47:51', '辽宁', '铁岭市', '2023-03-17 13:01:27', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '9', '西南', '≤3', '20', '2023-03-17 14:47:46', '辽宁', '沈阳市', '2023-03-17 15:00:40', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '10', '西南', '≤3', '21', '2023-03-17 14:47:45', '辽宁', '丹东市', '2023-03-17 15:00:40', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '5', '西', '≤3', '17', '2023-03-17 14:50:08', '吉林', '长春市', '2023-03-17 15:00:40', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '10', '西', '≤3', '20', '2023-03-17 14:47:48', '辽宁', '辽阳市', '2023-03-17 15:00:40', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '8', '西南', '≤3', '20', '2023-03-17 14:47:46', '辽宁', '开原市', '2023-03-17 15:00:40', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '8', '西南', '≤3', '22', '2023-03-17 14:47:46', '辽宁', '铁岭市', '2023-03-17 15:00:40', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '9', '西南', '≤3', '21', '2023-03-17 15:48:04', '辽宁', '沈阳市', '2023-03-17 16:00:38', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '9', '西南', '≤3', '32', '2023-03-17 15:48:03', '辽宁', '丹东市', '2023-03-17 16:00:38', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '6', '西', '≤3', '17', '2023-03-17 15:50:37', '吉林', '长春市', '2023-03-17 16:00:38', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '10', '西', '≤3', '19', '2023-03-17 15:48:06', '辽宁', '辽阳市', '2023-03-17 16:00:38', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '9', '西南', '≤3', '17', '2023-03-17 15:48:05', '辽宁', '开原市', '2023-03-17 16:00:38', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '8', '西南', '≤3', '27', '2023-03-17 15:48:05', '辽宁', '铁岭市', '2023-03-17 16:00:38', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '7', '南', '≤3', '26', '2023-03-17 18:47:50', '辽宁', '沈阳市', '2023-03-17 19:01:27', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '西南', '≤3', '38', '2023-03-17 18:47:49', '辽宁', '丹东市', '2023-03-17 19:01:27', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '3', '西', '≤3', '19', '2023-03-17 18:50:24', '吉林', '长春市', '2023-03-17 19:01:27', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '7', '西', '≤3', '26', '2023-03-17 18:47:52', '辽宁', '辽阳市', '2023-03-17 19:01:27', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '5', '西南', '≤3', '25', '2023-03-17 18:47:51', '辽宁', '开原市', '2023-03-17 19:01:27', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '6', '西南', '≤3', '26', '2023-03-17 18:47:51', '辽宁', '铁岭市', '2023-03-17 19:01:27', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '西南', '≤3', '28', '2023-03-17 22:48:02', '辽宁', '沈阳市', '2023-03-17 23:00:32', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '1', '南', '≤3', '58', '2023-03-17 22:48:01', '辽宁', '丹东市', '2023-03-17 23:00:32', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '1', '西南', '≤3', '24', '2023-03-17 22:50:33', '吉林', '长春市', '2023-03-17 23:00:32', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '1', '东南', '≤3', '33', '2023-03-17 22:48:04', '辽宁', '辽阳市', '2023-03-17 23:00:32', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '霾', '0', '南', '≤3', '53', '2023-03-17 22:48:03', '辽宁', '开原市', '2023-03-17 23:00:32', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '3', '西南', '≤3', '45', '2023-03-17 22:48:03', '辽宁', '铁岭市', '2023-03-17 23:00:32', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '-4', '东南', '≤3', '62', '2023-03-18 03:48:05', '辽宁', '沈阳市', '2023-03-18 04:01:37', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '0', '西北', '≤3', '74', '2023-03-18 03:48:04', '辽宁', '丹东市', '2023-03-18 04:01:37', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西南', '≤3', '51', '2023-03-18 03:50:00', '吉林', '长春市', '2023-03-18 04:01:37', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '0', '东', '≤3', '43', '2023-03-18 03:48:07', '辽宁', '辽阳市', '2023-03-18 04:01:37', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '南', '≤3', '47', '2023-03-18 03:48:06', '辽宁', '开原市', '2023-03-18 04:01:37', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-2', '东', '≤3', '57', '2023-03-18 03:48:06', '辽宁', '铁岭市', '2023-03-18 04:01:37', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '-4', '东', '≤3', '64', '2023-03-18 04:48:04', '辽宁', '沈阳市', '2023-03-18 05:01:16', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '-1', '北', '≤3', '78', '2023-03-18 04:48:04', '辽宁', '丹东市', '2023-03-18 05:01:16', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '-1', '西南', '≤3', '55', '2023-03-18 04:50:32', '吉林', '长春市', '2023-03-18 05:01:16', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '-1', '东', '≤3', '48', '2023-03-18 04:48:07', '辽宁', '辽阳市', '2023-03-18 05:01:16', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '南', '≤3', '48', '2023-03-18 04:48:06', '辽宁', '开原市', '2023-03-18 05:01:16', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '-2', '东', '≤3', '55', '2023-03-18 04:48:06', '辽宁', '铁岭市', '2023-03-18 05:01:16', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '1', '西南', '≤3', '44', '2023-03-18 08:48:01', '辽宁', '沈阳市', '2023-03-18 09:01:28', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '2', '东北', '≤3', '65', '2023-03-18 08:48:00', '辽宁', '丹东市', '2023-03-18 09:01:28', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '0', '西南', '≤3', '48', '2023-03-18 08:50:44', '吉林', '长春市', '2023-03-18 09:01:28', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '3', '东', '≤3', '42', '2023-03-18 08:48:03', '辽宁', '辽阳市', '2023-03-18 09:01:28', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '2', '南', '≤3', '48', '2023-03-18 08:48:02', '辽宁', '开原市', '2023-03-18 09:01:28', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '2', '南', '≤3', '47', '2023-03-18 08:48:02', '辽宁', '铁岭市', '2023-03-18 09:01:28', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西南', '≤3', '50', '2023-03-18 09:48:14', '辽宁', '沈阳市', '2023-03-18 10:00:37', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东北', '≤3', '58', '2023-03-18 09:48:12', '辽宁', '丹东市', '2023-03-18 10:00:37', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '1', '西', '≤3', '38', '2023-03-18 09:50:42', '吉林', '长春市', '2023-03-18 10:00:37', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '7', '西南', '≤3', '43', '2023-03-18 09:48:16', '辽宁', '辽阳市', '2023-03-18 10:00:37', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '西南', '≤3', '50', '2023-03-18 09:48:15', '辽宁', '开原市', '2023-03-18 10:00:37', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '3', '西', '≤3', '53', '2023-03-18 09:48:15', '辽宁', '铁岭市', '2023-03-18 10:00:37', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西南', '≤3', '50', '2023-03-18 09:48:14', '辽宁', '沈阳市', '2023-03-18 10:01:24', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '4', '东北', '≤3', '58', '2023-03-18 09:48:12', '辽宁', '丹东市', '2023-03-18 10:01:24', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '1', '西', '≤3', '38', '2023-03-18 09:50:42', '吉林', '长春市', '2023-03-18 10:01:24', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '7', '西南', '≤3', '43', '2023-03-18 09:48:16', '辽宁', '辽阳市', '2023-03-18 10:01:24', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '西南', '≤3', '50', '2023-03-18 09:48:15', '辽宁', '开原市', '2023-03-18 10:01:24', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '3', '西', '≤3', '53', '2023-03-18 09:48:15', '辽宁', '铁岭市', '2023-03-18 10:01:24', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '6', '西', '≤3', '41', '2023-03-18 10:47:47', '辽宁', '沈阳市', '2023-03-18 11:01:05', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '6', '东北', '≤3', '49', '2023-03-18 10:47:46', '辽宁', '丹东市', '2023-03-18 11:01:05', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '3', '西', '≤3', '33', '2023-03-18 10:49:50', '吉林', '长春市', '2023-03-18 11:01:05', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '8', '西南', '≤3', '41', '2023-03-18 10:47:49', '辽宁', '辽阳市', '2023-03-18 11:01:05', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '6', '西南', '≤3', '48', '2023-03-18 10:47:48', '辽宁', '开原市', '2023-03-18 11:01:05', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '5', '西南', '≤3', '48', '2023-03-18 10:47:48', '辽宁', '铁岭市', '2023-03-18 11:01:05', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '12', '西', '≤3', '14', '2023-03-18 16:47:56', '辽宁', '沈阳市', '2023-03-18 17:00:38', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '10', '西南', '≤3', '39', '2023-03-18 16:47:56', '辽宁', '丹东市', '2023-03-18 17:00:38', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '8', '西北', '≤3', '17', '2023-03-18 16:50:02', '吉林', '长春市', '2023-03-18 17:00:38', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '13', '西', '≤3', '17', '2023-03-18 16:47:58', '辽宁', '辽阳市', '2023-03-18 17:00:38', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '11', '西', '≤3', '19', '2023-03-18 16:47:57', '辽宁', '开原市', '2023-03-18 17:00:38', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '12', '西南', '≤3', '18', '2023-03-18 16:47:57', '辽宁', '铁岭市', '2023-03-18 17:00:38', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '4', '西南', '≤3', '38', '2023-03-18 23:48:06', '辽宁', '沈阳市', '2023-03-19 00:00:57', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '雾', '0', '北', '≤3', '87', '2023-03-18 23:48:05', '辽宁', '丹东市', '2023-03-19 00:00:57', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '2', '南', '≤3', '33', '2023-03-18 23:50:17', '吉林', '长春市', '2023-03-19 00:00:57', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '3', '西南', '≤3', '39', '2023-03-18 23:48:09', '辽宁', '辽阳市', '2023-03-19 00:00:57', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '南', '≤3', '52', '2023-03-18 23:48:07', '辽宁', '开原市', '2023-03-19 00:00:57', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '1', '东', '≤3', '44', '2023-03-18 23:48:07', '辽宁', '铁岭市', '2023-03-19 00:00:57', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '0', '东南', '≤3', '53', '2023-03-19 02:47:57', '辽宁', '沈阳市', '2023-03-19 03:00:39', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '雾', '0', '西北', '≤3', '91', '2023-03-19 02:47:56', '辽宁', '丹东市', '2023-03-19 03:00:39', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '3', '西南', '≤3', '36', '2023-03-19 02:50:24', '吉林', '长春市', '2023-03-19 03:00:39', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '2', '南', '≤3', '46', '2023-03-19 02:47:59', '辽宁', '辽阳市', '2023-03-19 03:00:39', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '1', '东南', '≤3', '44', '2023-03-19 02:47:58', '辽宁', '开原市', '2023-03-19 03:00:39', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '1', '东', '≤3', '45', '2023-03-19 02:47:58', '辽宁', '铁岭市', '2023-03-19 03:00:39', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '-2', '东', '≤3', '70', '2023-03-19 07:48:25', '辽宁', '沈阳市', '2023-03-19 08:00:27', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '雾', '0', '东', '≤3', '87', '2023-03-19 07:48:23', '辽宁', '丹东市', '2023-03-19 08:00:27', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '2', '西南', '≤3', '41', '2023-03-19 07:52:17', '吉林', '长春市', '2023-03-19 08:00:27', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '0', '东', '≤3', '56', '2023-03-19 07:48:28', '辽宁', '辽阳市', '2023-03-19 08:00:27', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '0', '南', '≤3', '55', '2023-03-19 07:48:25', '辽宁', '开原市', '2023-03-19 08:00:27', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '0', '东', '≤3', '52', '2023-03-19 07:48:25', '辽宁', '铁岭市', '2023-03-19 08:00:27', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '11', '南', '≤3', '23', '2023-03-19 10:48:06', '辽宁', '沈阳市', '2023-03-19 11:01:23', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '雾', '6', '西南', '≤3', '72', '2023-03-19 10:48:04', '辽宁', '丹东市', '2023-03-19 11:01:23', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '8', '西南', '≤3', '33', '2023-03-19 10:50:35', '吉林', '长春市', '2023-03-19 11:01:23', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '15', '西', '≤3', '16', '2023-03-19 10:48:08', '辽宁', '辽阳市', '2023-03-19 11:01:23', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '10', '南', '≤3', '30', '2023-03-19 10:48:07', '辽宁', '开原市', '2023-03-19 11:01:23', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '10', '西南', '≤3', '26', '2023-03-19 10:48:07', '辽宁', '铁岭市', '2023-03-19 11:01:23', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '15', '西南', '≤3', '18', '2023-03-19 13:47:46', '辽宁', '沈阳市', '2023-03-19 14:01:43', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '10', '南', '≤3', '57', '2023-03-19 13:47:45', '辽宁', '丹东市', '2023-03-19 14:01:43', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '14', '西南', '≤3', '12', '2023-03-19 13:49:59', '吉林', '长春市', '2023-03-19 14:01:43', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '18', '西', '≤3', '14', '2023-03-19 13:47:48', '辽宁', '辽阳市', '2023-03-19 14:01:43', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '15', '南', '≤3', '18', '2023-03-19 13:47:46', '辽宁', '开原市', '2023-03-19 14:01:43', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '15', '西', '4', '17', '2023-03-19 13:47:46', '辽宁', '铁岭市', '2023-03-19 14:01:43', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '15', '西南', '4', '14', '2023-03-19 16:47:47', '辽宁', '沈阳市', '2023-03-19 17:01:52', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '霾', '9', '南', '≤3', '64', '2023-03-19 16:47:46', '辽宁', '丹东市', '2023-03-19 17:01:52', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '14', '西', '4', '9', '2023-03-19 16:50:17', '吉林', '长春市', '2023-03-19 17:01:52', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '16', '西', '≤3', '14', '2023-03-19 16:47:49', '辽宁', '辽阳市', '2023-03-19 17:01:52', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '15', '西南', '4', '17', '2023-03-19 16:47:48', '辽宁', '开原市', '2023-03-19 17:01:52', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '15', '西南', '4', '16', '2023-03-19 16:47:48', '辽宁', '铁岭市', '2023-03-19 17:01:52', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '7', '南', '≤3', '56', '2023-03-21 02:47:58', '辽宁', '沈阳市', '2023-03-21 03:01:44', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '雾', '3', '东', '≤3', '94', '2023-03-21 02:47:57', '辽宁', '丹东市', '2023-03-21 03:01:44', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '7', '西南', '≤3', '61', '2023-03-21 02:50:14', '吉林', '长春市', '2023-03-21 03:01:44', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '6', '东南', '≤3', '61', '2023-03-21 02:48:00', '辽宁', '辽阳市', '2023-03-21 03:01:44', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '8', '南', '≤3', '52', '2023-03-21 02:47:59', '辽宁', '开原市', '2023-03-21 03:01:44', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '9', '西', '≤3', '49', '2023-03-21 02:47:59', '辽宁', '铁岭市', '2023-03-21 03:01:44', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '阴', '10', '南', '≤3', '56', '2023-03-22 03:48:02', '辽宁', '沈阳市', '2023-03-22 04:01:04', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '雾', '3', '东', '≤3', '80', '2023-03-22 03:48:01', '辽宁', '丹东市', '2023-03-22 04:01:04', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '阴', '10', '西南', '≤3', '40', '2023-03-22 03:50:06', '吉林', '长春市', '2023-03-22 04:01:04', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '多云', '10', '南', '≤3', '56', '2023-03-22 03:48:05', '辽宁', '辽阳市', '2023-03-22 04:01:04', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '阴', '10', '南', '≤3', '57', '2023-03-22 03:48:04', '辽宁', '开原市', '2023-03-22 04:01:04', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '阴', '11', '西', '≤3', '56', '2023-03-22 03:48:04', '辽宁', '铁岭市', '2023-03-22 04:01:04', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '北', '≤3', '12', '2023-03-23 06:48:09', '辽宁', '沈阳市', '2023-03-23 07:00:59', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '阴', '7', '北', '≤3', '44', '2023-03-23 06:48:08', '辽宁', '丹东市', '2023-03-23 07:00:59', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '浮尘', '-2', '西', '≤3', '26', '2023-03-23 06:50:12', '吉林', '长春市', '2023-03-23 07:00:59', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '3', '东北', '≤3', '27', '2023-03-23 06:48:12', '辽宁', '辽阳市', '2023-03-23 07:00:59', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '多云', '1', '西', '≤3', '29', '2023-03-23 06:48:10', '辽宁', '开原市', '2023-03-23 07:00:59', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '霾', '2', '西北', '≤3', '25', '2023-03-23 06:48:10', '辽宁', '铁岭市', '2023-03-23 07:00:59', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '多云', '9', '南', '≤3', '23', '2023-03-27 10:48:04', '辽宁', '沈阳市', '2023-03-27 11:01:23', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '6', '西南', '≤3', '47', '2023-03-27 10:48:02', '辽宁', '丹东市', '2023-03-27 11:01:23', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '7', '西南', '≤3', '18', '2023-03-27 10:50:18', '吉林', '长春市', '2023-03-27 11:01:23', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '多云', '9', '西', '≤3', '27', '2023-03-27 10:48:07', '辽宁', '辽阳市', '2023-03-27 11:01:23', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '8', '南', '≤3', '23', '2023-03-27 10:48:05', '辽宁', '开原市', '2023-03-27 11:01:23', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '9', '西', '4', '22', '2023-03-27 10:48:05', '辽宁', '铁岭市', '2023-03-27 11:01:23', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '3', '南', '≤3', '42', '2023-03-27 20:47:45', '辽宁', '沈阳市', '2023-03-27 21:01:09', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '3', '北', '≤3', '47', '2023-03-27 20:47:45', '辽宁', '丹东市', '2023-03-27 21:01:09', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '3', '西', '≤3', '28', '2023-03-27 20:49:41', '吉林', '长春市', '2023-03-27 21:01:09', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '晴', '5', '南', '≤3', '41', '2023-03-27 20:47:47', '辽宁', '辽阳市', '2023-03-27 21:01:09', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '4', '南', '≤3', '55', '2023-03-27 20:47:46', '辽宁', '开原市', '2023-03-27 21:01:09', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '4', '东南', '≤3', '49', '2023-03-27 20:47:46', '辽宁', '铁岭市', '2023-03-27 21:01:09', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '晴', '10', '东南', '≤3', '48', '2023-04-01 22:48:02', '辽宁', '沈阳市', '2023-04-01 23:01:22', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '晴', '8', '北', '≤3', '57', '2023-04-01 22:48:02', '辽宁', '丹东市', '2023-04-01 23:01:22', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '晴', '15', '南', '≤3', '21', '2023-04-01 22:50:21', '吉林', '长春市', '2023-04-01 23:01:22', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '霾', '12', '南', '≤3', '38', '2023-04-01 22:48:04', '辽宁', '辽阳市', '2023-04-01 23:01:22', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '晴', '11', '南', '≤3', '36', '2023-04-01 22:48:03', '辽宁', '开原市', '2023-04-01 23:01:22', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '晴', '14', '西北', '≤3', '30', '2023-04-01 22:48:03', '辽宁', '铁岭市', '2023-04-01 23:01:22', '铁岭');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210100, '阴', '4', '南', '≤3', '66', '2023-04-06 08:47:59', '辽宁', '沈阳市', '2023-04-06 09:01:15', '沈阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (210600, '霾', '9', '北', '≤3', '60', '2023-04-06 08:47:58', '辽宁', '丹东市', '2023-04-06 09:01:15', '丹东');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (220100, '霾', '5', '西北', '≤3', '34', '2023-04-06 08:50:11', '吉林', '长春市', '2023-04-06 09:01:15', '长春');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211000, '多云', '4', '南', '≤3', '56', '2023-04-06 08:48:01', '辽宁', '辽阳市', '2023-04-06 09:01:15', '辽阳');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211282, '阴', '3', '东南', '≤3', '54', '2023-04-06 08:48:00', '辽宁', '开原市', '2023-04-06 09:01:15', '开原');
+INSERT INTO `data_source_78` (`adcode`, `weather`, `temperature`, `winddirection`, `windpower`, `humidity`, `reporttime`, `province`, `city`, `created_at`, `rcity`) VALUES (211200, '阴', '4', '北', '≤3', '44', '2023-04-06 08:48:00', '辽宁', '铁岭市', '2023-04-06 09:01:15', '铁岭');
+COMMIT;
 
 -- ----------------------------
 -- Table structure for data_source_79
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source_79`;
 CREATE TABLE `data_source_79` (
-  `sunrise` varchar(500) DEFAULT '' COMMENT '日出时间',
-  `sunset` varchar(500) DEFAULT '' COMMENT '日落时间',
-  `winddirect` varchar(500) DEFAULT '' COMMENT '风向',
-  `windpower` varchar(500) DEFAULT '' COMMENT '风力等级',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `next_day_temp` varchar(255) DEFAULT '' COMMENT '预报下一日的温度',
-  `next_day_windpower` varchar(255) DEFAULT '' COMMENT '预报下一日的风力等级',
-  `next_three_day_temp` varchar(255) DEFAULT '' COMMENT '预报第三日的温度',
-  `next_three_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第三日的风力等级',
-  `next_four_day_temp` varchar(255) DEFAULT '' COMMENT '预报第四日的温度',
-  `next_four_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第四日的风力等级',
-  `next_five_day_temp` varchar(255) DEFAULT '' COMMENT '预报第五日的温度',
-  `next_five_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第五日的风力等级',
-  `next_six_day_temp` varchar(255) DEFAULT '' COMMENT '预报第六日的温度',
-  `next_six_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第六日的风力等级',
-  `next_seven_day_temp` varchar(255) DEFAULT '' COMMENT '预报第七日的温度',
-  `next_seven_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第七日的风力等级',
-  `city` varchar(255) DEFAULT '' COMMENT '城市',
-  `rcity` varchar(255) DEFAULT '' COMMENT '关联字段'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                                  `sunrise` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日出时间',
+                                  `sunset` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日落时间',
+                                  `winddirect` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风向',
+                                  `windpower` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风力等级',
+                                  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                  `next_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的温度',
+                                  `next_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的风力等级',
+                                  `next_three_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的温度',
+                                  `next_three_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的风力等级',
+                                  `next_four_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的温度',
+                                  `next_four_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的风力等级',
+                                  `next_five_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的温度',
+                                  `next_five_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的风力等级',
+                                  `next_six_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的温度',
+                                  `next_six_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的风力等级',
+                                  `next_seven_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的温度',
+                                  `next_seven_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的风力等级',
+                                  `city` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '城市',
+                                  `rcity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '关联字段'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- ----------------------------
+-- Records of data_source_79
+-- ----------------------------
+BEGIN;
+COMMIT;
 
 -- ----------------------------
 -- Table structure for data_template
 -- ----------------------------
 DROP TABLE IF EXISTS `data_template`;
 CREATE TABLE `data_template` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '名称',
-  `key` varchar(50) NOT NULL DEFAULT '' COMMENT '标识',
-  `desc` varchar(255) NOT NULL DEFAULT '' COMMENT '描述',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未发布，1=已发布',
-  `cron_expression` varchar(255) NOT NULL DEFAULT '' COMMENT 'cron执行表达式',
-  `sort_node_key` varchar(50) NOT NULL DEFAULT '' COMMENT '排序节点标识',
-  `sort_desc` tinyint(1) NOT NULL DEFAULT '0' COMMENT '排序方式：1=倒序，2=正序',
-  `data_table` varchar(255) NOT NULL DEFAULT '' COMMENT '数据表名称',
-  `lock_key` tinyint(1) NOT NULL DEFAULT '1' COMMENT '锁定key标识：0=未锁定，1=锁定，不允许修改',
-  `main_source_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '主数据源',
-  `source_node_key` varchar(255) NOT NULL DEFAULT '' COMMENT '数据源关联节点',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COMMENT='数据建模';
+                                 `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                                 `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+                                 `key` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '标识',
+                                 `desc` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '描述',
+                                 `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未发布，1=已发布',
+                                 `cron_expression` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT 'cron执行表达式',
+                                 `sort_node_key` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '排序节点标识',
+                                 `sort_desc` tinyint(1) NOT NULL DEFAULT '0' COMMENT '排序方式：1=倒序，2=正序',
+                                 `data_table` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据表名称',
+                                 `lock_key` tinyint(1) NOT NULL DEFAULT '1' COMMENT '锁定key标识：0=未锁定，1=锁定，不允许修改',
+                                 `main_source_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '主数据源',
+                                 `source_node_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据源关联节点',
+                                 `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                                 `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                                 `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                                 `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                 `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                 `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                 PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb3 COMMENT='数据建模';
 
 -- ----------------------------
 -- Records of data_template
@@ -380,46 +908,52 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `data_template_36`;
 CREATE TABLE `data_template_36` (
-  `adcode` varchar(255) DEFAULT '' COMMENT '区域编码',
-  `weather` varchar(255) DEFAULT '' COMMENT '天气现象',
-  `temperature` varchar(255) DEFAULT '' COMMENT '实时气温，单位：摄氏度',
-  `winddirection` varchar(255) DEFAULT '' COMMENT '风向描述',
-  `humidity` varchar(255) DEFAULT '' COMMENT '空气湿度',
-  `reporttime` datetime DEFAULT NULL COMMENT '数据发布时间',
-  `sunrise` varchar(255) DEFAULT '' COMMENT '日出时间',
-  `sunset` varchar(255) DEFAULT '' COMMENT '日落时间',
-  `windpower` varchar(255) DEFAULT '' COMMENT '风力等级',
-  `next_day_temp` varchar(255) DEFAULT '' COMMENT '预报下一日的温度',
-  `next_day_windpower` varchar(255) DEFAULT '' COMMENT '预报下一日的风力等级',
-  `next_three_day_temp` varchar(255) DEFAULT '' COMMENT '预报第三日的温度',
-  `next_three_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第三日的风力等级',
-  `next_four_day_temp` varchar(255) DEFAULT '' COMMENT '预报第四日的温度',
-  `next_four_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第四日的风力等级',
-  `next_five_day_temp` varchar(255) DEFAULT '' COMMENT '预报第五日的温度',
-  `next_five_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第五日的风力等级',
-  `next_six_day_temp` varchar(255) DEFAULT '' COMMENT '预报第六日的温度',
-  `next_six_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第六日的风力等级',
-  `next_seven_day_temp` varchar(255) DEFAULT '' COMMENT '预报第七日的温度',
-  `next_seven_day_windpower` varchar(255) DEFAULT '' COMMENT '预报第七日的风力等级',
-  `rcity` varchar(255) DEFAULT '' COMMENT '关联字段',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                                    `adcode` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '区域编码',
+                                    `weather` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '天气现象',
+                                    `temperature` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '实时气温，单位：摄氏度',
+                                    `winddirection` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风向描述',
+                                    `humidity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '空气湿度',
+                                    `reporttime` datetime DEFAULT NULL COMMENT '数据发布时间',
+                                    `sunrise` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日出时间',
+                                    `sunset` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日落时间',
+                                    `windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风力等级',
+                                    `next_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的温度',
+                                    `next_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的风力等级',
+                                    `next_three_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的温度',
+                                    `next_three_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的风力等级',
+                                    `next_four_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的温度',
+                                    `next_four_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的风力等级',
+                                    `next_five_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的温度',
+                                    `next_five_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的风力等级',
+                                    `next_six_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的温度',
+                                    `next_six_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的风力等级',
+                                    `next_seven_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的温度',
+                                    `next_seven_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的风力等级',
+                                    `rcity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '关联字段',
+                                    `created_at` datetime DEFAULT NULL COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- ----------------------------
+-- Records of data_template_36
+-- ----------------------------
+BEGIN;
+COMMIT;
 
 -- ----------------------------
 -- Table structure for data_template_busi
 -- ----------------------------
 DROP TABLE IF EXISTS `data_template_busi`;
 CREATE TABLE `data_template_busi` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `data_template_id` int(11) NOT NULL COMMENT '数据建模ID',
-  `busi_types` int(11) NOT NULL COMMENT '业务单元',
-  `is_deleted` int(11) NOT NULL COMMENT '0未删除 1已删除',
-  `created_by` int(11) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+                                      `id` int NOT NULL AUTO_INCREMENT,
+                                      `data_template_id` int NOT NULL COMMENT '数据建模ID',
+                                      `busi_types` int NOT NULL COMMENT '业务单元',
+                                      `is_deleted` int NOT NULL COMMENT '0未删除 1已删除',
+                                      `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                      `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                      `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                      `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                      PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Records of data_template_busi
@@ -433,26 +967,26 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `data_template_node`;
 CREATE TABLE `data_template_node` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `tid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
-  `from` tinyint(2) NOT NULL COMMENT '字段生成方式:1=自动生成,2=数据源',
-  `source_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
-  `node_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
-  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '节点名称',
-  `key` varchar(50) NOT NULL DEFAULT '' COMMENT '节点标识',
-  `data_type` varchar(50) NOT NULL DEFAULT '' COMMENT '数据类型',
-  `default` varchar(255) NOT NULL DEFAULT '' COMMENT '默认值',
-  `method` enum('max','min','avg') DEFAULT NULL COMMENT '数值类型，取值方式',
-  `is_pk` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主键：0=否，1=是',
-  `desc` varchar(255) NOT NULL DEFAULT '' COMMENT '描述',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=377 DEFAULT CHARSET=utf8 COMMENT='数据模型节点';
+                                      `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                                      `tid` bigint unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
+                                      `from` tinyint NOT NULL COMMENT '字段生成方式:1=自动生成,2=数据源',
+                                      `source_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
+                                      `node_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
+                                      `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '节点名称',
+                                      `key` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '节点标识',
+                                      `data_type` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据类型',
+                                      `default` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '默认值',
+                                      `method` enum('max','min','avg') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '数值类型，取值方式',
+                                      `is_pk` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主键：0=否，1=是',
+                                      `desc` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '描述',
+                                      `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                                      `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                                      `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                                      `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                      `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                      `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                      PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=377 DEFAULT CHARSET=utf8mb3 COMMENT='数据模型节点';
 
 -- ----------------------------
 -- Records of data_template_node
@@ -487,27 +1021,27 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `dev_device`;
 CREATE TABLE `dev_device` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `key` varchar(255) NOT NULL DEFAULT '' COMMENT '设备标识',
-  `name` varchar(255) DEFAULT NULL COMMENT '设备名称',
-  `product_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '所属产品',
-  `desc` varchar(255) DEFAULT NULL COMMENT '描述',
-  `metadata_table` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否生成物模型子表：0=否，1=是',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未启用,1=离线,2=在线',
-  `registry_time` datetime DEFAULT NULL COMMENT '激活时间',
-  `last_online_time` datetime DEFAULT NULL COMMENT '最后上线时间',
-  `certificate` varchar(255) NOT NULL DEFAULT '' COMMENT '设备证书',
-  `secure_key` varchar(255) NOT NULL DEFAULT '' COMMENT '设备密钥',
-  `version` varchar(255) NOT NULL DEFAULT '' COMMENT '固件版本号',
-  `tunnel_id` int(11) NOT NULL DEFAULT '0' COMMENT 'tunnelId',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='设备';
+                              `id` int unsigned NOT NULL AUTO_INCREMENT,
+                              `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                              `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '设备名称',
+                              `product_id` int unsigned NOT NULL DEFAULT '0' COMMENT '所属产品',
+                              `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+                              `metadata_table` tinyint NOT NULL DEFAULT '0' COMMENT '是否生成物模型子表：0=否，1=是',
+                              `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未启用,1=离线,2=在线',
+                              `registry_time` datetime DEFAULT NULL COMMENT '激活时间',
+                              `last_online_time` datetime DEFAULT NULL COMMENT '最后上线时间',
+                              `certificate` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '设备证书',
+                              `secure_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '设备密钥',
+                              `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '固件版本号',
+                              `tunnel_id` int NOT NULL DEFAULT '0' COMMENT 'tunnelId',
+                              `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                              `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                              `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                              `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                              `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                              `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                              PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='设备';
 
 -- ----------------------------
 -- Records of dev_device
@@ -529,20 +1063,20 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `dev_device_tag`;
 CREATE TABLE `dev_device_tag` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `device_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '设备ID',
-  `device_key` varchar(255) NOT NULL DEFAULT '' COMMENT '设备标识',
-  `key` varchar(255) DEFAULT NULL COMMENT '标签标识',
-  `name` varchar(255) DEFAULT NULL COMMENT '标签名称',
-  `value` varchar(255) DEFAULT NULL COMMENT '标签值',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='设备标签';
+                                  `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                  `device_id` int unsigned NOT NULL DEFAULT '0' COMMENT '设备ID',
+                                  `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                                  `key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '标签标识',
+                                  `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '标签名称',
+                                  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '标签值',
+                                  `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                                  `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                                  `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                                  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COMMENT='设备标签';
 
 -- ----------------------------
 -- Records of dev_device_tag
@@ -556,28 +1090,28 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `dev_product`;
 CREATE TABLE `dev_product` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `key` varchar(255) NOT NULL DEFAULT '' COMMENT '产品标识',
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '产品名称',
-  `category_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '所属品类',
-  `message_protocol` varchar(255) DEFAULT '' COMMENT '消息协议',
-  `transport_protocol` varchar(255) DEFAULT '' COMMENT '传输协议: MQTT,COAP,UDP',
-  `protocol_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '协议id',
-  `device_type` varchar(255) DEFAULT '' COMMENT '设备类型: 网关，设备',
-  `desc` varchar(255) DEFAULT NULL COMMENT '描述',
-  `icon` varchar(1000) DEFAULT NULL COMMENT '图片地址',
-  `metadata` text COMMENT '物模型',
-  `metadata_table` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否生成物模型表：0=否，1=是',
-  `policy` varchar(255) NOT NULL DEFAULT '' COMMENT '采集策略',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '发布状态：0=未发布，1=已发布',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COMMENT='产品表';
+                               `id` int unsigned NOT NULL AUTO_INCREMENT,
+                               `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '产品标识',
+                               `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '产品名称',
+                               `category_id` int unsigned NOT NULL DEFAULT '0' COMMENT '所属品类',
+                               `message_protocol` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '消息协议',
+                               `transport_protocol` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '传输协议: MQTT,COAP,UDP',
+                               `protocol_id` int unsigned NOT NULL DEFAULT '0' COMMENT '协议id',
+                               `device_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '设备类型: 网关，设备',
+                               `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+                               `icon` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '图片地址',
+                               `metadata` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '物模型',
+                               `metadata_table` tinyint NOT NULL DEFAULT '0' COMMENT '是否生成物模型表：0=否，1=是',
+                               `policy` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '采集策略',
+                               `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '发布状态：0=未发布，1=已发布',
+                               `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                               `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                               `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                               `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                               `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                               `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                               PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='产品表';
 
 -- ----------------------------
 -- Records of dev_product
@@ -597,19 +1131,19 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `dev_product_category`;
 CREATE TABLE `dev_product_category` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
-  `key` varchar(20) NOT NULL DEFAULT '' COMMENT '分类标识',
-  `name` varchar(100) NOT NULL DEFAULT '' COMMENT '分类名称',
-  `desc` varchar(255) DEFAULT NULL COMMENT '描述',
-  `create_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
-  `update_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
-  `deleted_by` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COMMENT='产品分类';
+                                        `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                        `parent_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
+                                        `key` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '分类标识',
+                                        `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '分类名称',
+                                        `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+                                        `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
+                                        `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
+                                        `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
+                                        `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                        `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                        `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                        PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='产品分类';
 
 -- ----------------------------
 -- Records of dev_product_category
@@ -639,14 +1173,14 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `guestbook`;
 CREATE TABLE `guestbook` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(50) NOT NULL COMMENT '留言标题',
-  `content` varchar(200) NOT NULL COMMENT '留言内容',
-  `contacts` varchar(50) NOT NULL COMMENT '联系人',
-  `telephone` varchar(50) NOT NULL COMMENT '联系方式',
-  `created_at` datetime NOT NULL COMMENT '留言时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='访客留言表';
+                             `id` int NOT NULL AUTO_INCREMENT,
+                             `title` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '留言标题',
+                             `content` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '留言内容',
+                             `contacts` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '联系人',
+                             `telephone` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '联系方式',
+                             `created_at` datetime NOT NULL COMMENT '留言时间',
+                             PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='访客留言表';
 
 -- ----------------------------
 -- Records of guestbook
@@ -659,21 +1193,21 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `network_server`;
 CREATE TABLE `network_server` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `types` varchar(50) NOT NULL COMMENT 'tcp/udp',
-  `addr` varchar(50) NOT NULL,
-  `register` varchar(200) NOT NULL COMMENT '注册包',
-  `heartbeat` varchar(200) NOT NULL COMMENT '心跳包',
-  `protocol` varchar(200) NOT NULL COMMENT '协议',
-  `devices` varchar(200) NOT NULL COMMENT '默认设备',
-  `status` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  `create_by` int(11) NOT NULL,
-  `remark` varchar(200) NOT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COMMENT='网络组件服务表';
+                                  `id` int NOT NULL AUTO_INCREMENT,
+                                  `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                  `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'tcp/udp',
+                                  `addr` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                  `register` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '注册包',
+                                  `heartbeat` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '心跳包',
+                                  `protocol` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '协议',
+                                  `devices` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '默认设备',
+                                  `status` tinyint(1) NOT NULL DEFAULT '0',
+                                  `created_at` datetime NOT NULL,
+                                  `updated_at` datetime NOT NULL,
+                                  `create_by` int NOT NULL,
+                                  `remark` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '备注',
+                                  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb3 COMMENT='网络组件服务表';
 
 -- ----------------------------
 -- Records of network_server
@@ -688,24 +1222,24 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `network_tunnel`;
 CREATE TABLE `network_tunnel` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `server_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务ID',
-  `name` varchar(50) NOT NULL,
-  `types` varchar(50) NOT NULL,
-  `addr` varchar(50) NOT NULL,
-  `remote` varchar(50) NOT NULL,
-  `retry` varchar(200) NOT NULL COMMENT '断线重连',
-  `heartbeat` varchar(200) NOT NULL COMMENT '心跳包',
-  `serial` varchar(200) NOT NULL COMMENT '串口参数',
-  `protoccol` varchar(200) NOT NULL COMMENT '适配协议',
-  `device_key` varchar(255) NOT NULL DEFAULT '' COMMENT '设备标识',
-  `status` tinyint(1) NOT NULL,
-  `last` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `remark` varchar(200) NOT NULL COMMENT '备注',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COMMENT='网络通道表';
+                                  `id` int NOT NULL AUTO_INCREMENT,
+                                  `server_id` int NOT NULL DEFAULT '0' COMMENT '服务ID',
+                                  `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                  `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                  `addr` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                  `remote` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                  `retry` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '断线重连',
+                                  `heartbeat` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '心跳包',
+                                  `serial` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '串口参数',
+                                  `protoccol` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '适配协议',
+                                  `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                                  `status` tinyint(1) NOT NULL,
+                                  `last` datetime DEFAULT NULL,
+                                  `created_at` datetime DEFAULT NULL,
+                                  `updated_at` datetime DEFAULT NULL,
+                                  `remark` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '备注',
+                                  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb3 COMMENT='网络通道表';
 
 -- ----------------------------
 -- Records of network_tunnel
@@ -721,14 +1255,14 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `notice_config`;
 CREATE TABLE `notice_config` (
-  `id` varchar(32) NOT NULL,
-  `title` varchar(100) NOT NULL,
-  `send_gateway` varchar(200) NOT NULL,
-  `types` tinyint(1) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='通知服务配置表';
+                                 `id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                 `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                 `send_gateway` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                 `types` tinyint(1) NOT NULL,
+                                 `created_at` datetime NOT NULL,
+                                 PRIMARY KEY (`id`) USING BTREE,
+                                 UNIQUE KEY `id` (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='通知服务配置表';
 
 -- ----------------------------
 -- Records of notice_config
@@ -750,22 +1284,22 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `notice_info`;
 CREATE TABLE `notice_info` (
-  `id` bigint(10) NOT NULL AUTO_INCREMENT,
-  `config_id` varchar(32) NOT NULL,
-  `come_from` varchar(100) NOT NULL,
-  `method` varchar(30) NOT NULL,
-  `msg_title` varchar(100) NOT NULL,
-  `msg_body` varchar(300) NOT NULL,
-  `msg_url` varchar(200) NOT NULL,
-  `user_ids` varchar(500) NOT NULL,
-  `org_ids` varchar(500) NOT NULL,
-  `totag` varchar(100) NOT NULL,
-  `status` tinyint(1) NOT NULL,
-  `method_cron` varchar(50) NOT NULL,
-  `method_num` int(10) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='通知服务发送信息表';
+                               `id` bigint NOT NULL AUTO_INCREMENT,
+                               `config_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `come_from` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `method` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `msg_title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `msg_body` varchar(300) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `msg_url` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `user_ids` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `org_ids` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `totag` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `status` tinyint(1) NOT NULL,
+                               `method_cron` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `method_num` int NOT NULL,
+                               `created_at` datetime NOT NULL,
+                               PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='通知服务发送信息表';
 
 -- ----------------------------
 -- Records of notice_info
@@ -778,48 +1312,39 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `notice_log`;
 CREATE TABLE `notice_log` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `send_gateway` varchar(32) NOT NULL DEFAULT '' COMMENT '通知渠道',
-  `template_id` varchar(32) NOT NULL DEFAULT '' COMMENT '通知模板ID',
-  `addressee` varchar(255) NOT NULL DEFAULT '' COMMENT '收信人列表',
-  `title` varchar(100) NOT NULL DEFAULT '' COMMENT '通知标题',
-  `content` varchar(500) NOT NULL DEFAULT '' COMMENT '通知内容',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '发送状态：0=失败，1=成功',
-  `fail_msg` varchar(500) NOT NULL DEFAULT '' COMMENT '失败信息',
-  `send_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=81985 DEFAULT CHARSET=utf8;
+                              `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                              `send_gateway` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知渠道',
+                              `template_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知模板ID',
+                              `addressee` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '收信人列表',
+                              `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知标题',
+                              `content` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知内容',
+                              `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '发送状态：0=失败，1=成功',
+                              `fail_msg` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '失败信息',
+                              `send_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
+                              PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=81985 DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Records of notice_log
 -- ----------------------------
 BEGIN;
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25591, 'sms', 'tu0rkg018o0colupp3s7vyv900vk3s6n', '13700005102', '5', '6', 1, '', '2022-12-20 00:00:46');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25592, 'sms', 'tu0rkg018o0colupp3s7vyv900vk3s6n', '13700005102', '5', '6', 1, '', '2022-12-20 00:00:46');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25593, 'mail', 'tu0rkg0ijj0cozi9ct6u7jr500vs6shu', 'xhpeng11@163.com', '告警邮件模板', '<div>你好，你的系统有如下告警：</div>\n<div> </div>\n<div>产品：模拟测试电表2022 </div>\n<div>设备：南门电表03 </div>\n<div>级别：紧急 </div>\n<div>触发规则：南门电表 (va < 120) </div>', 1, '', '2022-12-20 00:00:47');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25594, 'mail', 'tu0rkg0ijj0cozi9ct6u7jr500vs6shu', 'xhpeng11@163.com', '告警邮件模板', '<div>你好，你的系统有如下告警：</div>\n<div> </div>\n<div>产品：模拟测试电表2022 </div>\n<div>设备：南门电表03 </div>\n<div>级别：紧急 </div>\n<div>触发规则：南门电表 (va < 120) </div>', 1, '', '2022-12-20 00:00:47');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25595, 'sms', 'tu0rkg018o0colupp3s7vyv900vk3s6n', '13700005102', '5', '6', 1, '', '2022-12-20 00:00:52');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25596, 'sms', 'tu0rkg018o0colupp3s7vyv900vk3s6n', '13700005102', '5', '6', 1, '', '2022-12-20 00:00:53');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25597, 'mail', 'tu0rkg0ijj0cozi9ct6u7jr500vs6shu', 'xhpeng11@163.com', '告警邮件模板', '<div>你好，你的系统有如下告警：</div>\n<div> </div>\n<div>产品：模拟测试电表2022 </div>\n<div>设备：南门电表03 </div>\n<div>级别：紧急 </div>\n<div>触发规则：南门电表 (va < 120) </div>', 1, '', '2022-12-20 00:00:54');
-INSERT INTO `notice_log` (`id`, `send_gateway`, `template_id`, `addressee`, `title`, `content`, `status`, `fail_msg`, `send_time`) VALUES (25598, 'mail', 'tu0rkg0ijj0cozi9ct6u7jr500vs6shu', 'xhpeng11@163.com', '告警邮件模板', '<div>你好，你的系统有如下告警：</div>\n<div> </div>\n<div>产品：模拟测试电表2022 </div>\n<div>设备：南门电表03 </div>\n<div>级别：紧急 </div>\n<div>触发规则：南门电表 (va < 120) </div>', 1, '', '2022-12-20 00:00:54');
 COMMIT;
-
 
 -- ----------------------------
 -- Table structure for notice_template
 -- ----------------------------
 DROP TABLE IF EXISTS `notice_template`;
 CREATE TABLE `notice_template` (
-  `id` varchar(32) NOT NULL,
-  `config_id` varchar(32) NOT NULL,
-  `send_gateway` varchar(32) NOT NULL,
-  `code` varchar(32) NOT NULL,
-  `title` varchar(100) NOT NULL,
-  `content` varchar(500) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `config_id` (`config_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='通知模版表';
+                                   `id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `config_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `send_gateway` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `code` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `content` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `created_at` datetime NOT NULL,
+                                   PRIMARY KEY (`id`) USING BTREE,
+                                   UNIQUE KEY `config_id` (`config_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='通知模版表';
 
 -- ----------------------------
 -- Records of notice_template
@@ -837,24 +1362,24 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_api`;
 CREATE TABLE `sys_api` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL COMMENT '名称',
-  `types` int(11) NOT NULL COMMENT '1 分类 2接口',
-  `method` varchar(255) DEFAULT NULL COMMENT '请求方式(数据字典维护)',
-  `address` varchar(255) DEFAULT NULL COMMENT '接口地址',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `status` int(11) NOT NULL COMMENT '状态 0 停用 1启用',
-  `sort` int(11) DEFAULT NULL COMMENT '排序',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `create_by` int(10) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_by` int(10) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=311 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='API 接口管理表';
+                           `id` int unsigned NOT NULL AUTO_INCREMENT,
+                           `parent_id` int NOT NULL,
+                           `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
+                           `types` int NOT NULL COMMENT '1 分类 2接口',
+                           `method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '请求方式(数据字典维护)',
+                           `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '接口地址',
+                           `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
+                           `status` int NOT NULL COMMENT '状态 0 停用 1启用',
+                           `sort` int DEFAULT NULL COMMENT '排序',
+                           `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                           `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                           `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                           `updated_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                           `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+                           `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                           `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                           PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=311 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='API 接口管理表';
 
 -- ----------------------------
 -- Records of sys_api
@@ -1100,18 +1625,18 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_authorize`;
 CREATE TABLE `sys_authorize` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `role_id` int(11) NOT NULL COMMENT '角色ID',
-  `items_type` varchar(50) NOT NULL COMMENT '项目类型 menu菜单 button按钮 column列表字段 api接口',
-  `items_id` int(11) NOT NULL COMMENT '项目ID',
-  `is_check_all` int(11) NOT NULL COMMENT '是否全选 1是 0否',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8133 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='角色与菜单、按钮、列表权限关系';
+                                 `id` int NOT NULL AUTO_INCREMENT,
+                                 `role_id` int NOT NULL COMMENT '角色ID',
+                                 `items_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '项目类型 menu菜单 button按钮 column列表字段 api接口',
+                                 `items_id` int NOT NULL COMMENT '项目ID',
+                                 `is_check_all` int NOT NULL COMMENT '是否全选 1是 0否',
+                                 `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                 `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                 `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                 `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                 `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                 PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=8133 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色与菜单、按钮、列表权限关系';
 
 -- ----------------------------
 -- Records of sys_authorize
@@ -1518,23 +2043,23 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE `sys_config` (
-  `config_id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '参数主键',
-  `config_name` varchar(100) NOT NULL DEFAULT '' COMMENT '参数名称',
-  `config_key` varchar(100) NOT NULL DEFAULT '' COMMENT '参数键名',
-  `config_value` varchar(500) NOT NULL DEFAULT '' COMMENT '参数键值',
-  `config_type` int(11) NOT NULL DEFAULT '0' COMMENT '系统内置（1是 2否）',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `status` int(11) NOT NULL COMMENT '状态 0 停用 1启用',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `create_by` int(10) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `update_by` int(10) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`config_id`) USING BTREE,
-  UNIQUE KEY `uni_config_key` (`config_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='系统参数';
+                              `config_id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '参数主键',
+                              `config_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '参数名称',
+                              `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '参数键名',
+                              `config_value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '参数键值',
+                              `config_type` int NOT NULL DEFAULT '0' COMMENT '系统内置（1是 2否）',
+                              `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
+                              `status` int NOT NULL COMMENT '状态 0 停用 1启用',
+                              `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                              `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                              `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                              `update_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                              `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+                              `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                              `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                              PRIMARY KEY (`config_id`) USING BTREE,
+                              UNIQUE KEY `uni_config_key` (`config_key`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统参数';
 
 -- ----------------------------
 -- Records of sys_config
@@ -1563,25 +2088,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept` (
-  `dept_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '部门id',
-  `organization_id` int(11) NOT NULL COMMENT '组织ID',
-  `parent_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '父部门id',
-  `ancestors` varchar(1000) NOT NULL DEFAULT '' COMMENT '祖级列表',
-  `dept_name` varchar(30) NOT NULL DEFAULT '' COMMENT '部门名称',
-  `order_num` int(11) DEFAULT '0' COMMENT '显示顺序',
-  `leader` varchar(20) DEFAULT NULL COMMENT '负责人',
-  `phone` varchar(11) DEFAULT NULL COMMENT '联系电话',
-  `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '部门状态（0停用 1正常）',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `updated_by` int(11) DEFAULT NULL COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`dept_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='部门表';
+                            `dept_id` bigint NOT NULL AUTO_INCREMENT COMMENT '部门id',
+                            `organization_id` int NOT NULL COMMENT '组织ID',
+                            `parent_id` bigint NOT NULL DEFAULT '0' COMMENT '父部门id',
+                            `ancestors` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '祖级列表',
+                            `dept_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '部门名称',
+                            `order_num` int DEFAULT '0' COMMENT '显示顺序',
+                            `leader` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '负责人',
+                            `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '联系电话',
+                            `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '邮箱',
+                            `status` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '部门状态（0停用 1正常）',
+                            `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                            `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                            `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                            `updated_by` int DEFAULT NULL COMMENT '修改人',
+                            `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+                            `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                            `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                            PRIMARY KEY (`dept_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='部门表';
 
 -- ----------------------------
 -- Records of sys_dept
@@ -1601,25 +2126,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_data`;
 CREATE TABLE `sys_dict_data` (
-  `dict_code` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '字典编码',
-  `dict_sort` int(11) DEFAULT '0' COMMENT '字典排序',
-  `dict_label` varchar(100) DEFAULT '' COMMENT '字典标签',
-  `dict_value` varchar(100) DEFAULT '' COMMENT '字典键值',
-  `dict_type` varchar(100) DEFAULT '' COMMENT '字典类型',
-  `css_class` varchar(100) DEFAULT NULL COMMENT '样式属性（其他样式扩展）',
-  `list_class` varchar(100) DEFAULT NULL COMMENT '表格回显样式',
-  `is_default` tinyint(1) DEFAULT '0' COMMENT '是否默认（1是 0否）',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `create_by` int(10) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `update_by` int(10) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`dict_code`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='字典数据表';
+                                 `dict_code` bigint NOT NULL AUTO_INCREMENT COMMENT '字典编码',
+                                 `dict_sort` int DEFAULT '0' COMMENT '字典排序',
+                                 `dict_label` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '字典标签',
+                                 `dict_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '字典键值',
+                                 `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '字典类型',
+                                 `css_class` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '样式属性（其他样式扩展）',
+                                 `list_class` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '表格回显样式',
+                                 `is_default` tinyint(1) DEFAULT '0' COMMENT '是否默认（1是 0否）',
+                                 `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
+                                 `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
+                                 `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                 `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                                 `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                 `update_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                                 `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+                                 `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                 `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                 PRIMARY KEY (`dict_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='字典数据表';
 
 -- ----------------------------
 -- Records of sys_dict_data
@@ -1690,23 +2215,23 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_type`;
 CREATE TABLE `sys_dict_type` (
-  `dict_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '字典主键',
-  `parent_id` int(11) NOT NULL COMMENT '父主键ID',
-  `dict_name` varchar(100) NOT NULL DEFAULT '' COMMENT '字典名称',
-  `dict_type` varchar(100) NOT NULL DEFAULT '' COMMENT '字典类型',
-  `module_classify` varchar(255) NOT NULL COMMENT '模块分类',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `create_by` int(10) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建日期',
-  `update_by` int(10) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`dict_id`) USING BTREE,
-  UNIQUE KEY `dict_type` (`dict_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='字典类型表';
+                                 `dict_id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '字典主键',
+                                 `parent_id` int NOT NULL COMMENT '父主键ID',
+                                 `dict_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '字典名称',
+                                 `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '字典类型',
+                                 `module_classify` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块分类',
+                                 `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
+                                 `status` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
+                                 `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                 `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                                 `created_at` datetime DEFAULT NULL COMMENT '创建日期',
+                                 `update_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                                 `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
+                                 `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                 `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                 PRIMARY KEY (`dict_id`) USING BTREE,
+                                 UNIQUE KEY `dict_type` (`dict_type`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='字典类型表';
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -1738,23 +2263,23 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job`;
 CREATE TABLE `sys_job` (
-  `job_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务ID',
-  `job_name` varchar(64) NOT NULL DEFAULT '' COMMENT '任务名称',
-  `job_params` varchar(200) DEFAULT '' COMMENT '参数',
-  `job_group` varchar(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '任务组名',
-  `invoke_target` varchar(500) NOT NULL COMMENT '调用目标字符串',
-  `cron_expression` varchar(255) DEFAULT '' COMMENT 'cron执行表达式',
-  `misfire_policy` tinyint(4) DEFAULT '1' COMMENT '计划执行策略（1多次执行 2执行一次）',
-  `concurrent` tinyint(4) DEFAULT '1' COMMENT '是否并发执行（0允许 1禁止）',
-  `status` tinyint(4) DEFAULT '1' COMMENT '状态（0正常 1暂停）',
-  `create_by` bigint(64) unsigned DEFAULT '0' COMMENT '创建者',
-  `update_by` bigint(64) unsigned DEFAULT '0' COMMENT '更新者',
-  `remark` varchar(500) DEFAULT '' COMMENT '备注信息',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`job_id`,`job_name`,`job_group`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='定时任务调度表';
+                           `job_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+                           `job_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '任务名称',
+                           `job_params` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '参数',
+                           `job_group` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'DEFAULT' COMMENT '任务组名',
+                           `invoke_target` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '调用目标字符串',
+                           `cron_expression` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT 'cron执行表达式',
+                           `misfire_policy` tinyint DEFAULT '1' COMMENT '计划执行策略（1多次执行 2执行一次）',
+                           `concurrent` tinyint DEFAULT '1' COMMENT '是否并发执行（0允许 1禁止）',
+                           `status` tinyint DEFAULT '1' COMMENT '状态（0正常 1暂停）',
+                           `create_by` bigint unsigned DEFAULT '0' COMMENT '创建者',
+                           `update_by` bigint unsigned DEFAULT '0' COMMENT '更新者',
+                           `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '备注信息',
+                           `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                           `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                           `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                           PRIMARY KEY (`job_id`,`job_name`,`job_group`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='定时任务调度表';
 
 -- ----------------------------
 -- Records of sys_job
@@ -1777,18 +2302,18 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_login_log`;
 CREATE TABLE `sys_login_log` (
-  `info_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
-  `login_name` varchar(50) DEFAULT '' COMMENT '登录账号',
-  `ipaddr` varchar(50) DEFAULT '' COMMENT '登录IP地址',
-  `login_location` varchar(255) DEFAULT '' COMMENT '登录地点',
-  `browser` varchar(50) DEFAULT '' COMMENT '浏览器类型',
-  `os` varchar(50) DEFAULT '' COMMENT '操作系统',
-  `status` tinyint(4) DEFAULT '0' COMMENT '登录状态（0失败 1成功）',
-  `msg` varchar(255) DEFAULT '' COMMENT '提示消息',
-  `login_time` datetime DEFAULT NULL COMMENT '登录时间',
-  `module` varchar(30) DEFAULT '' COMMENT '登录模块',
-  PRIMARY KEY (`info_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2472 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='系统访问记录';
+                                 `info_id` bigint NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+                                 `login_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '登录账号',
+                                 `ipaddr` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '登录IP地址',
+                                 `login_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '登录地点',
+                                 `browser` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '浏览器类型',
+                                 `os` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '操作系统',
+                                 `status` tinyint DEFAULT '0' COMMENT '登录状态（0失败 1成功）',
+                                 `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '提示消息',
+                                 `login_time` datetime DEFAULT NULL COMMENT '登录时间',
+                                 `module` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '登录模块',
+                                 PRIMARY KEY (`info_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2474 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统访问记录';
 
 -- ----------------------------
 -- Records of sys_login_log
@@ -1798,6 +2323,8 @@ INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`
 INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (345, 'admin', '117.22.82.22', '陕西省 西安市', 'Chrome', 'Windows 10', 1, '登录成功', '2022-08-25 02:18:51', '系统后台');
 INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (346, 'admin', '175.0.186.240', '湖南省 长沙市', 'Chrome', 'Windows 10', 1, '登录成功', '2022-08-25 03:27:12', '系统后台');
 INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (347, 'admin', '113.232.143.120', '辽宁省 沈阳市', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2022-08-25 03:30:20', '系统后台');
+INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (2472, 'admin', '::1', '北京市 北京市', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2023-02-10 12:53:48', '系统后台');
+INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (2473, 'admin', '127.0.0.1', '内网IP', 'PostmanRuntime-ApipostRuntime', '', 1, '登录成功', '2023-07-18 16:26:22', '系统后台');
 COMMIT;
 
 -- ----------------------------
@@ -1805,39 +2332,39 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父ID',
-  `name` varchar(100) NOT NULL DEFAULT '' COMMENT '规则名称',
-  `title` varchar(50) NOT NULL DEFAULT '' COMMENT '菜单名称',
-  `icon` varchar(300) NOT NULL DEFAULT '' COMMENT '图标',
-  `condition` varchar(255) NOT NULL DEFAULT '' COMMENT '条件',
-  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
-  `menu_type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '类型 0目录 1菜单 2按钮',
-  `weigh` int(11) NOT NULL DEFAULT '0' COMMENT '权重',
-  `is_hide` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '显示状态',
-  `path` varchar(100) NOT NULL DEFAULT '' COMMENT '路由地址',
-  `component` varchar(100) NOT NULL DEFAULT '' COMMENT '组件路径',
-  `is_link` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否外链 1是 0否',
-  `module_type` varchar(30) NOT NULL DEFAULT '' COMMENT '所属模块 system 运维 company企业',
-  `model_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
-  `is_iframe` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否内嵌iframe',
-  `is_cached` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否缓存',
-  `redirect` varchar(255) NOT NULL DEFAULT '' COMMENT '路由重定向地址',
-  `is_affix` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否固定',
-  `link_url` varchar(500) NOT NULL DEFAULT '' COMMENT '链接地址',
-  `status` int(11) NOT NULL COMMENT '状态 0 停用 1启用',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_by` int(11) DEFAULT NULL COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `name` (`name`) USING BTREE,
-  KEY `pid` (`parent_id`) USING BTREE,
-  KEY `weigh` (`weigh`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='菜单节点表';
+                            `id` int unsigned NOT NULL AUTO_INCREMENT,
+                            `parent_id` int NOT NULL DEFAULT '0' COMMENT '父ID',
+                            `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '规则名称',
+                            `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '菜单名称',
+                            `icon` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '图标',
+                            `condition` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '条件',
+                            `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '备注',
+                            `menu_type` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '类型 0目录 1菜单 2按钮',
+                            `weigh` int NOT NULL DEFAULT '0' COMMENT '权重',
+                            `is_hide` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '显示状态',
+                            `path` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '路由地址',
+                            `component` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '组件路径',
+                            `is_link` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否外链 1是 0否',
+                            `module_type` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '所属模块 system 运维 company企业',
+                            `model_id` int unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
+                            `is_iframe` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否内嵌iframe',
+                            `is_cached` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否缓存',
+                            `redirect` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '路由重定向地址',
+                            `is_affix` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否固定',
+                            `link_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '链接地址',
+                            `status` int NOT NULL COMMENT '状态 0 停用 1启用',
+                            `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                            `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                            `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                            `updated_by` int DEFAULT NULL COMMENT '修改人',
+                            `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                            `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                            `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                            PRIMARY KEY (`id`) USING BTREE,
+                            UNIQUE KEY `name` (`name`) USING BTREE,
+                            KEY `pid` (`parent_id`) USING BTREE,
+                            KEY `weigh` (`weigh`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单节点表';
 
 -- ----------------------------
 -- Records of sys_menu
@@ -1910,16 +2437,16 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu_api`;
 CREATE TABLE `sys_menu_api` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `menu_id` int(11) NOT NULL COMMENT '菜单ID',
-  `api_id` int(11) NOT NULL COMMENT 'apiId',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=390 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='菜单与接口关系表';
+                                `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+                                `menu_id` int NOT NULL COMMENT '菜单ID',
+                                `api_id` int NOT NULL COMMENT 'apiId',
+                                `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=390 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单与接口关系表';
 
 -- ----------------------------
 -- Records of sys_menu_api
@@ -2321,22 +2848,22 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu_button`;
 CREATE TABLE `sys_menu_button` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL COMMENT '父ID',
-  `menu_id` int(11) NOT NULL COMMENT '菜单ID',
-  `name` varchar(255) NOT NULL COMMENT '名称',
-  `types` varchar(20) NOT NULL COMMENT '类型 自定义 add添加 edit编辑 del 删除',
-  `description` varchar(255) DEFAULT NULL COMMENT '描述',
-  `status` int(11) NOT NULL COMMENT '状态 0 停用 1启用',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_by` int(11) DEFAULT NULL COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='菜单与按钮关系表';
+                                   `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                   `parent_id` int NOT NULL COMMENT '父ID',
+                                   `menu_id` int NOT NULL COMMENT '菜单ID',
+                                   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
+                                   `types` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '类型 自定义 add添加 edit编辑 del 删除',
+                                   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+                                   `status` int NOT NULL COMMENT '状态 0 停用 1启用',
+                                   `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                   `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                   `updated_by` int DEFAULT NULL COMMENT '修改人',
+                                   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                   `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                   `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                   PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单与按钮关系表';
 
 -- ----------------------------
 -- Records of sys_menu_button
@@ -2511,22 +3038,22 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu_column`;
 CREATE TABLE `sys_menu_column` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL COMMENT '父ID',
-  `menu_id` int(11) NOT NULL COMMENT '菜单ID',
-  `name` varchar(255) NOT NULL COMMENT '名称',
-  `code` varchar(50) NOT NULL COMMENT '代表字段',
-  `description` varchar(255) DEFAULT NULL COMMENT '描述',
-  `status` int(11) NOT NULL COMMENT '状态 0 停用 1启用',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_by` int(11) DEFAULT NULL COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=245 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='菜单列表字段';
+                                   `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                   `parent_id` int NOT NULL COMMENT '父ID',
+                                   `menu_id` int NOT NULL COMMENT '菜单ID',
+                                   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
+                                   `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '代表字段',
+                                   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+                                   `status` int NOT NULL COMMENT '状态 0 停用 1启用',
+                                   `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                   `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                   `updated_by` int DEFAULT NULL COMMENT '修改人',
+                                   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+                                   `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                   `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                   PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=245 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单列表字段';
 
 -- ----------------------------
 -- Records of sys_menu_column
@@ -2724,7 +3251,6 @@ INSERT INTO `sys_menu_column` (`id`, `parent_id`, `menu_id`, `name`, `code`, `de
 INSERT INTO `sys_menu_column` (`id`, `parent_id`, `menu_id`, `name`, `code`, `description`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (240, -1, 42, '状态', 'status', '', 1, 0, 1, '2022-12-15 19:39:54', 0, '2022-12-15 19:39:54', 0, NULL);
 INSERT INTO `sys_menu_column` (`id`, `parent_id`, `menu_id`, `name`, `code`, `description`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (241, -1, 42, '创建时间', 'createdAt', '', 1, 0, 1, '2022-12-15 19:39:56', 0, '2022-12-15 19:39:56', 0, NULL);
 INSERT INTO `sys_menu_column` (`id`, `parent_id`, `menu_id`, `name`, `code`, `description`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (242, -1, 42, '操作', 'handle', '', 1, 0, 1, '2022-12-15 19:39:58', 0, '2022-12-15 19:39:58', 0, NULL);
-
 COMMIT;
 
 -- ----------------------------
@@ -2732,66 +3258,76 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_notifications`;
 CREATE TABLE `sys_notifications` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(100) NOT NULL COMMENT '标题',
-  `doc` varchar(200) NOT NULL COMMENT '描述',
-  `source` varchar(50) NOT NULL COMMENT '消息来源',
-  `types` varchar(50) NOT NULL COMMENT '类型',
-  `created_at` datetime NOT NULL COMMENT '发送时间',
-  `status` tinyint(1) NOT NULL COMMENT '0，未读，1，已读',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='消息中心';
+                                     `id` int NOT NULL AUTO_INCREMENT,
+                                     `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '标题',
+                                     `doc` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '描述',
+                                     `source` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '消息来源',
+                                     `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '类型',
+                                     `created_at` datetime NOT NULL COMMENT '发送时间',
+                                     `status` tinyint(1) NOT NULL COMMENT '0，未读，1，已读',
+                                     PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='消息中心';
 
+-- ----------------------------
+-- Records of sys_notifications
+-- ----------------------------
+BEGIN;
+COMMIT;
 
 -- ----------------------------
 -- Table structure for sys_oper_log
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_oper_log`;
 CREATE TABLE `sys_oper_log` (
-  `oper_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '日志主键',
-  `title` varchar(50) DEFAULT '' COMMENT '模块标题',
-  `business_type` int(11) DEFAULT '0' COMMENT '业务类型（0其它 1新增 2修改 3删除）',
-  `method` varchar(100) DEFAULT '' COMMENT '方法名称',
-  `request_method` varchar(10) DEFAULT '' COMMENT '请求方式',
-  `operator_type` int(11) DEFAULT '0' COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
-  `oper_name` varchar(50) DEFAULT '' COMMENT '操作人员',
-  `dept_name` varchar(50) DEFAULT '' COMMENT '部门名称',
-  `oper_url` varchar(500) DEFAULT '' COMMENT '请求URL',
-  `oper_ip` varchar(50) DEFAULT '' COMMENT '主机地址',
-  `oper_location` varchar(255) DEFAULT '' COMMENT '操作地点',
-  `oper_param` text COMMENT '请求参数',
-  `json_result` text COMMENT '返回参数',
-  `status` int(11) DEFAULT '0' COMMENT '操作状态（0异常 1正常）',
-  `error_msg` varchar(2000) DEFAULT '' COMMENT '错误消息',
-  `oper_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
-  PRIMARY KEY (`oper_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=68867 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='操作日志记录';
+                                `oper_id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+                                `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '模块标题',
+                                `business_type` int DEFAULT '0' COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+                                `method` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '方法名称',
+                                `request_method` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '请求方式',
+                                `operator_type` int DEFAULT '0' COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+                                `oper_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '操作人员',
+                                `dept_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '部门名称',
+                                `oper_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '请求URL',
+                                `oper_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '主机地址',
+                                `oper_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '操作地点',
+                                `oper_param` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '请求参数',
+                                `json_result` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '返回参数',
+                                `status` int DEFAULT '0' COMMENT '操作状态（0异常 1正常）',
+                                `error_msg` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '错误消息',
+                                `oper_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+                                PRIMARY KEY (`oper_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=68872 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
 
+-- ----------------------------
+-- Records of sys_oper_log
+-- ----------------------------
+BEGIN;
+COMMIT;
 
 -- ----------------------------
 -- Table structure for sys_organization
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_organization`;
 CREATE TABLE `sys_organization` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '组织ID',
-  `parent_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '父组织id',
-  `ancestors` varchar(1000) NOT NULL DEFAULT '' COMMENT '祖级列表',
-  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '组织名称',
-  `number` varchar(50) NOT NULL COMMENT '组织编号',
-  `order_num` int(11) DEFAULT '0' COMMENT '显示顺序',
-  `leader` varchar(20) DEFAULT NULL COMMENT '负责人',
-  `phone` varchar(11) DEFAULT NULL COMMENT '联系电话',
-  `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '组织状态（0停用 1正常）',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `updated_by` int(11) DEFAULT NULL COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='组织表';
+                                    `id` bigint NOT NULL AUTO_INCREMENT COMMENT '组织ID',
+                                    `parent_id` bigint NOT NULL DEFAULT '0' COMMENT '父组织id',
+                                    `ancestors` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '祖级列表',
+                                    `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '组织名称',
+                                    `number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '组织编号',
+                                    `order_num` int DEFAULT '0' COMMENT '显示顺序',
+                                    `leader` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '负责人',
+                                    `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '联系电话',
+                                    `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '邮箱',
+                                    `status` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '组织状态（0停用 1正常）',
+                                    `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                                    `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                                    `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                                    `updated_by` int DEFAULT NULL COMMENT '修改人',
+                                    `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+                                    `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                                    `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                                    PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='组织表';
 
 -- ----------------------------
 -- Records of sys_organization
@@ -2817,17 +3353,17 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_plugins`;
 CREATE TABLE `sys_plugins` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `types` varchar(50) NOT NULL COMMENT '插件类型',
-  `name` varchar(100) NOT NULL COMMENT '名称',
-  `title` varchar(100) NOT NULL COMMENT '标题',
-  `intro` varchar(200) NOT NULL COMMENT '介绍',
-  `version` varchar(50) NOT NULL COMMENT '版本',
-  `author` varchar(100) NOT NULL COMMENT '作者',
-  `status` tinyint(1) NOT NULL COMMENT '状态',
-  `start_time` datetime NOT NULL COMMENT '启动时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='系统插件表';
+                               `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                               `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '插件类型',
+                               `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '名称',
+                               `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '标题',
+                               `intro` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '介绍',
+                               `version` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '版本',
+                               `author` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '作者',
+                               `status` tinyint(1) NOT NULL COMMENT '状态',
+                               `start_time` datetime NOT NULL COMMENT '启动时间',
+                               PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COMMENT='系统插件表';
 
 -- ----------------------------
 -- Records of sys_plugins
@@ -2842,14 +3378,14 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_plugins_config`;
 CREATE TABLE `sys_plugins_config` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(50) NOT NULL COMMENT '插件类型',
-  `name` varchar(50) NOT NULL COMMENT '插件名称',
-  `value` varchar(300) NOT NULL COMMENT '配置内容',
-  `doc` varchar(300) NOT NULL COMMENT '配置说明',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `typeandname` (`type`,`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COMMENT='插件配置表';
+                                      `id` int NOT NULL AUTO_INCREMENT,
+                                      `type` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '插件类型',
+                                      `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '插件名称',
+                                      `value` varchar(300) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '配置内容',
+                                      `doc` varchar(300) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '配置说明',
+                                      PRIMARY KEY (`id`) USING BTREE,
+                                      UNIQUE KEY `typeandname` (`type`,`name`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 COMMENT='插件配置表';
 
 -- ----------------------------
 -- Records of sys_plugins_config
@@ -2869,22 +3405,22 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_post`;
 CREATE TABLE `sys_post` (
-  `post_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
-  `parent_id` int(11) NOT NULL COMMENT '父ID',
-  `post_code` varchar(64) NOT NULL COMMENT '岗位编码',
-  `post_name` varchar(50) NOT NULL COMMENT '岗位名称',
-  `post_sort` int(11) NOT NULL COMMENT '显示顺序',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `created_by` int(10) unsigned DEFAULT '0' COMMENT '创建人',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_by` int(10) unsigned DEFAULT '0' COMMENT '修改人',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`post_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='岗位信息表';
+                            `post_id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
+                            `parent_id` int NOT NULL COMMENT '父ID',
+                            `post_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '岗位编码',
+                            `post_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '岗位名称',
+                            `post_sort` int NOT NULL COMMENT '显示顺序',
+                            `status` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
+                            `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
+                            `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                            `created_by` int unsigned DEFAULT '0' COMMENT '创建人',
+                            `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+                            `updated_by` int unsigned DEFAULT '0' COMMENT '修改人',
+                            `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+                            `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                            `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                            PRIMARY KEY (`post_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='岗位信息表';
 
 -- ----------------------------
 -- Records of sys_post
@@ -2904,23 +3440,23 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL COMMENT '父ID',
-  `list_order` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
-  `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '角色名称',
-  `data_scope` tinyint(3) unsigned DEFAULT '3' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
-  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
-  `status` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '状态;0:禁用;1:正常',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `create_by` int(11) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建日期',
-  `update_by` int(11) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `status` (`status`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
+                            `id` int unsigned NOT NULL AUTO_INCREMENT,
+                            `parent_id` int NOT NULL COMMENT '父ID',
+                            `list_order` int unsigned NOT NULL DEFAULT '0' COMMENT '排序',
+                            `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '角色名称',
+                            `data_scope` tinyint unsigned DEFAULT '3' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
+                            `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '备注',
+                            `status` int unsigned NOT NULL DEFAULT '0' COMMENT '状态;0:禁用;1:正常',
+                            `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                            `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                            `created_at` datetime DEFAULT NULL COMMENT '创建日期',
+                            `update_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                            `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
+                            `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                            `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                            PRIMARY KEY (`id`) USING BTREE,
+                            KEY `status` (`status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色表';
 
 -- ----------------------------
 -- Records of sys_role
@@ -2935,10 +3471,10 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_dept`;
 CREATE TABLE `sys_role_dept` (
-  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
-  `dept_id` bigint(20) NOT NULL COMMENT '部门ID',
-  PRIMARY KEY (`role_id`,`dept_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色和部门关联表';
+                                 `role_id` bigint NOT NULL COMMENT '角色ID',
+                                 `dept_id` bigint NOT NULL COMMENT '部门ID',
+                                 PRIMARY KEY (`role_id`,`dept_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色和部门关联表';
 
 -- ----------------------------
 -- Records of sys_role_dept
@@ -2952,45 +3488,44 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '用户名',
-  `user_types` varchar(255) DEFAULT NULL COMMENT '系统 system 企业 company',
-  `mobile` varchar(20) NOT NULL DEFAULT '' COMMENT '中国手机不带国家代码，国际手机号格式为：国家代码-手机号',
-  `user_nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '用户昵称',
-  `birthday` int(11) NOT NULL DEFAULT '0' COMMENT '生日',
-  `user_password` varchar(255) NOT NULL DEFAULT '' COMMENT '登录密码;cmf_password加密',
-  `user_salt` char(10) NOT NULL COMMENT '加密盐',
-  `user_email` varchar(100) NOT NULL DEFAULT '' COMMENT '用户登录邮箱',
-  `sex` tinyint(4) NOT NULL DEFAULT '0' COMMENT '性别;0:保密,1:男,2:女',
-  `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '用户头像',
-  `dept_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '部门id',
-  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
-  `is_admin` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否后台管理员 1 是  0   否',
-  `address` varchar(255) NOT NULL DEFAULT '' COMMENT '联系地址',
-  `describe` varchar(255) NOT NULL DEFAULT '' COMMENT ' 描述信息',
-  `last_login_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '最后登录ip',
-  `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
-  `status` int(10) unsigned NOT NULL DEFAULT '1' COMMENT '用户状态;0:禁用,1:正常,2:未验证',
-  `is_deleted` int(11) NOT NULL COMMENT '是否删除 0未删除 1已删除',
-  `create_by` int(10) unsigned DEFAULT '0' COMMENT '创建者',
-  `created_at` datetime DEFAULT NULL COMMENT '创建日期',
-  `update_by` int(10) unsigned DEFAULT '0' COMMENT '更新者',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
-  `deleted_by` int(11) DEFAULT NULL COMMENT '删除人',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `user_login` (`user_name`,`deleted_at`) USING BTREE,
-  UNIQUE KEY `mobile` (`mobile`,`deleted_at`) USING BTREE,
-  KEY `user_nickname` (`user_nickname`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
+                            `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                            `user_name` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '用户名',
+                            `user_types` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '系统 system 企业 company',
+                            `mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '中国手机不带国家代码，国际手机号格式为：国家代码-手机号',
+                            `user_nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '用户昵称',
+                            `birthday` int NOT NULL DEFAULT '0' COMMENT '生日',
+                            `user_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '登录密码;cmf_password加密',
+                            `user_salt` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '加密盐',
+                            `user_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '用户登录邮箱',
+                            `sex` tinyint NOT NULL DEFAULT '0' COMMENT '性别;0:保密,1:男,2:女',
+                            `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '用户头像',
+                            `dept_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '部门id',
+                            `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '备注',
+                            `is_admin` tinyint NOT NULL DEFAULT '1' COMMENT '是否后台管理员 1 是  0   否',
+                            `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '联系地址',
+                            `describe` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT ' 描述信息',
+                            `last_login_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '最后登录ip',
+                            `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
+                            `status` int unsigned NOT NULL DEFAULT '1' COMMENT '用户状态;0:禁用,1:正常,2:未验证',
+                            `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                            `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
+                            `created_at` datetime DEFAULT NULL COMMENT '创建日期',
+                            `update_by` int unsigned DEFAULT '0' COMMENT '更新者',
+                            `updated_at` datetime DEFAULT NULL COMMENT '修改日期',
+                            `deleted_by` int DEFAULT NULL COMMENT '删除人',
+                            `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+                            PRIMARY KEY (`id`) USING BTREE,
+                            UNIQUE KEY `user_login` (`user_name`,`deleted_at`) USING BTREE,
+                            UNIQUE KEY `mobile` (`mobile`,`deleted_at`) USING BTREE,
+                            KEY `user_nickname` (`user_nickname`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (1, 'admin', '1', '15888888889', '超级管理员', 1990, '3a66af5d8753bf48bf97dd3be53d1956', 'IIsQ2vKfaV', 'yxh669@qq.com', 1, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-11-11/co9dilmc7lt8ahwaa6.png', 6, '', 1, 'asdasfdsaf大发放打发士大夫发按时', '描述信息', '112.41.4.221', '2023-01-01 18:22:18', 1, 0, 1, '2022-08-03 21:33:30', 10, '2023-01-01 18:22:18', 0, NULL);
+INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (1, 'admin', '1', '15888888889', '超级管理员', 1990, '3a66af5d8753bf48bf97dd3be53d1956', 'IIsQ2vKfaV', 'yxh669@qq.com', 1, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-11-11/co9dilmc7lt8ahwaa6.png', 6, '', 1, 'asdasfdsaf大发放打发士大夫发按时', '描述信息', '127.0.0.1', '2023-07-18 16:26:22', 1, 0, 1, '2022-08-03 21:33:30', 10, '2023-07-18 16:26:22', 0, NULL);
 INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (10, 'demo', 'system', '18711111111', '演示示例账号', 0, 'e1f6ef3bd5cbf35fdb05b686b111d16f', 'k5jjjB3VU8', '', 0, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-12-04/cot10byfqd39ykjnno.png', 3, '', 1, '', '', '119.85.96.1', '2022-12-31 18:00:04', 1, 0, 1, '2022-11-03 00:19:50', 1, '2022-12-31 18:00:04', 0, NULL);
-
 COMMIT;
 
 -- ----------------------------
@@ -2998,25 +3533,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_online`;
 CREATE TABLE `sys_user_online` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `uuid` char(32) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '' COMMENT '用户标识',
-  `key` varchar(255) NOT NULL,
-  `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '' COMMENT '用户token',
-  `created_at` datetime NOT NULL COMMENT '登录时间',
-  `user_name` varchar(255) NOT NULL COMMENT '用户名',
-  `ip` varchar(120) NOT NULL DEFAULT '' COMMENT '登录ip',
-  `explorer` varchar(30) NOT NULL DEFAULT '' COMMENT '浏览器',
-  `os` varchar(30) NOT NULL DEFAULT '' COMMENT '操作系统',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `uni_token` (`token`) USING BTREE,
-  UNIQUE KEY `token` (`token`)
-) ENGINE=InnoDB AUTO_INCREMENT=849 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户在线状态表';
+                                   `id` int NOT NULL AUTO_INCREMENT,
+                                   `uuid` char(32) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '' COMMENT '用户标识',
+                                   `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                                   `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '' COMMENT '用户token',
+                                   `created_at` datetime NOT NULL COMMENT '登录时间',
+                                   `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户名',
+                                   `ip` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '登录ip',
+                                   `explorer` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '浏览器',
+                                   `os` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '操作系统',
+                                   PRIMARY KEY (`id`) USING BTREE,
+                                   UNIQUE KEY `uni_token` (`token`) USING BTREE,
+                                   UNIQUE KEY `token` (`token`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=851 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户在线状态表';
 
 -- ----------------------------
 -- Records of sys_user_online
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user_online` (`id`, `uuid`, `key`, `token`, `created_at`, `user_name`, `ip`, `explorer`, `os`) VALUES (848, 'tu0rkg0fwt0cpgs2b69xkdo1006fzb9h', '1-21232f297a57a5a743894a0e4a801fc3-e1db92661861f7772d7eabe1e4328e90', '5rrLCPtzPM4tnvlHq+0iav2BDmIrd9QCru7zhgXMkRfHyvxQikCz+SxJ1qEgNa5kL7XO5cyg7CCmQCP5lPgqCyzikx8yzR1capYtD08oQHlt9WScmPvI+BS2JCQgp0BOZZcDnNS9YL46Xi06nz1BXA==', '2023-01-01 18:22:18', 'admin', '112.41.4.221', 'Chrome', 'Intel Mac OS X 10_15_7');
+INSERT INTO `sys_user_online` (`id`, `uuid`, `key`, `token`, `created_at`, `user_name`, `ip`, `explorer`, `os`) VALUES (850, 'dhkhaa0rhy0cu55lepne420100e8xnw6', '1-21232f297a57a5a743894a0e4a801fc3-7886d3aba523f480f36f5a3cfe48eb0a', '5rrLCPtzPM4tnvlHq+0iav2BDmIrd9QCru7zhgXMkRdi6pITmpK3DfkFrpBflbtIHEDxaVqONEX72EhOZri4eJBZeKdPT5gA0tZX+xEVFTKQFuejJhJQAF+wf3ipgVSdOS3JHURpaxO7w84lgDseXQ==', '2023-07-18 16:26:22', 'admin', '127.0.0.1', 'PostmanRuntime-ApipostRuntime', '');
 COMMIT;
 
 -- ----------------------------
@@ -3024,10 +3559,10 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_post`;
 CREATE TABLE `sys_user_post` (
-  `user_id` int(11) NOT NULL COMMENT '用户ID',
-  `post_id` int(11) NOT NULL COMMENT '岗位ID',
-  PRIMARY KEY (`user_id`,`post_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户与岗位关联表';
+                                 `user_id` int NOT NULL COMMENT '用户ID',
+                                 `post_id` int NOT NULL COMMENT '岗位ID',
+                                 PRIMARY KEY (`user_id`,`post_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户与岗位关联表';
 
 -- ----------------------------
 -- Records of sys_user_post
@@ -3042,10 +3577,10 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role` (
-  `user_id` int(11) NOT NULL,
-  `role_id` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`,`role_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户和角色关联表';
+                                 `user_id` int NOT NULL,
+                                 `role_id` int NOT NULL,
+                                 PRIMARY KEY (`user_id`,`role_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户和角色关联表';
 
 -- ----------------------------
 -- Records of sys_user_role
