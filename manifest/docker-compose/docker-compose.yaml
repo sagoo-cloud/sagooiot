@@ -14,13 +14,17 @@ services:
     image: tdengine/tdengine:3.0.1.4
     container_name: tdengine-server
     restart: always
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - 6030:6030
       - 6041:6041
   emqx:
     image: emqx/emqx:5.0.26
-    restart: always
     container_name: emqx-server
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - 1883:1883
       - 8083:8083
