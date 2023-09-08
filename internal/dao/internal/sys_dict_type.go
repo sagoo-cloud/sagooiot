@@ -25,6 +25,7 @@ type SysDictTypeColumns struct {
 	DictName       string // 字典名称
 	DictType       string // 字典类型
 	ModuleClassify string // 模块分类
+	DictClass      string // 字典分类：取值从字典类型
 	Remark         string // 备注
 	Status         string // 状态（0正常 1停用）
 	IsDeleted      string // 是否删除 0未删除 1已删除
@@ -36,13 +37,14 @@ type SysDictTypeColumns struct {
 	DeletedAt      string // 删除时间
 }
 
-//  sysDictTypeColumns holds the columns for table sys_dict_type.
+// sysDictTypeColumns holds the columns for table sys_dict_type.
 var sysDictTypeColumns = SysDictTypeColumns{
 	DictId:         "dict_id",
 	ParentId:       "parent_id",
 	DictName:       "dict_name",
 	DictType:       "dict_type",
 	ModuleClassify: "module_classify",
+	DictClass:      "dict_class",
 	Remark:         "remark",
 	Status:         "status",
 	IsDeleted:      "is_deleted",

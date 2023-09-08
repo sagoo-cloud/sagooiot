@@ -3,9 +3,10 @@ package model
 import "github.com/gogf/gf/v2/os/gtime"
 
 type DictTypeDoInput struct {
-	DictName string `p:"dictName"` //字典名称
-	DictType string `p:"dictType"` //字典类型
-	Status   string `p:"status"`   //字典状态
+	DictName  string `p:"dictName"`  //字典名称
+	DictType  string `p:"dictType"`  //字典类型
+	Status    string `p:"status"`    //字典状态
+	DictClass string `p:"dictClass"` //字典分类
 	*PaginationInput
 }
 type SysDictTypeInfoOut struct {
@@ -15,21 +16,24 @@ type SysDictTypeInfoOut struct {
 	Status    uint        `orm:"status"           json:"status"`    // 状态（0正常 1停用）
 	Remark    string      `orm:"remark"           json:"remark"`    // 备注
 	CreatedAt *gtime.Time `orm:"created_at"       json:"createdAt"` // 创建日期
+	DictClass string      `orm:"dict_class"       json:"dictClass"` // 字典分类
 }
 
 type AddDictTypeInput struct {
-	DictName string `p:"dictName"`
-	DictType string `p:"dictType"`
-	Status   uint   `p:"status"`
-	Remark   string `p:"remark"`
+	DictName  string `p:"dictName"`
+	DictType  string `p:"dictType"`
+	Status    uint   `p:"status"`
+	Remark    string `p:"remark"`
+	DictClass string `p:"dictClass"`
 }
 
 type EditDictTypeInput struct {
-	DictId   int    `p:"dictId"`
-	DictName string `p:"dictName"`
-	DictType string `p:"dictType"`
-	Status   uint   `p:"status"`
-	Remark   string `p:"remark"`
+	DictId    int    `p:"dictId"`
+	DictName  string `p:"dictName"`
+	DictType  string `p:"dictType"`
+	Status    uint   `p:"status"`
+	Remark    string `p:"remark"`
+	DictClass string `p:"dictClass"`
 }
 
 type SysDictTypeInfoRes struct {
@@ -39,6 +43,7 @@ type SysDictTypeInfoRes struct {
 	Status    uint        `orm:"status"           json:"status"`    // 状态（0正常 1停用）
 	Remark    string      `orm:"remark"           json:"remark"`    // 备注
 	CreatedAt *gtime.Time `orm:"created_at"       json:"createdAt"` // 创建日期
+	DictClass string      `orm:"dict_class"       json:"dictClass"` // 字典分类
 }
 
 type SysDictTypeOut struct {
@@ -51,6 +56,7 @@ type SysDictTypeOut struct {
 	Remark    string      `json:"remark"    description:"备注"`
 	CreatedAt *gtime.Time `json:"createdAt" description:"创建日期"`
 	UpdatedAt *gtime.Time `json:"updatedAt" description:"修改日期"`
+	DictClass string      `json:"dictClass" description:"字典分类"`
 }
 
 type SysDictTypeRes struct {
@@ -63,4 +69,5 @@ type SysDictTypeRes struct {
 	Remark    string      `json:"remark"    description:"备注"`
 	CreatedAt *gtime.Time `json:"createdAt" description:"创建日期"`
 	UpdatedAt *gtime.Time `json:"updatedAt" description:"修改日期"`
+	DictClass string      `json:"dictClass" description:"字典分类"`
 }
