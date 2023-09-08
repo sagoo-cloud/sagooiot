@@ -39,7 +39,7 @@ type SysDictDataColumns struct {
 	DeletedAt string // 删除时间
 }
 
-//  sysDictDataColumns holds the columns for table sys_dict_data.
+// sysDictDataColumns holds the columns for table sys_dict_data.
 var sysDictDataColumns = SysDictDataColumns{
 	DictCode:  "dict_code",
 	DictSort:  "dict_sort",

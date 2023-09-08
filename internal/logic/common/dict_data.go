@@ -34,11 +34,15 @@ func (s *sDictData) GetDictWithDataByType(ctx context.Context, input *model.GetD
 			//从数据库获取
 			dict = &model.GetDictOut{}
 			//获取类型数据
-			err = dao.SysDictType.Ctx(ctx).Where(dao.SysDictType.Columns().DictType, input.DictType).
-				Where(dao.SysDictType.Columns().Status, 1).Fields(model.DictTypeOut{}).Scan(&dict.Data)
+			err = dao.SysDictType.Ctx(ctx).Where(g.Map{
+				dao.SysDictType.Columns().DictType: input.DictType,
+				dao.SysDictType.Columns().Status:   1,
+			}).Fields(model.DictTypeOut{}).Scan(&dict.Data)
 			liberr.ErrIsNil(ctx, err, "获取字典类型失败")
 			err = dao.SysDictData.Ctx(ctx).Fields(model.DictDataOut{}).
-				Where(dao.SysDictData.Columns().DictType, input.DictType).
+				Where(g.Map{
+					dao.SysDictData.Columns().DictType: input.DictType,
+				}).
 				Order(dao.SysDictData.Columns().DictSort + " asc," +
 					dao.SysDictData.Columns().DictCode + " asc").
 				Scan(&dict.Values)

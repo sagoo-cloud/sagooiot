@@ -17,6 +17,7 @@ type SysDictType struct {
 	DictName       interface{} // 字典名称
 	DictType       interface{} // 字典类型
 	ModuleClassify interface{} // 模块分类
+	DictClass      interface{} // 字典分类：取值从字典类型
 	Remark         interface{} // 备注
 	Status         interface{} // 状态（0正常 1停用）
 	IsDeleted      interface{} // 是否删除 0未删除 1已删除
