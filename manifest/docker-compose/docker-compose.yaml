@@ -14,13 +14,17 @@ services:
     image: tdengine/tdengine:3.0.1.4
     container_name: tdengine-server
     restart: always
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - 6030:6030
       - 6041:6041
   emqx:
     image: emqx/emqx:5.0.26
-    restart: always
     container_name: emqx-server
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - 1883:1883
       - 8083:8083
@@ -38,15 +42,4 @@ services:
       - ./mysql/init:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
-  nginx:
-    image: nginx:1.25.1
-    restart: always
-    container_name: nginx
-    privileged: true
-    ports:
-      - 80:80
-    volumes:
-      - "./nginx/conf/nginx.conf:/etc/nginx/nginx.conf"
-      - "./nginx/html/:/usr/share/nginx/html/"
-      - "./nginx/logs/:/var/log/nginx/"
       
