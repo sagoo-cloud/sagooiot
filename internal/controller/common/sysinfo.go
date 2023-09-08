@@ -27,11 +27,37 @@ func (s *cSysInfo) GetSysInfo(ctx context.Context, req *common.GetSysInfoReq) (r
 		systemCopyright = cfgSystemCopyright.ConfigValue
 	}
 
+	cfgSystemLogo, err := service.ConfigData().GetConfigByKey(ctx, "sys.system.logo")
+	systemLogo := ""
+	if cfgSystemLogo != nil {
+		systemLogo = cfgSystemLogo.ConfigValue
+	}
+	cfgSystemLogoMini, err := service.ConfigData().GetConfigByKey(ctx, "sys.system.logo.mini")
+	systemLogoMini := ""
+	if cfgSystemLogoMini != nil {
+		systemLogoMini = cfgSystemLogoMini.ConfigValue
+	}
+	cfgSystemLoginPic, err := service.ConfigData().GetConfigByKey(ctx, "sys.system.login.pic")
+	systemLoginPic := ""
+	if cfgSystemLoginPic != nil {
+		systemLoginPic = cfgSystemLoginPic.ConfigValue
+	}
+
+	cfgHomePageRoute, err := service.ConfigData().GetConfigByKey(ctx, "homePageRoute")
+	systemHomePageRoute := ""
+	if cfgHomePageRoute != nil {
+		systemHomePageRoute = cfgHomePageRoute.ConfigValue
+	}
+
 	res = &common.GetSysInfoRes{
-		"systemName":      systemName,
-		"systemCopyright": systemCopyright,
-		"buildVersion":    version.BuildVersion,
-		"buildTime":       version.BuildTime,
+		"systemName":          systemName,
+		"systemCopyright":     systemCopyright,
+		"systemLogo":          systemLogo,
+		"systemLogoMini":      systemLogoMini,
+		"systemLoginPIC":      systemLoginPic,
+		"buildVersion":        version.BuildVersion,
+		"buildTime":           version.BuildTime,
+		"systemHomePageRoute": systemHomePageRoute,
 	}
 
 	return
