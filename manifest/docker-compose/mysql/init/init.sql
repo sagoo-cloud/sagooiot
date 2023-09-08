@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 本地-MYSQL
+ Source Server         : IOT-MYSQL-OPEN
  Source Server Type    : MySQL
- Source Server Version : 80030 (8.0.30)
- Source Host           : localhost:3306
+ Source Server Version : 80025 (8.0.25)
+ Source Host           : localhost:3706
  Source Schema         : sagoo_iot_open
 
  Target Server Type    : MySQL
- Target Server Version : 80030 (8.0.30)
+ Target Server Version : 80025 (8.0.25)
  File Encoding         : 65001
 
- Date: 04/09/2023 17:04:30
+ Date: 08/09/2023 11:09:09
 */
 
 SET NAMES utf8mb4;
@@ -23,7 +23,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `alarm_level`;
 CREATE TABLE `alarm_level` (
                                `level` int unsigned NOT NULL COMMENT '告警级别',
-                               `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+                               `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '名称',
                                PRIMARY KEY (`level`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
@@ -46,16 +46,16 @@ CREATE TABLE `alarm_log` (
                              `id` bigint NOT NULL AUTO_INCREMENT,
                              `type` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '告警类型：1=规则告警，2=设备自主告警',
                              `rule_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '规则id',
-                             `rule_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '规则名称',
+                             `rule_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '规则名称',
                              `level` int unsigned NOT NULL DEFAULT '0' COMMENT '告警级别',
-                             `data` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '触发告警的数据',
-                             `product_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '产品标识',
-                             `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                             `data` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '触发告警的数据',
+                             `product_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '产品标识',
+                             `device_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
                              `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '告警状态：0=未处理，1=已处理',
                              `created_at` datetime DEFAULT NULL COMMENT '告警时间',
                              `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '告警处理人员',
                              `updated_at` datetime DEFAULT NULL COMMENT '处理时间',
-                             `content` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '处理意见',
+                             `content` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '处理意见',
                              PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=136208 DEFAULT CHARSET=utf8mb3;
 
@@ -63,7 +63,7 @@ CREATE TABLE `alarm_log` (
 -- Records of alarm_log
 -- ----------------------------
 BEGIN;
-INSERT INTO `alarm_log` (`id`, `type`, `rule_id`, `rule_name`, `level`, `data`, `product_key`, `device_key`, `status`, `created_at`, `update_by`, `updated_at`, `content`) VALUES (1, 1, 6, '南门电表', 2, '{\"ia\":138.87,\"ib\":112.03,\"ic\":119.54,\"pa\":17.17,\"pb\":52.86,\"pc\":21.04,\"ts\":\"2022-11-14 16:54:28\",\"va\":145.4,\"vab\":216.47,\"vb\":153.33,\"vbc\":201.05,\"vc\":162.82,\"vca\":120.46}', 'monipower20221103', 't20221333', 0, '2022-11-14 16:54:28', 0, '2022-11-14 16:54:28', '');
+INSERT INTO `alarm_log` (`id`, `type`, `rule_id`, `rule_name`, `level`, `data`, `product_key`, `device_key`, `status`, `created_at`, `update_by`, `updated_at`, `content`) VALUES (1, 1, 6, '南门电表', 2, '{\"ia\":138.87,\"ib\":112.03,\"ic\":119.54,\"pa\":17.17,\"pb\":52.86,\"pc\":21.04,\"ts\":\"2022-11-14 16:54:28\",\"va\":145.4,\"vab\":216.47,\"vb\":153.33,\"vbc\":201.05,\"vc\":162.82,\"vca\":120.46}', 'monipower20221103', 't20221333', 2, '2022-11-14 16:54:28', 1, '2023-09-08 10:44:52', '');
 COMMIT;
 
 -- ----------------------------
@@ -72,13 +72,13 @@ COMMIT;
 DROP TABLE IF EXISTS `alarm_rule`;
 CREATE TABLE `alarm_rule` (
                               `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                              `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '告警规则名称',
+                              `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '告警规则名称',
                               `level` int unsigned NOT NULL DEFAULT '4' COMMENT '告警级别，默认：4（一般）',
-                              `product_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '产品标识',
-                              `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                              `product_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '产品标识',
+                              `device_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
                               `trigger_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型：1=上线，2=离线，3=属性上报',
-                              `trigger_condition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '触发条件',
-                              `action` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '执行动作',
+                              `trigger_condition` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '触发条件',
+                              `action` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '执行动作',
                               `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未启用，1=已启用',
                               `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
                               `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
@@ -94,17 +94,17 @@ CREATE TABLE `alarm_rule` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, '测试', 1, '25', '15', 1, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0},{\"key\":\"sysReportTime\",\"operator\":\"ne\",\"value\":[\"2\"],\"andOr\":1}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 1, 0, 1, '2022-11-13 12:27:24', '2022-11-13 12:27:24', '2022-11-13 05:06:00');
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, '测试2', 3, 'monipower20221103', 't20221333', 3, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"gt\",\"value\":[\"200\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"mail\",\"noticeConfig\":\"tu0rkg0g4d0couk34jdudr7100b5f41f\",\"noticeTemplate\":\"tu0rkg0g4d0couk3cgkrqft200fm009z\",\"addressee\":[\"xinjy@qq.com\"]},{\"sendGateway\":\"sms\",\"noticeConfig\":\"tu0rkg0hq90cojuowfh931wi00vbhnck\",\"noticeTemplate\":\"tu0rkg018o0colupp3s7vyv900vk3s6n\",\"addressee\":[\"13700005102\"]}]}', 1, 1, 1, 0, '2022-11-13 13:00:05', '2022-12-09 14:46:41', NULL);
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 'axtest', 2, '25', '15', 1, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"gt\",\"value\":[\"2022-11-14:10\"],\"andOr\":0},{\"key\":\"\",\"operator\":\"\",\"value\":[],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 6, 0, 0, '2022-11-14 09:26:49', '2022-11-14 09:26:49', NULL);
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, 'test2', 4, '25', '14', 1, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 1, 0, 0, '2022-11-14 11:20:40', '2022-11-14 20:24:47', NULL);
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (5, 'test3', 4, 'monipower20221103', 't20221333', 3, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"lt\",\"value\":[\"120\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"sms\",\"noticeConfig\":\"tu0rkg0hq90cojuowfh931wi00vbhnck\",\"noticeTemplate\":\"tu0rkg018o0colupp3s7vyv900vk3s6n\",\"addressee\":[\"13700005102\"]}]}', 1, 1, 1, 0, '2022-11-14 11:21:44', '2022-12-07 07:54:00', NULL);
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (6, '南门电表', 2, 'monipower20221103', 't20221333', 3, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"lt\",\"value\":[\"120\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"mail\",\"noticeConfig\":\"tu0rkg0g4d0couk34jdudr7100b5f41f\",\"noticeTemplate\":\"tu0rkg0ijj0cozi9ct6u7jr500vs6shu\",\"addressee\":[\"xhpeng11@163.com\"]}]}', 1, 6, 6, 0, '2022-11-14 14:49:51', '2022-12-12 11:18:14', NULL);
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, '测试2', 3, 'monipower20221103', 't20221333', 3, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"gt\",\"value\":[\"200\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"mail\",\"noticeConfig\":\"tu0rkg0g4d0couk34jdudr7100b5f41f\",\"noticeTemplate\":\"tu0rkg0g4d0couk3cgkrqft200fm009z\",\"addressee\":[\"xinjy@qq.com\"]},{\"sendGateway\":\"sms\",\"noticeConfig\":\"tu0rkg0hq90cojuowfh931wi00vbhnck\",\"noticeTemplate\":\"tu0rkg018o0colupp3s7vyv900vk3s6n\",\"addressee\":[\"13700005102\"]}]}', 0, 1, 1, 1, '2022-11-13 13:00:05', '2023-09-08 11:02:58', '2023-09-08 11:03:00');
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 'axtest', 2, '25', '15', 1, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"gt\",\"value\":[\"2022-11-14:10\"],\"andOr\":0},{\"key\":\"\",\"operator\":\"\",\"value\":[],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 6, 0, 1, '2022-11-14 09:26:49', '2022-11-14 09:26:49', '2023-09-08 10:44:43');
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, 'test2', 4, '25', '14', 1, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 1, 0, 1, '2022-11-14 11:20:40', '2022-11-14 20:24:47', '2023-09-08 10:44:42');
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (5, 'test3', 4, 'monipower20221103', 't20221333', 3, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"lt\",\"value\":[\"120\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"sms\",\"noticeConfig\":\"tu0rkg0hq90cojuowfh931wi00vbhnck\",\"noticeTemplate\":\"tu0rkg018o0colupp3s7vyv900vk3s6n\",\"addressee\":[\"13700005102\"]}]}', 0, 1, 1, 1, '2022-11-14 11:21:44', '2023-09-08 10:44:27', '2023-09-08 10:44:40');
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (6, '南门电表', 2, 'monipower20221103', 't20221333', 3, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"lt\",\"value\":[\"120\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"mail\",\"noticeConfig\":\"tu0rkg0g4d0couk34jdudr7100b5f41f\",\"noticeTemplate\":\"tu0rkg0ijj0cozi9ct6u7jr500vs6shu\",\"addressee\":[\"xhpeng11@163.com\"]}]}', 0, 6, 6, 1, '2022-11-14 14:49:51', '2023-09-08 10:44:36', '2023-09-08 10:44:38');
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (7, '测试名称测试名称测试名称测试名称测试名称', 3, 'ww202211', 'w88991111', 1, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"gt\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 1, 0, 1, '2022-11-17 14:10:12', '2022-11-17 14:10:12', '2022-11-19 01:40:01');
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (8, '测试', 2, 'monipower20221103', 't20221333', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"gt\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 1, 0, 0, '2022-12-05 17:26:51', '2022-12-05 17:26:51', NULL);
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, '1221', 1, 'monipower20221103', 't20221333', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"11\"]},{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"111\"]}]}', 0, 1, 0, 0, '2022-12-05 17:33:47', '2022-12-05 17:33:47', NULL);
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (8, '测试', 2, 'monipower20221103', 't20221333', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"gt\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"\",\"noticeConfig\":\"\",\"noticeTemplate\":\"\",\"addressee\":[]}]}', 0, 1, 0, 1, '2022-12-05 17:26:51', '2022-12-05 17:26:51', '2023-09-08 10:44:34');
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, '1221', 1, 'monipower20221103', 't20221333', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"11\"]},{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"111\"]}]}', 0, 1, 0, 1, '2022-12-05 17:33:47', '2022-12-05 17:33:47', '2023-09-08 10:44:32');
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, '测试', 1, 'monipower20221103', 't20221222', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"va\",\"operator\":\"gt\",\"value\":[\"180\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"sms\",\"noticeConfig\":\"tu0rkg0hq90cojuowfh931wi00vbhnck\",\"noticeTemplate\":\"tu0rkg018o0colupp3s7vyv900vk3s6n\",\"addressee\":[\"15163999200\"]}]}', 0, 1, 1, 1, '2022-12-05 17:36:41', '2022-12-07 07:46:07', '2022-12-08 12:40:10');
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (11, '2222', 1, 'ww202211', 'w88991111', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"1111\"]},{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0ari0coq6cnpy9w5z400j0k7dm\",\"noticeTemplate\":\"\",\"addressee\":[\"222\"]}]}', 0, 1, 0, 1, '2022-12-05 17:45:54', '2022-12-05 17:45:54', '2022-12-08 12:40:04');
-INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, '123123', 1, 'ww202211', 'w88991111', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"11\"]},{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0ari0coq6cnpy9w5z400j0k7dm\",\"noticeTemplate\":\"\",\"addressee\":[\"111\"]}]}', 1, 1, 0, 0, '2022-12-05 17:47:24', '2022-12-30 13:38:36', NULL);
+INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, '123123', 1, 'ww202211', 'w88991111', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"11\"]},{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0ari0coq6cnpy9w5z400j0k7dm\",\"noticeTemplate\":\"\",\"addressee\":[\"111\"]}]}', 0, 1, 0, 1, '2022-12-05 17:47:24', '2023-09-08 10:44:25', '2023-09-08 10:44:30');
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (13, '测试1', 1, 'ww202211', 'w88991111', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"11\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"\",\"addressee\":[\"111\"]}]}', 0, 1, 0, 1, '2022-12-05 17:50:37', '2022-12-05 17:50:37', '2022-12-08 12:39:56');
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (14, '冲冲冲', 1, 'ww202211', 'w88991111', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"1\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0en80coq6dc5v5ppy1000ecyo1\",\"noticeTemplate\":\"1vfwi9pb2p0coqh3cc49od4400nvviwj\",\"addressee\":\"111\"},{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0ari0coq6cnpy9w5z400j0k7dm\",\"noticeTemplate\":\"tu0rkg06g30coqhxytbh8ly500ybwlre\",\"addressee\":[\"222\"]}]}', 0, 1, 0, 1, '2022-12-05 17:53:24', '2022-12-05 17:53:24', '2022-12-07 04:45:12');
 INSERT INTO `alarm_rule` (`id`, `name`, `level`, `product_key`, `device_key`, `trigger_type`, `trigger_condition`, `action`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (15, 'test11', 1, 'ww202211', 'w88991111', 2, '{\"triggerCondition\":[{\"filters\":[{\"key\":\"sysReportTime\",\"operator\":\"eq\",\"value\":[\"11\"],\"andOr\":0}],\"andOr\":0}]}', '{\"action\":[{\"sendGateway\":\"work_weixin\",\"noticeConfig\":\"tu0rkg0ari0coq6cnpy9w5z400j0k7dm\",\"noticeTemplate\":\"tu0rkg06g30coqhxytbh8ly500ybwlre\",\"addressee\":[\"2222\"]},{\"sendGateway\":\"mail\",\"noticeConfig\":\"tu0rkg0g4d0couk34jdudr7100b5f41f\",\"noticeTemplate\":\"tu0rkg0g4d0couk3cgkrqft200fm009z\",\"addressee\":[\"2222\"]}]}', 0, 1, 1, 1, '2022-12-07 12:50:57', '2022-12-07 13:06:20', '2022-12-08 12:39:50');
@@ -169,8 +169,8 @@ COMMIT;
 DROP TABLE IF EXISTS `city_data`;
 CREATE TABLE `city_data` (
                              `id` int NOT NULL AUTO_INCREMENT,
-                             `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '名字',
-                             `code` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '编码',
+                             `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名字',
+                             `code` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编码',
                              `parent_id` int NOT NULL COMMENT '父ID',
                              `sort` int DEFAULT NULL COMMENT '排序',
                              `status` int unsigned NOT NULL DEFAULT '0' COMMENT '状态;0:禁用;1:正常',
@@ -200,12 +200,12 @@ INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `i
 INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (10, '乐山市', '511100', 6, NULL, 1, 1, 1, '2022-09-26 04:56:39', 0, '2022-10-08 19:21:57', 1, '2022-10-08 11:21:57');
 INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (11, '汉台区', '610702', 4, NULL, 1, 1, 1, '2022-09-26 04:57:14', 0, '2022-10-08 19:22:10', 1, '2022-10-08 11:22:10');
 INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (12, '南郑区', '610703', 4, NULL, 1, 1, 1, '2022-09-26 04:57:42', 0, '2022-10-08 19:22:08', 1, '2022-10-08 11:22:08');
-INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (13, '沈阳市', '210100', -1, 2, 1, 0, 1, '2022-10-08 03:22:42', 1, '2022-10-21 22:23:58', 0, NULL);
-INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (14, '丹东', '210600', -1, 1, 1, 0, 1, '2022-10-08 03:22:57', 1, '2022-10-21 22:24:05', 0, NULL);
-INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (15, '长春市', '220100', -1, NULL, 1, 0, 1, '2022-10-08 11:23:27', 1, '2022-10-08 19:52:12', 0, NULL);
-INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (16, '辽宁省', '211000', -1, NULL, 1, 0, 1, '2022-10-13 22:30:49', 1, '2022-10-14 06:34:26', 0, NULL);
-INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (17, '开原市', '211282', -1, NULL, 1, 0, 1, '2022-10-14 06:31:13', 0, '2022-10-14 06:31:13', 0, NULL);
-INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (18, '铁岭市', '211200', -1, NULL, 1, 0, 1, '2022-10-14 06:31:34', 0, '2022-10-14 06:31:34', 0, NULL);
+INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (13, '沈阳市', '210100', -1, 2, 1, 1, 1, '2022-10-08 03:22:42', 1, '2023-09-08 10:50:29', 1, '2023-09-08 10:50:29');
+INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (14, '丹东', '210600', -1, 1, 1, 1, 1, '2022-10-08 03:22:57', 1, '2023-09-08 10:50:27', 1, '2023-09-08 10:50:27');
+INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (15, '长春市', '220100', -1, 0, 1, 1, 1, '2022-10-08 11:23:27', 1, '2023-09-08 10:50:17', 1, '2023-09-08 10:50:17');
+INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (16, '辽宁省', '211000', -1, 0, 1, 1, 1, '2022-10-13 22:30:49', 1, '2023-09-08 10:50:19', 1, '2023-09-08 10:50:19');
+INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (17, '开原市', '211282', -1, 0, 1, 1, 1, '2022-10-14 06:31:13', 0, '2023-09-08 10:50:21', 1, '2023-09-08 10:50:21');
+INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (18, '铁岭市', '211200', -1, 0, 1, 1, 1, '2022-10-14 06:31:34', 0, '2023-09-08 10:50:25', 1, '2023-09-08 10:50:25');
 INSERT INTO `city_data` (`id`, `name`, `code`, `parent_id`, `sort`, `status`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (19, '西安', '610000', -1, 4, 1, 1, 1, '2022-10-21 14:25:17', 0, '2022-11-03 21:57:35', 1, '2022-11-03 13:57:35');
 COMMIT;
 
@@ -216,12 +216,12 @@ DROP TABLE IF EXISTS `data_node`;
 CREATE TABLE `data_node` (
                              `node_id` bigint unsigned NOT NULL AUTO_INCREMENT,
                              `source_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
-                             `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据节点名称',
-                             `key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据节点标识',
-                             `data_type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据类型',
-                             `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '取值项',
+                             `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据节点名称',
+                             `key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据节点标识',
+                             `data_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据类型',
+                             `value` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '取值项',
                              `is_pk` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主键：0=否，1=是',
-                             `rule` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '规则配置json',
+                             `rule` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '规则配置json',
                              `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
                              `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
                              `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
@@ -272,15 +272,15 @@ COMMIT;
 DROP TABLE IF EXISTS `data_source`;
 CREATE TABLE `data_source` (
                                `source_id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                               `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据源名称',
-                               `key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据源标识',
-                               `desc` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '描述',
+                               `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据源名称',
+                               `key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据源标识',
+                               `desc` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '描述',
                                `from` tinyint(1) NOT NULL DEFAULT '1' COMMENT '数据来源：1=api导入，2=数据库，3=文件，4=设备',
-                               `config` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '数据源配置json：api配置、数据库配置、文件配置',
-                               `rule` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '规则配置json',
+                               `config` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '数据源配置json：api配置、数据库配置、文件配置',
+                               `rule` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '规则配置json',
                                `lock_key` tinyint(1) NOT NULL DEFAULT '1' COMMENT '锁定key标识：0=未锁定，1=锁定，不允许修改',
                                `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未发布，1=已发布',
-                               `data_table` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据表名称',
+                               `data_table` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据表名称',
                                `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
                                `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
                                `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
@@ -294,8 +294,8 @@ CREATE TABLE `data_source` (
 -- Records of data_source
 -- ----------------------------
 BEGIN;
-INSERT INTO `data_source` (`source_id`, `name`, `key`, `desc`, `from`, `config`, `rule`, `lock_key`, `status`, `data_table`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (78, '天气预报', 'weather_report', '天气预报', 1, '{\"method\":\"get\",\"url\":\"https://restapi.amap.com/v3/weather/weatherInfo\",\"requestParams\":[[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"210100\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"210600\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"220100\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"211000\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"211282\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"211200\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}]],\"cronExpression\":\"0 0 */1 * * ?\"}', '[{\"expression\":\"\",\"replace\":\"\"}]', 1, 1, 'data_source_78', 1, 1, 0, '2022-10-21 00:46:49', '2022-12-12 15:42:58', NULL);
-INSERT INTO `data_source` (`source_id`, `name`, `key`, `desc`, `from`, `config`, `rule`, `lock_key`, `status`, `data_table`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (79, '天气预报日出与日落', 'weather_Sunrise_And_Sunset', '天气预报日出与日落', 1, '{\"method\":\"get\",\"url\":\"https://api.jisuapi.com/weather/query\",\"requestParams\":[[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"沈阳市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"丹东市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"长春市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"辽宁省\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"开原市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"铁岭市\"}]],\"cronExpression\":\"0 0 */1 * * ?\"}', '[{\"expression\":\"\",\"replace\":\"\"}]', 1, 1, 'data_source_79', 1, 0, 0, '2022-10-21 01:06:10', '2022-12-12 15:44:18', NULL);
+INSERT INTO `data_source` (`source_id`, `name`, `key`, `desc`, `from`, `config`, `rule`, `lock_key`, `status`, `data_table`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (78, '天气预报', 'weather_report', '天气预报', 1, '{\"method\":\"get\",\"url\":\"https://restapi.amap.com/v3/weather/weatherInfo\",\"requestParams\":[[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"210100\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"210600\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"220100\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"211000\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"211282\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}],[{\"type\":\"param\",\"key\":\"key\",\"name\":\"key\",\"value\":\"adfcbd60fbd6315e350be34ee67fe8d0\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市编码\",\"value\":\"211200\"},{\"type\":\"param\",\"key\":\"extensions\",\"name\":\"气象类型\",\"value\":\"base\"}]],\"cronExpression\":\"0 0 */1 * * ?\"}', '[{\"expression\":\"\",\"replace\":\"\"}]', 1, 0, 'data_source_78', 1, 1, 1, '2022-10-21 00:46:49', '2022-12-12 15:42:58', '2023-09-08 11:07:16');
+INSERT INTO `data_source` (`source_id`, `name`, `key`, `desc`, `from`, `config`, `rule`, `lock_key`, `status`, `data_table`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (79, '天气预报日出与日落', 'weather_Sunrise_And_Sunset', '天气预报日出与日落', 1, '{\"method\":\"get\",\"url\":\"https://api.jisuapi.com/weather/query\",\"requestParams\":[[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"沈阳市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"丹东市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"长春市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"辽宁省\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"开原市\"}],[{\"type\":\"param\",\"key\":\"appkey\",\"name\":\"appkey\",\"value\":\"d69906c51c4b812a\"},{\"type\":\"param\",\"key\":\"city\",\"name\":\"城市名\",\"value\":\"铁岭市\"}]],\"cronExpression\":\"0 0 */1 * * ?\"}', '[{\"expression\":\"\",\"replace\":\"\"}]', 1, 0, 'data_source_79', 1, 0, 1, '2022-10-21 01:06:10', '2022-12-12 15:44:18', '2023-09-08 11:07:20');
 COMMIT;
 
 -- ----------------------------
@@ -304,16 +304,16 @@ COMMIT;
 DROP TABLE IF EXISTS `data_source_78`;
 CREATE TABLE `data_source_78` (
                                   `adcode` int DEFAULT '0' COMMENT '区域编码',
-                                  `weather` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '天气现象',
-                                  `temperature` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '实时气温，单位：摄氏度',
-                                  `winddirection` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风向描述',
-                                  `windpower` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风力级别',
-                                  `humidity` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '空气湿度',
+                                  `weather` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '天气现象',
+                                  `temperature` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '实时气温，单位：摄氏度',
+                                  `winddirection` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '风向描述',
+                                  `windpower` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '风力级别',
+                                  `humidity` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '空气湿度',
                                   `reporttime` datetime DEFAULT NULL COMMENT '数据发布时间',
-                                  `province` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '省份名',
-                                  `city` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '城市名',
+                                  `province` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '省份名',
+                                  `city` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '城市名',
                                   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-                                  `rcity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '关联字段'
+                                  `rcity` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '关联字段'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
@@ -843,25 +843,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source_79`;
 CREATE TABLE `data_source_79` (
-                                  `sunrise` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日出时间',
-                                  `sunset` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日落时间',
-                                  `winddirect` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风向',
-                                  `windpower` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风力等级',
+                                  `sunrise` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '日出时间',
+                                  `sunset` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '日落时间',
+                                  `winddirect` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '风向',
+                                  `windpower` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '风力等级',
                                   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-                                  `next_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的温度',
-                                  `next_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的风力等级',
-                                  `next_three_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的温度',
-                                  `next_three_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的风力等级',
-                                  `next_four_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的温度',
-                                  `next_four_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的风力等级',
-                                  `next_five_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的温度',
-                                  `next_five_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的风力等级',
-                                  `next_six_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的温度',
-                                  `next_six_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的风力等级',
-                                  `next_seven_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的温度',
-                                  `next_seven_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的风力等级',
-                                  `city` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '城市',
-                                  `rcity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '关联字段'
+                                  `next_day_temp` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报下一日的温度',
+                                  `next_day_windpower` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报下一日的风力等级',
+                                  `next_three_day_temp` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第三日的温度',
+                                  `next_three_day_windpower` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第三日的风力等级',
+                                  `next_four_day_temp` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第四日的温度',
+                                  `next_four_day_windpower` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第四日的风力等级',
+                                  `next_five_day_temp` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第五日的温度',
+                                  `next_five_day_windpower` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第五日的风力等级',
+                                  `next_six_day_temp` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第六日的温度',
+                                  `next_six_day_windpower` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第六日的风力等级',
+                                  `next_seven_day_temp` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第七日的温度',
+                                  `next_seven_day_windpower` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '预报第七日的风力等级',
+                                  `city` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '城市',
+                                  `rcity` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '关联字段'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
@@ -876,17 +876,17 @@ COMMIT;
 DROP TABLE IF EXISTS `data_template`;
 CREATE TABLE `data_template` (
                                  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-                                 `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
-                                 `key` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '标识',
-                                 `desc` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '描述',
+                                 `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+                                 `key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '标识',
+                                 `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '描述',
                                  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态：0=未发布，1=已发布',
-                                 `cron_expression` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT 'cron执行表达式',
-                                 `sort_node_key` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '排序节点标识',
+                                 `cron_expression` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'cron执行表达式',
+                                 `sort_node_key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '排序节点标识',
                                  `sort_desc` tinyint(1) NOT NULL DEFAULT '0' COMMENT '排序方式：1=倒序，2=正序',
-                                 `data_table` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据表名称',
+                                 `data_table` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据表名称',
                                  `lock_key` tinyint(1) NOT NULL DEFAULT '1' COMMENT '锁定key标识：0=未锁定，1=锁定，不允许修改',
                                  `main_source_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '主数据源',
-                                 `source_node_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据源关联节点',
+                                 `source_node_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据源关联节点',
                                  `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
                                  `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
                                  `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
@@ -900,43 +900,7 @@ CREATE TABLE `data_template` (
 -- Records of data_template
 -- ----------------------------
 BEGIN;
-INSERT INTO `data_template` (`id`, `name`, `key`, `desc`, `status`, `cron_expression`, `sort_node_key`, `sort_desc`, `data_table`, `lock_key`, `main_source_id`, `source_node_key`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (36, '天气预报数据建模', 'weather_temp_20221212154619', '', 0, '0 0 */1 * * ?', '', 0, 'data_template_36', 1, 78, 'rcity', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-13 10:31:08', NULL);
-COMMIT;
-
--- ----------------------------
--- Table structure for data_template_36
--- ----------------------------
-DROP TABLE IF EXISTS `data_template_36`;
-CREATE TABLE `data_template_36` (
-                                    `adcode` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '区域编码',
-                                    `weather` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '天气现象',
-                                    `temperature` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '实时气温，单位：摄氏度',
-                                    `winddirection` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风向描述',
-                                    `humidity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '空气湿度',
-                                    `reporttime` datetime DEFAULT NULL COMMENT '数据发布时间',
-                                    `sunrise` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日出时间',
-                                    `sunset` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '日落时间',
-                                    `windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '风力等级',
-                                    `next_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的温度',
-                                    `next_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报下一日的风力等级',
-                                    `next_three_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的温度',
-                                    `next_three_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第三日的风力等级',
-                                    `next_four_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的温度',
-                                    `next_four_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第四日的风力等级',
-                                    `next_five_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的温度',
-                                    `next_five_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第五日的风力等级',
-                                    `next_six_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的温度',
-                                    `next_six_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第六日的风力等级',
-                                    `next_seven_day_temp` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的温度',
-                                    `next_seven_day_windpower` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '预报第七日的风力等级',
-                                    `rcity` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '关联字段',
-                                    `created_at` datetime DEFAULT NULL COMMENT '创建时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
--- ----------------------------
--- Records of data_template_36
--- ----------------------------
-BEGIN;
+INSERT INTO `data_template` (`id`, `name`, `key`, `desc`, `status`, `cron_expression`, `sort_node_key`, `sort_desc`, `data_table`, `lock_key`, `main_source_id`, `source_node_key`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (36, '天气预报数据建模', 'weather_temp_20221212154619', '', 0, '0 0 */1 * * ?', '', 0, 'data_template_36', 1, 78, 'rcity', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-13 10:31:08', '2023-09-08 11:03:40');
 COMMIT;
 
 -- ----------------------------
@@ -959,7 +923,7 @@ CREATE TABLE `data_template_busi` (
 -- Records of data_template_busi
 -- ----------------------------
 BEGIN;
-INSERT INTO `data_template_busi` (`id`, `data_template_id`, `busi_types`, `is_deleted`, `created_by`, `created_at`, `deleted_by`, `deleted_at`) VALUES (1, 36, 1, 0, 1, '2022-10-27 16:03:18', NULL, NULL);
+INSERT INTO `data_template_busi` (`id`, `data_template_id`, `busi_types`, `is_deleted`, `created_by`, `created_at`, `deleted_by`, `deleted_at`) VALUES (1, 36, 1, 0, 1, '2022-10-27 16:03:18', 1, '2023-09-08 11:03:40');
 COMMIT;
 
 -- ----------------------------
@@ -972,13 +936,13 @@ CREATE TABLE `data_template_node` (
                                       `from` tinyint NOT NULL COMMENT '字段生成方式:1=自动生成,2=数据源',
                                       `source_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
                                       `node_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '数据源ID',
-                                      `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '节点名称',
-                                      `key` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '节点标识',
-                                      `data_type` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '数据类型',
-                                      `default` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '默认值',
-                                      `method` enum('max','min','avg') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '数值类型，取值方式',
+                                      `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '节点名称',
+                                      `key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '节点标识',
+                                      `data_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '数据类型',
+                                      `default` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '默认值',
+                                      `method` enum('max','min','avg') CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '数值类型，取值方式',
                                       `is_pk` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否主键：0=否，1=是',
-                                      `desc` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '描述',
+                                      `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '描述',
                                       `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
                                       `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
                                       `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
@@ -992,28 +956,28 @@ CREATE TABLE `data_template_node` (
 -- Records of data_template_node
 -- ----------------------------
 BEGIN;
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (355, 36, 2, 78, 314, '区域编码', 'adcode', 'string', '', NULL, 0, '', 6, 6, 0, '2022-12-12 15:46:19', '2022-12-26 11:27:22', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (356, 36, 2, 78, 315, '天气现象', 'weather', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (357, 36, 2, 78, 316, '实时气温，单位：摄氏度', 'temperature', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (358, 36, 2, 78, 317, '风向描述', 'winddirection', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (359, 36, 2, 78, 319, '空气湿度', 'humidity', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (360, 36, 2, 78, 320, '数据发布时间', 'reporttime', 'date', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (361, 36, 2, 79, 323, '日出时间', 'sunrise', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (362, 36, 2, 79, 324, '日落时间', 'sunset', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (363, 36, 2, 79, 326, '风力等级', 'windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (364, 36, 2, 79, 352, '预报下一日的温度', 'next_day_temp', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (365, 36, 2, 79, 353, '预报下一日的风力等级', 'next_day_windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (366, 36, 2, 79, 354, '预报第三日的温度', 'next_three_day_temp', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (367, 36, 2, 79, 355, '预报第三日的风力等级', 'next_three_day_windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (368, 36, 2, 79, 356, '预报第四日的温度', 'next_four_day_temp', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (369, 36, 2, 79, 357, '预报第四日的风力等级', 'next_four_day_windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (370, 36, 2, 79, 358, '预报第五日的温度', 'next_five_day_temp', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (371, 36, 2, 79, 359, '预报第五日的风力等级', 'next_five_day_windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (372, 36, 2, 79, 360, '预报第六日的温度', 'next_six_day_temp', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (373, 36, 2, 79, 361, '预报第六日的风力等级', 'next_six_day_windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (374, 36, 2, 79, 362, '预报第七日的温度', 'next_seven_day_temp', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (375, 36, 2, 79, 363, '预报第七日的风力等级', 'next_seven_day_windpower', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:46:19', '2022-12-12 15:46:19', NULL);
-INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (376, 36, 2, 78, 387, '关联字段', 'rcity', 'string', '', NULL, 0, '', 6, 0, 0, '2022-12-12 15:47:46', '2022-12-12 15:47:46', NULL);
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (355, 36, 2, 78, 314, '区域编码', 'adcode', 'string', '', NULL, 0, '', 6, 6, 1, '2022-12-12 15:46:19', '2022-12-26 11:27:22', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (356, 36, 2, 78, 315, '天气现象', 'weather', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (357, 36, 2, 78, 316, '实时气温，单位：摄氏度', 'temperature', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (358, 36, 2, 78, 317, '风向描述', 'winddirection', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (359, 36, 2, 78, 319, '空气湿度', 'humidity', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (360, 36, 2, 78, 320, '数据发布时间', 'reporttime', 'date', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (361, 36, 2, 79, 323, '日出时间', 'sunrise', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (362, 36, 2, 79, 324, '日落时间', 'sunset', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (363, 36, 2, 79, 326, '风力等级', 'windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (364, 36, 2, 79, 352, '预报下一日的温度', 'next_day_temp', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (365, 36, 2, 79, 353, '预报下一日的风力等级', 'next_day_windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (366, 36, 2, 79, 354, '预报第三日的温度', 'next_three_day_temp', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (367, 36, 2, 79, 355, '预报第三日的风力等级', 'next_three_day_windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (368, 36, 2, 79, 356, '预报第四日的温度', 'next_four_day_temp', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (369, 36, 2, 79, 357, '预报第四日的风力等级', 'next_four_day_windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (370, 36, 2, 79, 358, '预报第五日的温度', 'next_five_day_temp', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (371, 36, 2, 79, 359, '预报第五日的风力等级', 'next_five_day_windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (372, 36, 2, 79, 360, '预报第六日的温度', 'next_six_day_temp', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (373, 36, 2, 79, 361, '预报第六日的风力等级', 'next_six_day_windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (374, 36, 2, 79, 362, '预报第七日的温度', 'next_seven_day_temp', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (375, 36, 2, 79, 363, '预报第七日的风力等级', 'next_seven_day_windpower', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:46:19', '2022-12-12 15:46:19', '2023-09-08 11:03:40');
+INSERT INTO `data_template_node` (`id`, `tid`, `from`, `source_id`, `node_id`, `name`, `key`, `data_type`, `default`, `method`, `is_pk`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (376, 36, 2, 78, 387, '关联字段', 'rcity', 'string', '', NULL, 0, '', 6, 0, 1, '2022-12-12 15:47:46', '2022-12-12 15:47:46', '2023-09-08 11:03:40');
 COMMIT;
 
 -- ----------------------------
@@ -1047,15 +1011,15 @@ CREATE TABLE `dev_device` (
 -- Records of dev_device
 -- ----------------------------
 BEGIN;
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (7, 'k213213', '设备名称', 18, '备注备注备注', 1, 1, NULL, NULL, '备证书', '设备秘钥1', '固件版本号', 0, 1, 1, 0, '2022-08-15 19:51:01', '2022-11-24 15:50:48', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, 'device1', '翱翔测试设备', 22, '', 1, 1, NULL, NULL, 'aaaa', 'bbbb', '1.1.1', 0, 1, 0, 0, '2022-09-16 18:39:49', '2022-11-24 15:50:47', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, 'w42134342', '角度传感设备', 23, '', 1, 1, NULL, NULL, '', '', '', 0, 1, 0, 0, '2022-09-17 15:37:55', '2022-11-24 15:50:44', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (11, 'testshebei', '设备测试', 22, '', 1, 1, NULL, NULL, '', '', '', 0, 1, 0, 0, '2022-09-20 09:24:02', '2022-11-24 15:50:42', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, 't20221103', '测试电表设备', 24, '', 1, 2, NULL, NULL, '', '', '', 0, 1, 0, 0, '2022-11-03 16:46:48', '2022-11-24 15:50:39', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (13, 'w88991111', '办公室环境监测设备', 25, '', 1, 2, NULL, NULL, '', '', '', 0, 1, 0, 0, '2022-11-04 09:14:01', '2022-11-24 15:50:37', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (14, 't20221222', '北门电表02', 24, '', 1, 2, NULL, NULL, '', '', '', 0, 0, 1, 0, '2022-11-04 15:49:17', '2022-11-24 15:50:35', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (15, 't20221333', '南门电表03', 24, '', 1, 2, NULL, NULL, '', '', '', 0, 0, 1, 0, '2022-11-04 15:49:48', '2022-11-24 15:50:31', NULL);
-INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (16, 'tgn22021201', '室内测温插座001', 25, '', 1, 1, NULL, NULL, '', '', '', 0, 1, 1, 0, '2022-12-12 15:39:55', '2022-12-12 16:01:20', NULL);
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (7, 'k213213', '设备名称', 18, '备注备注备注', 1, 0, NULL, NULL, '备证书', '设备秘钥1', '固件版本号', 0, 1, 1, 1, '2022-08-15 19:51:01', '2023-09-08 10:43:23', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, 'device1', '翱翔测试设备', 22, '', 1, 0, NULL, NULL, 'aaaa', 'bbbb', '1.1.1', 0, 1, 0, 1, '2022-09-16 18:39:49', '2023-09-08 10:43:23', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, 'w42134342', '角度传感设备', 23, '', 1, 0, NULL, NULL, '', '', '', 0, 1, 0, 1, '2022-09-17 15:37:55', '2023-09-08 10:43:22', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (11, 'testshebei', '设备测试', 22, '', 1, 0, NULL, NULL, '', '', '', 0, 1, 0, 1, '2022-09-20 09:24:02', '2023-09-08 10:43:22', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, 't20221103', '测试电表设备', 24, '', 1, 0, NULL, NULL, '', '', '', 0, 1, 0, 1, '2022-11-03 16:46:48', '2023-09-08 10:43:21', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (13, 'w88991111', '办公室环境监测设备', 25, '', 1, 0, NULL, NULL, '', '', '', 0, 1, 0, 1, '2022-11-04 09:14:01', '2023-09-08 10:43:20', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (14, 't20221222', '北门电表02', 24, '', 1, 0, NULL, NULL, '', '', '', 0, 0, 1, 1, '2022-11-04 15:49:17', '2023-09-08 10:43:20', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (15, 't20221333', '南门电表03', 24, '', 1, 0, NULL, NULL, '', '', '', 0, 0, 1, 1, '2022-11-04 15:49:48', '2023-09-08 10:43:19', '2023-09-08 10:43:28');
+INSERT INTO `dev_device` (`id`, `key`, `name`, `product_id`, `desc`, `metadata_table`, `status`, `registry_time`, `last_online_time`, `certificate`, `secure_key`, `version`, `tunnel_id`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (16, 'tgn22021201', '室内测温插座001', 25, '', 1, 0, NULL, NULL, '', '', '', 0, 1, 1, 1, '2022-12-12 15:39:55', '2023-09-08 10:43:19', '2023-09-08 10:43:27');
 COMMIT;
 
 -- ----------------------------
@@ -1065,10 +1029,10 @@ DROP TABLE IF EXISTS `dev_device_tag`;
 CREATE TABLE `dev_device_tag` (
                                   `id` int unsigned NOT NULL AUTO_INCREMENT,
                                   `device_id` int unsigned NOT NULL DEFAULT '0' COMMENT '设备ID',
-                                  `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
-                                  `key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '标签标识',
-                                  `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '标签名称',
-                                  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '标签值',
+                                  `device_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                                  `key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '标签标识',
+                                  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '标签名称',
+                                  `value` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '标签值',
                                   `create_by` int unsigned NOT NULL DEFAULT '0' COMMENT '创建者',
                                   `update_by` int unsigned NOT NULL DEFAULT '0' COMMENT '更新者',
                                   `deleted_by` int unsigned NOT NULL DEFAULT '0' COMMENT '删除者',
@@ -1117,13 +1081,13 @@ CREATE TABLE `dev_product` (
 -- Records of dev_product
 -- ----------------------------
 BEGIN;
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (18, 'dianji', '电机', 22, 'modbus', 'tcp-server', 0, '网关', '水房电机', 'http://101.200.198.249:8899/upload_file/2022-08-23/cmd37oai1w9scjl2co.png', '{\"key\":\"dianji\",\"name\":\"电机\",\"properties\":[{\"key\":\"property_99\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_98\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_97\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_96\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_95\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"}],\"functions\":null,\"events\":null,\"tags\":[]}', 1, '', 1, 1, 1, 0, '2022-08-16 08:50:40', '2022-11-24 15:49:23', NULL);
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (20, 'hhdhhsj', '测试', 22, 'modbus', 'tcp-client', 0, '设备', '', '', '{\"key\":\"hhdhhsj\",\"name\":\"测试\",\"properties\":[{\"key\":\"asaaaaa\",\"name\":\"测试e\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"11\"},\"desc\":\"\"},{\"key\":\"csss\",\"name\":\"测试\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"1\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 0, '', 0, 1, 0, 0, '2022-09-14 09:12:02', '2022-09-15 16:38:45', NULL);
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (22, 'aoxiang', '翱翔测试产品', 22, 'modbus', 'tcp-server', 0, '设备', '', '', '{\"key\":\"aoxiang\",\"name\":\"翱翔测试产品\",\"properties\":[{\"key\":\"pr1\",\"name\":\"属性1\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"个\"},\"desc\":\"\"},{\"key\":\"pr2\",\"name\":\"属性2\",\"accessMode\":1,\"valueType\":{\"type\":\"string\",\"maxLength\":200},\"desc\":\"\"},{\"key\":\"cesgi\",\"name\":\"测试1\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"1\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":[{\"key\":\"author\",\"name\":\"作者\",\"accessMode\":1,\"valueType\":{\"type\":\"string\",\"maxLength\":50},\"desc\":\"\"}]}', 1, '', 1, 1, 0, 0, '2022-09-16 18:35:51', '2022-11-24 15:49:18', NULL);
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (23, 'wt61np', '物联姿态传感器', 9, 'WT61NP', 'udp', 0, '设备', '', 'http://zhgy.sagoo.cn:8899/upload_file/2022-09-17/cmy7zn612zvc9r60cr.jpg', '{\"key\":\"wt61np\",\"name\":\"WT61NP物联姿态传感器\",\"properties\":[{\"key\":\"ax\",\"name\":\"X轴\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":5,\"unit\":\"度\"},\"desc\":\"滚转角\"},{\"key\":\"ay\",\"name\":\"Y轴\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":5,\"unit\":\"度\"},\"desc\":\"俯仰角\"},{\"key\":\"az\",\"name\":\"Z轴\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":5,\"unit\":\"度\"},\"desc\":\"偏航角\"},{\"key\":\"t1\",\"name\":\"温度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"度\"},\"desc\":\"温度\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 1, 1, 1, 0, '2022-09-17 07:39:26', '2022-11-24 15:49:13', NULL);
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (24, 'monipower20221103', '模拟测试电表2022', 9, '', 'mqtt_server', 0, '设备', '', '', '{\"key\":\"monipower20221103\",\"name\":\"模拟测试电表2022\",\"properties\":[{\"key\":\"va\",\"name\":\"A相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vb\",\"name\":\"B相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vc\",\"name\":\"C相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"ia\",\"name\":\"A相电流\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"A\"},\"desc\":\"\"},{\"key\":\"ib\",\"name\":\"A相电流\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"A\"},\"desc\":\"\"},{\"key\":\"ic\",\"name\":\"C相电流\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"A\"},\"desc\":\"\"},{\"key\":\"vab\",\"name\":\"AB相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vbc\",\"name\":\"BC线电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vca\",\"name\":\"CA线电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"pa\",\"name\":\"A相有功功率\\t\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"kW\"},\"desc\":\"\"},{\"key\":\"pb\",\"name\":\"B相有功功率\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"kW\"},\"desc\":\"\"},{\"key\":\"pc\",\"name\":\"C相有功功率\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"kW\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 1, 1, 0, 0, '2022-11-03 16:45:50', '2022-11-24 15:49:07', NULL);
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (25, 'ww202211', '室内环境监测设备01', 9, '', 'mqtt_server', 0, '设备', '', '', '{\"key\":\"ww202211\",\"name\":\"室内环境监测设备01\",\"properties\":[{\"key\":\"t\",\"name\":\"温度\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"度\"},\"desc\":\"\"},{\"key\":\"h\",\"name\":\"湿度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"湿度\"},\"desc\":\"\"},{\"key\":\"pa\",\"name\":\"气压\",\"accessMode\":1,\"valueType\":{\"type\":\"int\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 1, 1, 0, 0, '2022-11-04 09:11:44', '2022-11-24 15:49:00', NULL);
-INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (26, 'tgnsncw', '室内测温插座', 22, 'tgn52', 'tcp', 0, '设备', '', '', '{\"key\":\"tgnsncw\",\"name\":\"室内测温插座\",\"properties\":[{\"key\":\"signal\",\"name\":\"信号质量\",\"accessMode\":1,\"valueType\":{\"type\":\"int\"},\"desc\":\"1:低；2:中；3:高\"},{\"key\":\"battery\",\"name\":\"电池质量\",\"accessMode\":1,\"valueType\":{\"type\":\"int\"},\"desc\":\"1:低；2:中；3:高\"},{\"key\":\"temperature\",\"name\":\"温度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":1,\"unit\":\"℃\"},\"desc\":\"\"},{\"key\":\"humidity\",\"name\":\"湿度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":1,\"unit\":\"%rh\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 1, 1, 1, 0, '2022-12-12 15:38:51', '2022-12-12 16:01:02', NULL);
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (18, 'dianji', '电机', 22, 'modbus', 'tcp-server', 0, '网关', '水房电机', 'http://101.200.198.249:8899/upload_file/2022-08-23/cmd37oai1w9scjl2co.png', '{\"key\":\"dianji\",\"name\":\"电机\",\"properties\":[{\"key\":\"property_99\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_98\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_97\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_96\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"},{\"key\":\"property_95\",\"name\":\"属性-9\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"maxLength\":22},\"desc\":\"描述\"}],\"functions\":null,\"events\":null,\"tags\":[]}', 1, '', 0, 1, 1, 1, '2022-08-16 08:50:40', '2023-09-08 10:42:52', '2023-09-08 10:42:57');
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (20, 'hhdhhsj', '测试', 22, 'modbus', 'tcp-client', 0, '设备', '', '', '{\"key\":\"hhdhhsj\",\"name\":\"测试\",\"properties\":[{\"key\":\"asaaaaa\",\"name\":\"测试e\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"11\"},\"desc\":\"\"},{\"key\":\"csss\",\"name\":\"测试\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"1\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 0, '', 0, 1, 0, 1, '2022-09-14 09:12:02', '2022-09-15 16:38:45', '2023-09-08 10:42:12');
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (22, 'aoxiang', '翱翔测试产品', 22, 'modbus', 'tcp-server', 0, '设备', '', '', '{\"key\":\"aoxiang\",\"name\":\"翱翔测试产品\",\"properties\":[{\"key\":\"pr1\",\"name\":\"属性1\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"个\"},\"desc\":\"\"},{\"key\":\"pr2\",\"name\":\"属性2\",\"accessMode\":1,\"valueType\":{\"type\":\"string\",\"maxLength\":200},\"desc\":\"\"},{\"key\":\"cesgi\",\"name\":\"测试1\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"1\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":[{\"key\":\"author\",\"name\":\"作者\",\"accessMode\":1,\"valueType\":{\"type\":\"string\",\"maxLength\":50},\"desc\":\"\"}]}', 1, '', 0, 1, 0, 1, '2022-09-16 18:35:51', '2023-09-08 10:42:48', '2023-09-08 10:42:57');
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (23, 'wt61np', '物联姿态传感器', 9, 'WT61NP', 'udp', 0, '设备', '', 'http://zhgy.sagoo.cn:8899/upload_file/2022-09-17/cmy7zn612zvc9r60cr.jpg', '{\"key\":\"wt61np\",\"name\":\"WT61NP物联姿态传感器\",\"properties\":[{\"key\":\"ax\",\"name\":\"X轴\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":5,\"unit\":\"度\"},\"desc\":\"滚转角\"},{\"key\":\"ay\",\"name\":\"Y轴\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":5,\"unit\":\"度\"},\"desc\":\"俯仰角\"},{\"key\":\"az\",\"name\":\"Z轴\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":5,\"unit\":\"度\"},\"desc\":\"偏航角\"},{\"key\":\"t1\",\"name\":\"温度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"度\"},\"desc\":\"温度\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 0, 1, 1, 1, '2022-09-17 07:39:26', '2023-09-08 10:42:44', '2023-09-08 10:42:57');
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (24, 'monipower20221103', '模拟测试电表2022', 9, '', 'mqtt_server', 0, '设备', '', '', '{\"key\":\"monipower20221103\",\"name\":\"模拟测试电表2022\",\"properties\":[{\"key\":\"va\",\"name\":\"A相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vb\",\"name\":\"B相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vc\",\"name\":\"C相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"ia\",\"name\":\"A相电流\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"A\"},\"desc\":\"\"},{\"key\":\"ib\",\"name\":\"A相电流\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"A\"},\"desc\":\"\"},{\"key\":\"ic\",\"name\":\"C相电流\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"A\"},\"desc\":\"\"},{\"key\":\"vab\",\"name\":\"AB相电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vbc\",\"name\":\"BC线电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"vca\",\"name\":\"CA线电压\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"V\"},\"desc\":\"\"},{\"key\":\"pa\",\"name\":\"A相有功功率\\t\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"kW\"},\"desc\":\"\"},{\"key\":\"pb\",\"name\":\"B相有功功率\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"kW\"},\"desc\":\"\"},{\"key\":\"pc\",\"name\":\"C相有功功率\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"kW\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 0, 1, 0, 1, '2022-11-03 16:45:50', '2023-09-08 10:42:39', '2023-09-08 10:42:57');
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (25, 'ww202211', '室内环境监测设备01', 9, '', 'mqtt_server', 0, '设备', '', '', '{\"key\":\"ww202211\",\"name\":\"室内环境监测设备01\",\"properties\":[{\"key\":\"t\",\"name\":\"温度\",\"accessMode\":1,\"valueType\":{\"type\":\"int\",\"unit\":\"度\"},\"desc\":\"\"},{\"key\":\"h\",\"name\":\"湿度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":2,\"unit\":\"湿度\"},\"desc\":\"\"},{\"key\":\"pa\",\"name\":\"气压\",\"accessMode\":1,\"valueType\":{\"type\":\"int\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 0, 1, 0, 1, '2022-11-04 09:11:44', '2023-09-08 10:42:30', '2023-09-08 10:42:57');
+INSERT INTO `dev_product` (`id`, `key`, `name`, `category_id`, `message_protocol`, `transport_protocol`, `protocol_id`, `device_type`, `desc`, `icon`, `metadata`, `metadata_table`, `policy`, `status`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (26, 'tgnsncw', '室内测温插座', 22, 'tgn52', 'tcp', 0, '设备', '', '', '{\"key\":\"tgnsncw\",\"name\":\"室内测温插座\",\"properties\":[{\"key\":\"signal\",\"name\":\"信号质量\",\"accessMode\":1,\"valueType\":{\"type\":\"int\"},\"desc\":\"1:低；2:中；3:高\"},{\"key\":\"battery\",\"name\":\"电池质量\",\"accessMode\":1,\"valueType\":{\"type\":\"int\"},\"desc\":\"1:低；2:中；3:高\"},{\"key\":\"temperature\",\"name\":\"温度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":1,\"unit\":\"℃\"},\"desc\":\"\"},{\"key\":\"humidity\",\"name\":\"湿度\",\"accessMode\":1,\"valueType\":{\"type\":\"float\",\"decimals\":1,\"unit\":\"%rh\"},\"desc\":\"\"}],\"functions\":null,\"events\":null,\"tags\":null}', 1, '', 0, 1, 1, 1, '2022-12-12 15:38:51', '2023-09-08 10:42:26', '2023-09-08 10:42:57');
 COMMIT;
 
 -- ----------------------------
@@ -1149,13 +1113,13 @@ CREATE TABLE `dev_product_category` (
 -- Records of dev_product_category
 -- ----------------------------
 BEGIN;
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (8, 0, 'key-1', '分类-1', '', 0, 0, 0, '2022-08-04 15:58:48', '2022-08-04 15:58:48', NULL);
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, 0, 'key-12', '分类-12', '12', 0, 1, 0, '2022-08-04 15:59:00', '2022-11-08 23:46:34', NULL);
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, 8, 'key-2', '分类-2', '', 0, 0, 0, '2022-08-04 15:59:28', '2022-08-04 15:59:28', NULL);
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (8, 0, 'key-1', '分类-1', '', 0, 0, 1, '2022-08-04 15:58:48', '2022-08-04 15:58:48', '2023-09-08 10:43:42');
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, 0, 'key-12', '分类-12', '12', 0, 1, 1, '2022-08-04 15:59:00', '2022-11-08 23:46:34', '2023-09-08 10:43:48');
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, 8, 'key-2', '分类-2', '', 0, 0, 1, '2022-08-04 15:59:28', '2022-08-04 15:59:28', '2023-09-08 10:43:38');
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (11, 8, 'key-3', '分类-3', '', 0, 0, 0, '2022-08-04 15:59:38', '2022-08-10 18:25:48', '2022-08-10 10:30:43');
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, 10, 'key-3', '分类-3', '', 0, 0, 0, '2022-08-04 15:59:49', '2022-08-04 15:59:49', NULL);
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, 10, 'key-3', '分类-3', '', 0, 0, 1, '2022-08-04 15:59:49', '2022-08-04 15:59:49', '2023-09-08 10:43:36');
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (21, 10, 'string', 'string', 'string', 0, 0, 0, '2022-08-11 11:18:12', '2022-08-11 11:23:50', '2022-08-11 03:24:53');
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (22, 9, '标识', '测试', '11', 1, 0, 0, '2022-08-13 14:16:19', '2022-08-13 14:16:19', NULL);
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (22, 9, '标识', '测试', '11', 1, 0, 1, '2022-08-13 14:16:19', '2022-08-13 14:16:19', '2023-09-08 10:43:46');
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (23, 4294967295, '1111', '111', '', 1, 0, 0, '2022-08-13 14:25:32', '2022-08-13 14:25:32', NULL);
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (24, 4294967295, '11111', '1111', '', 1, 0, 0, '2022-08-13 14:25:59', '2022-08-13 14:25:59', NULL);
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (25, 0, '1111', '111122', '', 1, 1, 0, '2022-08-13 14:26:55', '2022-08-13 14:27:57', '2022-08-13 07:19:41');
@@ -1164,8 +1128,8 @@ INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `c
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (28, 0, '44', '444', '', 1, 0, 1, '2022-08-13 14:29:59', '2022-08-13 14:29:59', '2022-08-13 07:03:28');
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (29, 0, '55', '55', '', 1, 0, 1, '2022-08-13 14:30:34', '2022-08-13 14:30:34', '2022-08-13 07:03:25');
 INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (30, 0, '111', '111', '', 1, 0, 1, '2022-08-15 18:13:56', '2022-08-15 18:13:56', '2022-08-15 10:14:00');
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (31, 22, 'test', 'test', '', 1, 0, 0, '2022-09-16 18:31:33', '2022-09-16 18:31:33', NULL);
-INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (32, 8, 'sdss', '测试', '', 1, 0, 0, '2022-09-16 18:34:26', '2022-09-16 18:34:26', NULL);
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (31, 22, 'test', 'test', '', 1, 0, 1, '2022-09-16 18:31:33', '2022-09-16 18:31:33', '2023-09-08 10:43:44');
+INSERT INTO `dev_product_category` (`id`, `parent_id`, `key`, `name`, `desc`, `create_by`, `update_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (32, 8, 'sdss', '测试', '', 1, 0, 1, '2022-09-16 18:34:26', '2022-09-16 18:34:26', '2023-09-08 10:43:40');
 COMMIT;
 
 -- ----------------------------
@@ -1174,10 +1138,10 @@ COMMIT;
 DROP TABLE IF EXISTS `guestbook`;
 CREATE TABLE `guestbook` (
                              `id` int NOT NULL AUTO_INCREMENT,
-                             `title` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '留言标题',
-                             `content` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '留言内容',
-                             `contacts` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '联系人',
-                             `telephone` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '联系方式',
+                             `title` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '留言标题',
+                             `content` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '留言内容',
+                             `contacts` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '联系人',
+                             `telephone` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '联系方式',
                              `created_at` datetime NOT NULL COMMENT '留言时间',
                              PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='访客留言表';
@@ -1194,18 +1158,18 @@ COMMIT;
 DROP TABLE IF EXISTS `network_server`;
 CREATE TABLE `network_server` (
                                   `id` int NOT NULL AUTO_INCREMENT,
-                                  `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'tcp/udp',
-                                  `addr` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `register` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '注册包',
-                                  `heartbeat` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '心跳包',
-                                  `protocol` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '协议',
-                                  `devices` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '默认设备',
+                                  `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  `types` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'tcp/udp',
+                                  `addr` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  `register` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '注册包',
+                                  `heartbeat` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '心跳包',
+                                  `protocol` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '协议',
+                                  `devices` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '默认设备',
                                   `status` tinyint(1) NOT NULL DEFAULT '0',
                                   `created_at` datetime NOT NULL,
                                   `updated_at` datetime NOT NULL,
                                   `create_by` int NOT NULL,
-                                  `remark` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '备注',
+                                  `remark` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '备注',
                                   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb3 COMMENT='网络组件服务表';
 
@@ -1213,8 +1177,6 @@ CREATE TABLE `network_server` (
 -- Records of network_server
 -- ----------------------------
 BEGIN;
-INSERT INTO `network_server` (`id`, `name`, `types`, `addr`, `register`, `heartbeat`, `protocol`, `devices`, `status`, `created_at`, `updated_at`, `create_by`, `remark`) VALUES (22, '新建服务器', 'tcp', '9000', '{\"regex\":\"^w+$\"}', '{\"enable\":false,\"hex\":\"\",\"regex\":\"^\\\\w+$\",\"text\":\"\",\"timeout\":30}', '{\"name\":\"ModbusTCP\",\"options\":{}}', '[]', 1, '2022-10-23 15:46:22', '2022-12-24 14:13:01', 0, '');
-INSERT INTO `network_server` (`id`, `name`, `types`, `addr`, `register`, `heartbeat`, `protocol`, `devices`, `status`, `created_at`, `updated_at`, `create_by`, `remark`) VALUES (23, '室内测温服务', 'tcp', '5001', '{\"regex\":\"^w+$\"}', '{\"enable\":false,\"hex\":\"\",\"regex\":\"^\\\\w+$\",\"text\":\"\",\"timeout\":30}', '{\"name\":\"tgn52\",\"options\":{}}', '[]', 1, '2022-12-12 16:37:37', '2022-12-12 16:37:48', 0, '');
 COMMIT;
 
 -- ----------------------------
@@ -1224,20 +1186,20 @@ DROP TABLE IF EXISTS `network_tunnel`;
 CREATE TABLE `network_tunnel` (
                                   `id` int NOT NULL AUTO_INCREMENT,
                                   `server_id` int NOT NULL DEFAULT '0' COMMENT '服务ID',
-                                  `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `addr` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `remote` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                  `retry` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '断线重连',
-                                  `heartbeat` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '心跳包',
-                                  `serial` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '串口参数',
-                                  `protoccol` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '适配协议',
-                                  `device_key` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
+                                  `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  `types` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  `addr` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  `remote` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  `retry` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '断线重连',
+                                  `heartbeat` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '心跳包',
+                                  `serial` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '串口参数',
+                                  `protoccol` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '适配协议',
+                                  `device_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '设备标识',
                                   `status` tinyint(1) NOT NULL,
                                   `last` datetime DEFAULT NULL,
                                   `created_at` datetime DEFAULT NULL,
                                   `updated_at` datetime DEFAULT NULL,
-                                  `remark` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '备注',
+                                  `remark` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '备注',
                                   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb3 COMMENT='网络通道表';
 
@@ -1245,9 +1207,6 @@ CREATE TABLE `network_tunnel` (
 -- Records of network_tunnel
 -- ----------------------------
 BEGIN;
-INSERT INTO `network_tunnel` (`id`, `server_id`, `name`, `types`, `addr`, `remote`, `retry`, `heartbeat`, `serial`, `protoccol`, `device_key`, `status`, `last`, `created_at`, `updated_at`, `remark`) VALUES (19, 0, '新建通道', 'tcp-client', '192.168.10.5:49621', '47.56.247.127:80', '{\"enable\":true,\"maximum\":0,\"timeout\":30}', '{\"enable\":true,\"hex\":\"\",\"regex\":\"^\\\\w+$\",\"text\":\"\",\"timeout\":30}', '{\"baud_rate\":\"9600\",\"data_bits\":\"6\",\"parity\":\"0\",\"rs485\":false,\"stop_bits\":\"1\"}', '{\"name\":\"ModbusTCP\",\"options\":{}}', '', 0, '2022-10-23 07:39:45', '2022-10-23 14:47:17', '2022-10-23 15:39:45', '');
-INSERT INTO `network_tunnel` (`id`, `server_id`, `name`, `types`, `addr`, `remote`, `retry`, `heartbeat`, `serial`, `protoccol`, `device_key`, `status`, `last`, `created_at`, `updated_at`, `remark`) VALUES (20, 0, '新建通道', 'udp-client', '127.0.0.1:53351', '', '{\"enable\":true,\"maximum\":0,\"timeout\":30}', '{\"enable\":true,\"hex\":\"\",\"regex\":\"^\\\\w+$\",\"text\":\"\",\"timeout\":30}', '{\"baud_rate\":\"9600\",\"data_bits\":\"6\",\"parity\":\"0\",\"rs485\":false,\"stop_bits\":\"1\"}', '{\"name\":\"ModbusTCP\",\"options\":{}}', '', 0, '2022-10-23 07:41:03', '2022-10-23 15:36:09', '2022-10-24 11:26:07', '');
-INSERT INTO `network_tunnel` (`id`, `server_id`, `name`, `types`, `addr`, `remote`, `retry`, `heartbeat`, `serial`, `protoccol`, `device_key`, `status`, `last`, `created_at`, `updated_at`, `remark`) VALUES (21, 0, '新建通道', 'tcp-client', '127.0.0.1:9090', '', '{\"enable\":true,\"maximum\":0,\"timeout\":30}', '{\"enable\":false,\"hex\":\"\",\"regex\":\"^\\\\w+$\",\"text\":\"\",\"timeout\":30}', '{\"baud_rate\":\"9600\",\"data_bits\":\"6\",\"parity\":\"0\",\"rs485\":false,\"stop_bits\":\"1\"}', '{\"name\":\"ModbusTCP\",\"options\":{}}', '', 0, NULL, '2022-10-26 00:13:14', '2022-10-26 11:03:02', '');
 COMMIT;
 
 -- ----------------------------
@@ -1255,9 +1214,9 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `notice_config`;
 CREATE TABLE `notice_config` (
-                                 `id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                 `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                 `send_gateway` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                 `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                 `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                 `send_gateway` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                                  `types` tinyint(1) NOT NULL,
                                  `created_at` datetime NOT NULL,
                                  PRIMARY KEY (`id`) USING BTREE,
@@ -1285,17 +1244,17 @@ COMMIT;
 DROP TABLE IF EXISTS `notice_info`;
 CREATE TABLE `notice_info` (
                                `id` bigint NOT NULL AUTO_INCREMENT,
-                               `config_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `come_from` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `method` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `msg_title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `msg_body` varchar(300) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `msg_url` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `user_ids` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `org_ids` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                               `totag` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `config_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `come_from` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `method` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `msg_title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `msg_body` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `msg_url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `user_ids` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `org_ids` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                               `totag` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                                `status` tinyint(1) NOT NULL,
-                               `method_cron` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                               `method_cron` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                                `method_num` int NOT NULL,
                                `created_at` datetime NOT NULL,
                                PRIMARY KEY (`id`) USING BTREE
@@ -1313,13 +1272,13 @@ COMMIT;
 DROP TABLE IF EXISTS `notice_log`;
 CREATE TABLE `notice_log` (
                               `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                              `send_gateway` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知渠道',
-                              `template_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知模板ID',
-                              `addressee` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '收信人列表',
-                              `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知标题',
-                              `content` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '通知内容',
+                              `send_gateway` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '通知渠道',
+                              `template_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '通知模板ID',
+                              `addressee` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '收信人列表',
+                              `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '通知标题',
+                              `content` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '通知内容',
                               `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '发送状态：0=失败，1=成功',
-                              `fail_msg` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '失败信息',
+                              `fail_msg` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '失败信息',
                               `send_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送时间',
                               PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=81985 DEFAULT CHARSET=utf8mb3;
@@ -1335,12 +1294,12 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `notice_template`;
 CREATE TABLE `notice_template` (
-                                   `id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   `config_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   `send_gateway` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   `code` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                                   `content` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+                                   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                   `config_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                   `send_gateway` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                   `code` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                   `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                   `content` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                                    `created_at` datetime NOT NULL,
                                    PRIMARY KEY (`id`) USING BTREE,
                                    UNIQUE KEY `config_id` (`config_id`) USING BTREE
@@ -2049,8 +2008,8 @@ CREATE TABLE `sys_config` (
                               `config_value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '参数键值',
                               `config_type` int NOT NULL DEFAULT '0' COMMENT '系统内置（1是 2否）',
                               `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '备注',
-                              `status` int NOT NULL COMMENT '状态 0 停用 1启用',
-                              `is_deleted` int NOT NULL COMMENT '是否删除 0未删除 1已删除',
+                              `status` int DEFAULT NULL COMMENT '状态 0 停用 1启用',
+                              `is_deleted` int DEFAULT NULL COMMENT '是否删除 0未删除 1已删除',
                               `create_by` int unsigned DEFAULT '0' COMMENT '创建者',
                               `created_at` datetime DEFAULT NULL COMMENT '创建时间',
                               `update_by` int unsigned DEFAULT '0' COMMENT '更新者',
@@ -2059,7 +2018,7 @@ CREATE TABLE `sys_config` (
                               `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
                               PRIMARY KEY (`config_id`) USING BTREE,
                               UNIQUE KEY `uni_config_key` (`config_key`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统参数';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统参数';
 
 -- ----------------------------
 -- Records of sys_config
@@ -2081,6 +2040,7 @@ INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_valu
 INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `remark`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (14, '地图中心点经纬度', 'sys.map.lngAndLat', '124.383044, 40.124296', 0, '地图中心点的经纬度', 0, 0, 1, '2022-11-15 21:32:17', 0, '2022-11-15 21:32:17', NULL, NULL);
 INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `remark`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (15, '是否开启访问权限', 'sys.access.control', '0', 1, '0 否 1是', 0, 0, 1, '2022-11-22 10:06:41', 1, '2022-12-16 02:54:58', NULL, NULL);
 INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `remark`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (16, '是否自启定时任务', 'sys.auto.run.job', '1', 1, '0 否 1是', 0, 0, 1, '2022-11-22 22:40:32', 1, '2022-12-16 02:54:54', NULL, NULL);
+INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `remark`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (17, '首页路由', 'homePageRoute', '/iotmanager/dashboard', 1, '', NULL, NULL, 1, '2023-09-08 10:58:27', 0, '2023-09-08 10:58:27', NULL, NULL);
 COMMIT;
 
 -- ----------------------------
@@ -2113,11 +2073,11 @@ CREATE TABLE `sys_dept` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (1, 1, -1, '1', '开发部', 1, '15888888888', 'ry@qq.com', '1', 1, 1, '2021-07-13 15:56:52', 1, NULL, '2022-08-10 23:43:00', 1, '2022-08-10 23:43:00');
-INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (2, 7, -1, '2', '技术管理部', 0, '张发财', '', '', 1, 0, '2022-08-10 07:38:36', 1, 1, '2022-08-12 20:30:11', 0, NULL);
-INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (3, 5, 2, '2,3', '维护组', 0, '阿什顿发', '', '', 1, 0, '2022-08-09 23:43:21', 1, 1, '2022-12-15 23:42:20', 0, NULL);
-INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (4, 5, -1, '4', '运营管理部', 0, '123', '', '', 1, 0, '2022-08-10 15:59:00', 1, 1, '2022-08-12 20:30:47', 0, NULL);
-INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (5, 11, -1, '5', '行政办公室', 0, '沙果管理员', '', '', 1, 0, '2022-08-11 01:35:55', 1, 1, '2022-08-12 20:31:00', 0, NULL);
-INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (6, 11, -1, '6', '管理员', 0, '管理员', '', '', 1, 0, '2022-08-12 23:15:01', 1, 0, '2022-08-12 23:15:01', 0, NULL);
+INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (2, 7, -1, '2', '默认管理部', 0, '张发财', '', '', 1, 0, '2022-08-10 07:38:36', 1, 1, '2023-09-08 10:46:17', 0, NULL);
+INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (3, 5, 2, '2,3', '维护组', 0, '阿什顿发', '', '', 1, 1, '2022-08-09 23:43:21', 1, 1, '2023-09-08 10:46:20', 1, '2023-09-08 10:46:20');
+INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (4, 5, -1, '4', '运营管理部', 0, '123', '', '', 1, 1, '2022-08-10 15:59:00', 1, 1, '2023-09-08 10:46:22', 1, '2023-09-08 10:46:22');
+INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (5, 11, -1, '5', '行政办公室', 0, '沙果管理员', '', '', 1, 1, '2022-08-11 01:35:55', 1, 1, '2023-09-08 10:46:25', 1, '2023-09-08 10:46:25');
+INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (6, 11, -1, '6', '管理员', 0, '管理员', '', '', 1, 1, '2022-08-12 23:15:01', 1, 0, '2023-09-08 10:46:27', 1, '2023-09-08 10:46:27');
 INSERT INTO `sys_dept` (`dept_id`, `organization_id`, `parent_id`, `ancestors`, `dept_name`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (7, 9, 6, '6,7', 'test', 0, 'aaa', '', '', 1, 1, '2022-09-16 18:30:52', 1, 0, '2022-09-16 18:30:58', 1, '2022-09-16 18:30:58');
 COMMIT;
 
@@ -2289,10 +2249,10 @@ INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_
 INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (20, 'test2', '1111111', 'SYSTEM', 'test2', '*/5 * * * * ?', 1, 0, 1, 1, 1, '', '2022-08-15 10:36:41', '2022-08-15 20:50:53', '2022-12-19 19:50:38');
 INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (21, '定时清理操作日志', '3', 'SYSTEM', 'clearOperationLogByDays', '0 0 1 * * ?', 1, 0, 0, 1, 1, '清理3天前的操作日志', '2022-08-15 12:05:56', '2022-12-19 19:45:50', NULL);
 INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (22, '访问URL', 'http://www.baidu.com', 'DEFAULT', 'getAccessURL', '*/5 * * * * ?', 1, 0, 1, 1, 0, '', '2022-08-15 21:07:27', '2022-08-15 21:07:27', NULL);
-INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (78, 'dataSource-78', '78', 'dataSourceJob', 'dataSource', '0 0 */1 * * ?', 1, 0, 0, 1, 1, '天气预报', '2022-10-21 00:51:41', '2022-11-03 21:56:32', NULL);
-INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (79, 'dataSource-79', '79', 'dataSourceJob', 'dataSource', '0 0 */1 * * ?', 1, 0, 0, 1, 0, '天气预报日出与日落', '2022-10-21 01:08:06', '2022-10-21 01:08:06', NULL);
+INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (78, 'dataSource-78', '78', 'dataSourceJob', 'dataSource', '0 0 */1 * * ?', 1, 0, 1, 1, 1, '天气预报', '2022-10-21 00:51:41', '2022-11-03 21:56:32', '2023-09-08 10:50:56');
+INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (79, 'dataSource-79', '79', 'dataSourceJob', 'dataSource', '0 0 */1 * * ?', 1, 0, 1, 1, 0, '天气预报日出与日落', '2022-10-21 01:08:06', '2022-10-21 01:08:06', '2023-09-08 10:50:58');
 INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (90, '设备日志清理', '', 'SYSTEM', 'deviceLogClear', '0 0 2 * * ?', 1, 0, 0, 6, 6, '清理7天前日志', '2022-11-25 11:41:29', '2022-11-25 11:43:05', NULL);
-INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (93, 'dataTemplate-36', '36', 'dataSourceJob', 'dataTemplate', '0 0 */1 * * ?', 1, 0, 1, 6, 0, '天气预报数据建模', '2022-12-12 15:52:20', '2022-12-12 15:52:20', NULL);
+INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (93, 'dataTemplate-36', '36', 'dataSourceJob', 'dataTemplate', '0 0 */1 * * ?', 1, 0, 1, 6, 0, '天气预报数据建模', '2022-12-12 15:52:20', '2022-12-12 15:52:20', '2023-09-08 10:51:00');
 INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (94, '告警日志清理', '30', 'SYSTEM', 'clearAlarmLogByDays', '0 0 1 1 * ?', 1, 0, 0, 1, 0, '清理30天前的日志', '2022-12-19 19:48:08', '2022-12-19 19:48:08', NULL);
 INSERT INTO `sys_job` (`job_id`, `job_name`, `job_params`, `job_group`, `invoke_target`, `cron_expression`, `misfire_policy`, `concurrent`, `status`, `create_by`, `update_by`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (95, '通知服务日志清理', '10', 'SYSTEM', 'clearNoticeLogByDays', '0 0 3 * * ?', 1, 0, 0, 1, 0, '清理10天前的日志', '2022-12-19 19:50:21', '2022-12-19 19:50:21', NULL);
 COMMIT;
@@ -2313,18 +2273,14 @@ CREATE TABLE `sys_login_log` (
                                  `login_time` datetime DEFAULT NULL COMMENT '登录时间',
                                  `module` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '登录模块',
                                  PRIMARY KEY (`info_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2474 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统访问记录';
+) ENGINE=InnoDB AUTO_INCREMENT=2477 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统访问记录';
 
 -- ----------------------------
 -- Records of sys_login_log
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (344, 'admin', '127.0.0.1', '内网IP', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2022-08-25 01:36:25', '系统后台');
-INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (345, 'admin', '117.22.82.22', '陕西省 西安市', 'Chrome', 'Windows 10', 1, '登录成功', '2022-08-25 02:18:51', '系统后台');
-INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (346, 'admin', '175.0.186.240', '湖南省 长沙市', 'Chrome', 'Windows 10', 1, '登录成功', '2022-08-25 03:27:12', '系统后台');
-INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (347, 'admin', '113.232.143.120', '辽宁省 沈阳市', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2022-08-25 03:30:20', '系统后台');
-INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (2472, 'admin', '::1', '北京市 北京市', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2023-02-10 12:53:48', '系统后台');
-INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (2473, 'admin', '127.0.0.1', '内网IP', 'PostmanRuntime-ApipostRuntime', '', 1, '登录成功', '2023-07-18 16:26:22', '系统后台');
+INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (2475, 'admin', '::1', '北京市 北京市', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2023-09-08 10:51:29', '系统后台');
+INSERT INTO `sys_login_log` (`info_id`, `login_name`, `ipaddr`, `login_location`, `browser`, `os`, `status`, `msg`, `login_time`, `module`) VALUES (2476, 'admin', '::1', '北京市 北京市', 'Chrome', 'Intel Mac OS X 10_15_7', 1, '登录成功', '2023-09-08 10:58:46', '系统后台');
 COMMIT;
 
 -- ----------------------------
@@ -3259,10 +3215,10 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_notifications`;
 CREATE TABLE `sys_notifications` (
                                      `id` int NOT NULL AUTO_INCREMENT,
-                                     `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '标题',
-                                     `doc` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '描述',
-                                     `source` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '消息来源',
-                                     `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '类型',
+                                     `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '标题',
+                                     `doc` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '描述',
+                                     `source` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '消息来源',
+                                     `types` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '类型',
                                      `created_at` datetime NOT NULL COMMENT '发送时间',
                                      `status` tinyint(1) NOT NULL COMMENT '0，未读，1，已读',
                                      PRIMARY KEY (`id`) USING BTREE
@@ -3296,12 +3252,15 @@ CREATE TABLE `sys_oper_log` (
                                 `error_msg` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '错误消息',
                                 `oper_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
                                 PRIMARY KEY (`oper_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=68872 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
+) ENGINE=InnoDB AUTO_INCREMENT=69237 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志记录';
 
 -- ----------------------------
 -- Records of sys_oper_log
 -- ----------------------------
 BEGIN;
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`) VALUES (69234, '根据ID删除操作日志', 3, '/api/v1/system/oper/log/del', 'DELETE', 1, 'admin', '', '/api/v1/system/oper/log/del', '::1', '北京市 北京市', '{\"operIds\":[69231,69130,69129,69128,69127,69126,69125,69124,69123,69122,69121,69120,69119,69118,69117,69116,69115,69114,69113,69112,69111,69110,69109,69108,69107,69106,69105,69104]}', 'null', 1, '', '2023-09-08 11:08:22');
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`) VALUES (69235, '根据ID删除操作日志', 3, '/api/v1/system/oper/log/del', 'DELETE', 1, 'admin', '', '/api/v1/system/oper/log/del', '::1', '北京市 北京市', '{\"operIds\":[69233,69232]}', 'null', 1, '', '2023-09-08 11:08:26');
+INSERT INTO `sys_oper_log` (`oper_id`, `title`, `business_type`, `method`, `request_method`, `operator_type`, `oper_name`, `dept_name`, `oper_url`, `oper_ip`, `oper_location`, `oper_param`, `json_result`, `status`, `error_msg`, `oper_time`) VALUES (69236, '操作日志列表', 0, '/api/v1/system/oper/log/list', 'GET', 1, 'admin', '', '/api/v1/system/oper/log/list?pageNum=1&pageSize=50&operName=&businessType=&status=-1&title=', '::1', '北京市 北京市', '{\"businessType\":\"\",\"operName\":\"\",\"pageNum\":\"1\",\"pageSize\":\"50\",\"status\":\"-1\",\"title\":\"\"}', '{\"Data\":[{\"operId\":69234,\"title\":\"根据ID删除操作日志\",\"businessType\":3,\"method\":\"/api/v1/system/oper/log/del\",\"requestMethod\":\"DELETE\",\"operatorType\":1,\"operName\":\"admin\",\"deptName\":\"\",\"operUrl\":\"/api/v1/system/oper/log/del\",\"operIp\":\"::1\",\"operLocation\":\"北京市 北京市\",\"operParam\":\"{\\\"operIds\\\":[69231,69130,69129,69128,69127,69126,69125,69124,69123,69122,69121,69120,69119,69118,69117,69116,69115,69114,69113,69112,69111,69110,69109,69108,69107,69106,69105,69104]}\",\"jsonResult\":\"null\",\"status\":1,\"errorMsg\":\"\",\"operTime\":\"2023-09-08 11:08:22\"}],\"Total\":1,\"currentPage\":1}', 1, '', '2023-09-08 11:08:26');
 COMMIT;
 
 -- ----------------------------
@@ -3337,14 +3296,14 @@ INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (2, -1, '2', '', '', 0, 'asdf', '13354231895', '123', 1, 1, '2022-08-10 22:37:23', 1, 0, '2022-08-10 22:50:28', 1, '2022-08-10 22:50:28');
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (3, -1, '3', '测试组织', '', 0, '杨立志', '13354231895', '12123', 1, 1, '2022-08-10 22:39:36', 1, 0, '2022-08-10 23:11:22', 1, '2022-08-10 23:11:22');
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (4, -1, '4', '测试组织2', '', 0, '杨立志', '13354231895', '111@qq.com', 1, 1, '2022-08-10 22:41:46', 1, 0, '2022-08-10 23:11:24', 1, '2022-08-10 23:11:24');
-INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (5, -1, '5', '辽宁区域', '', 2, '123', '', '', 1, 0, '2022-08-08 22:54:57', 1, 1, '2022-08-10 23:19:16', 0, NULL);
+INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (5, -1, '5', '默认区域', '', 2, '123', '', '', 1, 0, '2022-08-08 22:54:57', 1, 1, '2023-09-08 10:46:09', 0, NULL);
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (6, 5, '5,6', '测试2', '', 0, '一直', '', '', 1, 1, '2022-08-10 23:07:58', 1, 0, '2022-08-10 23:10:35', 1, '2022-08-10 23:10:35');
-INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (7, 5, '5,7', '沈阳沙果', '', 0, '12123', '', '', 1, 0, '2022-08-09 07:10:42', 1, 1, '2022-12-15 23:42:28', 0, NULL);
+INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (7, 5, '5,7', '沈阳沙果', '', 0, '12123', '', '', 1, 1, '2022-08-09 07:10:42', 1, 1, '2023-09-08 10:45:57', 1, '2023-09-08 10:45:57');
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (8, -1, '8', '辽宁区域', '', 3, '阿什顿发', '', '', 1, 1, '2022-08-09 23:11:27', 1, 1, '2022-08-10 23:19:08', 1, '2022-08-10 23:19:08');
-INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (9, -1, '9', '333', '', 1, '3333', '', '', 1, 0, '2022-08-10 15:11:34', 1, 1, '2022-08-10 23:11:46', 0, NULL);
+INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (9, -1, '9', '333', '', 1, '3333', '', '', 1, 1, '2022-08-10 15:11:34', 1, 1, '2023-09-08 10:46:00', 1, '2023-09-08 10:46:00');
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (10, -1, '10', 'c收到', '', 3, '212', '', '', 1, 1, '2022-08-10 23:34:54', 1, 0, '2022-08-12 20:31:16', 1, '2022-08-12 20:31:16');
-INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (11, -1, '11', '集团总部', '', 0, '沙果', '', '', 1, 0, '2022-08-11 09:35:28', 1, 0, '2022-08-11 09:35:28', 0, NULL);
-INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (12, -1, '12', '丹东区域', '', 0, '王馨墨', '', '', 1, 0, '2022-09-19 18:40:35', 1, 1, '2022-11-15 11:45:26', 0, NULL);
+INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (11, -1, '11', '集团总部', '', 0, '沙果', '', '', 1, 1, '2022-08-11 09:35:28', 1, 0, '2023-09-08 10:46:02', 1, '2023-09-08 10:46:02');
+INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (12, -1, '12', '丹东区域', '', 0, '王馨墨', '', '', 1, 1, '2022-09-19 18:40:35', 1, 1, '2023-09-08 10:46:04', 1, '2023-09-08 10:46:04');
 INSERT INTO `sys_organization` (`id`, `parent_id`, `ancestors`, `name`, `number`, `order_num`, `leader`, `phone`, `email`, `status`, `is_deleted`, `created_at`, `created_by`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (13, -1, '13', '1111', '', 0, '111', '', '', 1, 1, '2022-10-19 00:16:15', 1, 0, '2022-10-19 00:16:23', 1, '2022-10-19 00:16:23');
 COMMIT;
 
@@ -3354,12 +3313,12 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_plugins`;
 CREATE TABLE `sys_plugins` (
                                `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
-                               `types` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '插件类型',
-                               `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '名称',
-                               `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '标题',
-                               `intro` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '介绍',
-                               `version` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '版本',
-                               `author` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '作者',
+                               `types` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '插件类型',
+                               `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
+                               `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '标题',
+                               `intro` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '介绍',
+                               `version` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '版本',
+                               `author` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '作者',
                                `status` tinyint(1) NOT NULL COMMENT '状态',
                                `start_time` datetime NOT NULL COMMENT '启动时间',
                                PRIMARY KEY (`id`) USING BTREE
@@ -3369,8 +3328,8 @@ CREATE TABLE `sys_plugins` (
 -- Records of sys_plugins
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_plugins` (`id`, `types`, `name`, `title`, `intro`, `version`, `author`, `status`, `start_time`) VALUES (2, 'protocol', 'modbus', 'Modbus TCP协议', '对modbus TCP模式的设备进行数据采集', '0.01', 'Microrain', 1, '2022-12-03 10:37:45');
-INSERT INTO `sys_plugins` (`id`, `types`, `name`, `title`, `intro`, `version`, `author`, `status`, `start_time`) VALUES (3, 'protocol', 'tgn52', 'TG-N5 v2设备协议', '对TG-N5插座设备进行数据采集v2', '0.01', 'Microrain', 1, '2022-12-03 10:37:45');
+INSERT INTO `sys_plugins` (`id`, `types`, `name`, `title`, `intro`, `version`, `author`, `status`, `start_time`) VALUES (2, 'protocol', 'modbus', 'Modbus TCP协议', '对modbus TCP模式的设备进行数据采集', '0.01', 'Microrain', 0, '2022-12-03 10:37:45');
+INSERT INTO `sys_plugins` (`id`, `types`, `name`, `title`, `intro`, `version`, `author`, `status`, `start_time`) VALUES (3, 'protocol', 'tgn52', 'TG-N5 v2设备协议', '对TG-N5插座设备进行数据采集v2', '0.01', 'Microrain', 0, '2022-12-03 10:37:45');
 COMMIT;
 
 -- ----------------------------
@@ -3379,10 +3338,10 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_plugins_config`;
 CREATE TABLE `sys_plugins_config` (
                                       `id` int NOT NULL AUTO_INCREMENT,
-                                      `type` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '插件类型',
-                                      `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '插件名称',
-                                      `value` varchar(300) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '配置内容',
-                                      `doc` varchar(300) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '配置说明',
+                                      `type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '插件类型',
+                                      `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '插件名称',
+                                      `value` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '配置内容',
+                                      `doc` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '配置说明',
                                       PRIMARY KEY (`id`) USING BTREE,
                                       UNIQUE KEY `typeandname` (`type`,`name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 COMMENT='插件配置表';
@@ -3429,10 +3388,10 @@ BEGIN;
 INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (1, -1, '01', '技术总监', 1, 0, 'Sagoo IOT技术负责人', 1, 1, '2022-07-09 00:25:06', 1, '2022-08-11 15:25:00', 1, '2022-08-11 15:25:01');
 INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (2, -1, 'G20220811121447', 'ass 打发斯蒂芬', 0, 1, '123123', 1, 1, '2022-08-11 04:14:47', 1, '2022-08-11 12:18:45', 1, '2022-08-11 12:18:46');
 INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (3, -1, 'G20220811121542', '阿什顿发', 1, 1, '123123', 1, 1, '2022-08-11 12:15:42', 0, '2022-08-11 12:19:27', 1, '2022-08-11 12:19:27');
-INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (4, -1, 'G20220811121552', '阿什顿发22', 33, 1, '3', 0, 1, '2022-08-10 12:15:52', 1, '2022-09-15 17:04:07', 0, NULL);
-INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (5, 4, 'G20220811152510', 'gangwei', 0, 1, '123', 0, 1, '2022-08-10 23:25:10', 1, '2022-12-15 23:42:34', 0, NULL);
-INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (6, -1, 'G20220812235425', '岗位2', 0, 1, '', 0, 1, '2022-08-12 23:54:25', 0, '2022-08-12 23:54:25', 0, NULL);
-INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (7, -1, 'G20220812235433', '岗位223', 0, 1, '', 0, 1, '2022-08-12 23:54:33', 0, '2022-08-12 23:54:33', 0, NULL);
+INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (4, -1, 'G20220811121552', '默认岗位', 33, 1, '3', 0, 1, '2022-08-10 12:15:52', 1, '2023-09-08 10:46:55', 0, NULL);
+INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (5, 4, 'G20220811152510', 'gangwei', 0, 1, '123', 1, 1, '2022-08-10 23:25:10', 1, '2023-09-08 10:46:51', 1, '2023-09-08 10:46:51');
+INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (6, -1, 'G20220812235425', '岗位2', 0, 1, '', 1, 1, '2022-08-12 23:54:25', 0, '2023-09-08 10:46:49', 1, '2023-09-08 10:46:49');
+INSERT INTO `sys_post` (`post_id`, `parent_id`, `post_code`, `post_name`, `post_sort`, `status`, `remark`, `is_deleted`, `created_by`, `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (7, -1, 'G20220812235433', '岗位223', 0, 1, '', 1, 1, '2022-08-12 23:54:33', 0, '2023-09-08 10:46:47', 1, '2023-09-08 10:46:47');
 COMMIT;
 
 -- ----------------------------
@@ -3524,8 +3483,8 @@ CREATE TABLE `sys_user` (
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (1, 'admin', '1', '15888888889', '超级管理员', 1990, '3a66af5d8753bf48bf97dd3be53d1956', 'IIsQ2vKfaV', 'yxh669@qq.com', 1, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-11-11/co9dilmc7lt8ahwaa6.png', 6, '', 1, 'asdasfdsaf大发放打发士大夫发按时', '描述信息', '127.0.0.1', '2023-07-18 16:26:22', 1, 0, 1, '2022-08-03 21:33:30', 10, '2023-07-18 16:26:22', 0, NULL);
-INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (10, 'demo', 'system', '18711111111', '演示示例账号', 0, 'e1f6ef3bd5cbf35fdb05b686b111d16f', 'k5jjjB3VU8', '', 0, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-12-04/cot10byfqd39ykjnno.png', 3, '', 1, '', '', '119.85.96.1', '2022-12-31 18:00:04', 1, 0, 1, '2022-11-03 00:19:50', 1, '2022-12-31 18:00:04', 0, NULL);
+INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (1, 'admin', '1', '15888888889', '超级管理员', 1990, '3a66af5d8753bf48bf97dd3be53d1956', 'IIsQ2vKfaV', 'yxh669@qq.com', 1, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-11-11/co9dilmc7lt8ahwaa6.png', 6, '', 1, 'asdasfdsaf大发放打发士大夫发按时', '描述信息', '::1', '2023-09-08 10:58:46', 1, 0, 1, '2022-08-03 21:33:30', 10, '2023-09-08 10:58:45', 0, NULL);
+INSERT INTO `sys_user` (`id`, `user_name`, `user_types`, `mobile`, `user_nickname`, `birthday`, `user_password`, `user_salt`, `user_email`, `sex`, `avatar`, `dept_id`, `remark`, `is_admin`, `address`, `describe`, `last_login_ip`, `last_login_time`, `status`, `is_deleted`, `create_by`, `created_at`, `update_by`, `updated_at`, `deleted_by`, `deleted_at`) VALUES (10, 'demo', 'system', '18711111111', '演示示例账号', 0, 'e1f6ef3bd5cbf35fdb05b686b111d16f', 'k5jjjB3VU8', '', 0, 'https://zhgy.sagoo.cn/base-api/upload_file/2022-12-04/cot10byfqd39ykjnno.png', 3, '', 1, '', '', '119.85.96.1', '2022-12-31 18:00:04', 1, 1, 1, '2022-11-03 00:19:50', 1, '2023-09-08 10:45:39', 1, '2023-09-08 10:45:39');
 COMMIT;
 
 -- ----------------------------
@@ -3545,13 +3504,13 @@ CREATE TABLE `sys_user_online` (
                                    PRIMARY KEY (`id`) USING BTREE,
                                    UNIQUE KEY `uni_token` (`token`) USING BTREE,
                                    UNIQUE KEY `token` (`token`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=851 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户在线状态表';
+) ENGINE=InnoDB AUTO_INCREMENT=854 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户在线状态表';
 
 -- ----------------------------
 -- Records of sys_user_online
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user_online` (`id`, `uuid`, `key`, `token`, `created_at`, `user_name`, `ip`, `explorer`, `os`) VALUES (850, 'dhkhaa0rhy0cu55lepne420100e8xnw6', '1-21232f297a57a5a743894a0e4a801fc3-7886d3aba523f480f36f5a3cfe48eb0a', '5rrLCPtzPM4tnvlHq+0iav2BDmIrd9QCru7zhgXMkRdi6pITmpK3DfkFrpBflbtIHEDxaVqONEX72EhOZri4eJBZeKdPT5gA0tZX+xEVFTKQFuejJhJQAF+wf3ipgVSdOS3JHURpaxO7w84lgDseXQ==', '2023-07-18 16:26:22', 'admin', '127.0.0.1', 'PostmanRuntime-ApipostRuntime', '');
+INSERT INTO `sys_user_online` (`id`, `uuid`, `key`, `token`, `created_at`, `user_name`, `ip`, `explorer`, `os`) VALUES (853, '1443itm6ci0cvd76weqfqwg500tlej1h', '1-21232f297a57a5a743894a0e4a801fc3-e3df95bb99564ae251e5f65f3438474b', '5rrLCPtzPM4tnvlHq+0iav2BDmIrd9QCru7zhgXMkRfqoyPtLwpQ1B71QnmqU/FAms6HjiblEq7i17P66merQhGkEgy+uLPb39Io006U9lGiJnhTUgcfskmy25vEGkO2ZbelfbPEE/ruOvCWJ6ilCA==', '2023-09-08 10:58:45', 'admin', '::1', 'Chrome', 'Intel Mac OS X 10_15_7');
 COMMIT;
 
 -- ----------------------------
