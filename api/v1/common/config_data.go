@@ -6,10 +6,11 @@ import (
 )
 
 type ConfigSearchReq struct {
-	g.Meta     `path:"/config/list" tags:"系统参数管理" method:"get" summary:"系统参数列表"`
-	ConfigName string `p:"configName"` //参数名称
-	ConfigKey  string `p:"configKey"`  //参数键名
-	ConfigType string `p:"configType"` //状态
+	g.Meta        `path:"/config/list" tags:"系统参数管理" method:"get" summary:"系统参数列表"`
+	ConfigName    string `p:"configName"`    //参数名称
+	ConfigKey     string `p:"configKey"`     //参数键名
+	ConfigType    string `p:"configType"`    //状态
+	DictClassCode string `p:"dictClassCode"` //字典类型编码
 	*PaginationReq
 }
 
@@ -20,12 +21,13 @@ type ConfigSearchRes struct {
 }
 
 type ConfigAddReq struct {
-	g.Meta      `path:"/config/add" tags:"系统参数管理" method:"post" summary:"添加系统参数"`
-	ConfigName  string `p:"configName"  v:"required#参数名称不能为空"`
-	ConfigKey   string `p:"configKey"  v:"required#参数键名不能为空"`
-	ConfigValue string `p:"configValue"  v:"required#参数键值不能为空"`
-	ConfigType  int    `p:"configType"    v:"required|in:0,1#系统内置不能为空|系统内置类型只能为0或1"`
-	Remark      string `p:"remark"`
+	g.Meta        `path:"/config/add" tags:"系统参数管理" method:"post" summary:"添加系统参数"`
+	ConfigName    string `p:"configName"  v:"required#参数名称不能为空"`
+	ConfigKey     string `p:"configKey"  v:"required#参数键名不能为空"`
+	ConfigValue   string `p:"configValue"  v:"required#参数键值不能为空"`
+	ConfigType    int    `p:"configType"    v:"required|in:0,1#系统内置不能为空|系统内置类型只能为0或1"`
+	DictClassCode string `p:"dictClassCode" v:"required#参数键值不能为空"` //字典类型编码
+	Remark        string `p:"remark"`
 }
 
 type ConfigAddRes struct {
@@ -42,13 +44,14 @@ type ConfigGetRes struct {
 }
 
 type ConfigEditReq struct {
-	g.Meta      `path:"/config/edit" tags:"系统参数管理" method:"put" summary:"修改系统参数"`
-	ConfigId    int    `p:"configId" v:"required|min:1#主键ID不能为空|主键ID参数错误"`
-	ConfigName  string `p:"configName"  v:"required#参数名称不能为空"`
-	ConfigKey   string `p:"configKey"  v:"required#参数键名不能为空"`
-	ConfigValue string `p:"configValue"  v:"required#参数键值不能为空"`
-	ConfigType  int    `p:"configType"    v:"required|in:0,1#系统内置不能为空|系统内置类型只能为0或1"`
-	Remark      string `p:"remark"`
+	g.Meta        `path:"/config/edit" tags:"系统参数管理" method:"put" summary:"修改系统参数"`
+	ConfigId      int    `p:"configId" v:"required|min:1#主键ID不能为空|主键ID参数错误"`
+	ConfigName    string `p:"configName"  v:"required#参数名称不能为空"`
+	ConfigKey     string `p:"configKey"  v:"required#参数键名不能为空"`
+	ConfigValue   string `p:"configValue"  v:"required#参数键值不能为空"`
+	ConfigType    int    `p:"configType"    v:"required|in:0,1#系统内置不能为空|系统内置类型只能为0或1"`
+	DictClassCode string `p:"dictClassCode" v:"required#参数键值不能为空"` //字典类型编码
+	Remark        string `p:"remark"`
 }
 
 type ConfigEditRes struct {

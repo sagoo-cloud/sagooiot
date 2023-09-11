@@ -20,38 +20,40 @@ type SysConfigDao struct {
 
 // SysConfigColumns defines and stores column names for table sys_config.
 type SysConfigColumns struct {
-	ConfigId    string // 参数主键
-	ConfigName  string // 参数名称
-	ConfigKey   string // 参数键名
-	ConfigValue string // 参数键值
-	ConfigType  string // 系统内置（1是 2否）
-	Remark      string // 备注
-	Status      string // 状态 0 停用 1启用
-	IsDeleted   string // 是否删除 0未删除 1已删除
-	CreateBy    string // 创建者
-	CreatedAt   string // 创建时间
-	UpdateBy    string // 更新者
-	UpdatedAt   string // 修改时间
-	DeletedBy   string // 删除人
-	DeletedAt   string // 删除时间
+	ConfigId      string // 参数主键
+	ConfigName    string // 参数名称
+	ConfigKey     string // 参数键名
+	ConfigValue   string // 参数键值
+	ConfigType    string // 系统内置（1是 2否）
+	DictClassCode string // 所属字典类型数据code
+	Remark        string // 备注
+	Status        string // 状态 0 停用 1启用
+	IsDeleted     string // 是否删除 0未删除 1已删除
+	CreateBy      string // 创建者
+	CreatedAt     string // 创建时间
+	UpdateBy      string // 更新者
+	UpdatedAt     string // 修改时间
+	DeletedBy     string // 删除人
+	DeletedAt     string // 删除时间
 }
 
-//  sysConfigColumns holds the columns for table sys_config.
+// sysConfigColumns holds the columns for table sys_config.
 var sysConfigColumns = SysConfigColumns{
-	ConfigId:    "config_id",
-	ConfigName:  "config_name",
-	ConfigKey:   "config_key",
-	ConfigValue: "config_value",
-	ConfigType:  "config_type",
-	Remark:      "remark",
-	Status:      "status",
-	IsDeleted:   "is_deleted",
-	CreateBy:    "create_by",
-	CreatedAt:   "created_at",
-	UpdateBy:    "update_by",
-	UpdatedAt:   "updated_at",
-	DeletedBy:   "deleted_by",
-	DeletedAt:   "deleted_at",
+	ConfigId:      "config_id",
+	ConfigName:    "config_name",
+	ConfigKey:     "config_key",
+	ConfigValue:   "config_value",
+	ConfigType:    "config_type",
+	DictClassCode: "dict_class_code",
+	Remark:        "remark",
+	Status:        "status",
+	IsDeleted:     "is_deleted",
+	CreateBy:      "create_by",
+	CreatedAt:     "created_at",
+	UpdateBy:      "update_by",
+	UpdatedAt:     "updated_at",
+	DeletedBy:     "deleted_by",
+	DeletedAt:     "deleted_at",
 }
 
 // NewSysConfigDao creates and returns a new DAO object for table data access.
