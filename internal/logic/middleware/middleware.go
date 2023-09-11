@@ -94,101 +94,97 @@ func (s *sMiddleware) Auth(r *ghttp.Request) {
 	if userId == 0 {
 		response.JsonRedirectExit(r, consts.ErrorNotLogged, "未登录或会话已过期，请您登录后再继续", s.LoginUrl)
 		return
-	} else {
-		//查询系统参数
-		sysConfigInfo, err := service.ConfigData().GetConfigByKey(r.Context(), consts.IsOpenAccessControl)
-		if err != nil {
-			return
-		}
-		if sysConfigInfo != nil {
-			if strings.EqualFold(sysConfigInfo.ConfigValue, "1") {
-				//判断用户是否有访问权限
-				url := r.Request.URL.Path
-				if !strings.EqualFold(url, "/api/v1/system/user/currentUser") {
-					//获取用户角色信息
-					userRoleInfo, err := service.SysUserRole().GetInfoByUserId(r.Context(), userId)
-					if err != nil {
-						response.JsonRedirectExit(r, consts.ErrorInvalidRole, "获取用户角色失败", "")
-						return
-					}
-					if userRoleInfo != nil {
-						var roleIds []int
-						//判断是否为超级管理员
-						var isSuperAdmin = false
-						for _, userRole := range userRoleInfo {
-							//获取角色ID
-							if userRole.RoleId == 1 {
-								isSuperAdmin = true
-							}
-							roleIds = append(roleIds, userRole.RoleId)
-						}
-						if !isSuperAdmin {
-							//获取角色ID下所有的请求API
-							authorizeInfo, authorizeErr := service.SysAuthorize().GetInfoByRoleIdsAndItemsType(r.Context(), roleIds, consts.Api)
-							if authorizeErr != nil {
-								response.JsonRedirectExit(r, consts.ErrorInvalidData, "获取用户权限失败", "")
-								return
-							}
-							if authorizeInfo != nil {
-								//判断是否与当前访问接口一致
-								var menuApiIds []int
-								for _, authorize := range authorizeInfo {
-									menuApiIds = append(menuApiIds, authorize.ItemsId)
-								}
-								//获取所有的接口API
-								menuApiInfo, menuApiErr := service.SysMenuApi().GetInfoByIds(r.Context(), menuApiIds)
-								if menuApiErr != nil {
-									response.JsonRedirectExit(r, consts.ErrorInvalidData, "相关接口未配置", "")
-									return
-								}
-								if menuApiInfo != nil {
-									var apiIds []int
-									for _, menuApi := range menuApiInfo {
-										apiIds = append(apiIds, menuApi.ApiId)
-									}
-									//获取所有的接口
-									apiInfo, apiErr := service.SysApi().GetInfoByIds(r.Context(), apiIds)
-									if apiErr != nil {
-										response.JsonRedirectExit(r, consts.ErrorInvalidData, "获取接口失败", "")
-										return
-									}
-									if apiInfo != nil {
-										var isExist = false
-										//获取请求路径
-										for _, api := range apiInfo {
-											if strings.EqualFold(url, api.Address) {
-												isExist = true
-												break
-											}
-										}
-										if !isExist {
-											response.JsonRedirectExit(r, consts.ErrorAccessDenied, "无权限访问", "")
-											return
-										}
-									} else {
-										response.JsonRedirectExit(r, consts.ErrorInvalidData, "相关接口未配置", "")
-										return
-									}
-
-								} else {
-									response.JsonRedirectExit(r, consts.ErrorAccessDenied, "接口未绑定菜单,请联系管理员!", "")
-									return
-								}
-
-							} else {
-								response.JsonRedirectExit(r, consts.ErrorAccessDenied, "未授权接口,无访问权限!", "")
-								return
-							}
-						}
-					} else {
-						response.JsonRedirectExit(r, consts.ErrorInvalidRole, "用户未配置角色信息,请联系管理员", "")
-						return
-					}
-				}
-			}
-		}
-
 	}
+
+	//判断用户是否有访问权限
+	url := r.Request.URL.Path
+	if strings.EqualFold(url, "/api/v1/system/user/currentUser") {
+		r.Middleware.Next()
+		return
+	}
+
+	//获取用户角色信息
+	userRoleInfo, err := service.SysUserRole().GetInfoByUserId(r.Context(), userId)
+	if err != nil {
+		response.JsonRedirectExit(r, consts.ErrorInvalidRole, "获取用户角色失败", "")
+		return
+	}
+	if userRoleInfo == nil {
+		response.JsonRedirectExit(r, consts.ErrorInvalidRole, "用户未配置角色信息,请联系管理员", "")
+		return
+	}
+
+	var roleIds []int
+	//判断是否为超级管理员
+	var isSuperAdmin = false
+	for _, userRole := range userRoleInfo {
+		//获取角色ID
+		if userRole.RoleId == 1 {
+			isSuperAdmin = true
+		}
+		roleIds = append(roleIds, userRole.RoleId)
+	}
+
+	//超级管理员拥有所有访问权限
+	if isSuperAdmin {
+		r.Middleware.Next()
+		return
+	}
+
+	//获取角色ID下所有的请求API
+	authorizeInfo, authorizeErr := service.SysAuthorize().GetInfoByRoleIdsAndItemsType(r.Context(), roleIds, consts.Api)
+	if authorizeErr != nil {
+		response.JsonRedirectExit(r, consts.ErrorInvalidData, "获取用户权限失败", "")
+		return
+	}
+
+	if authorizeInfo == nil || len(authorizeInfo) == 0 {
+		response.JsonRedirectExit(r, consts.ErrorAccessDenied, "未授权接口,无访问权限!", "")
+		return
+	}
+
+	//判断是否与当前访问接口一致
+	var menuApiIds []int
+	for _, authorize := range authorizeInfo {
+		menuApiIds = append(menuApiIds, authorize.ItemsId)
+	}
+	//获取所有的接口API
+	menuApiInfo, menuApiErr := service.SysMenuApi().GetInfoByIds(r.Context(), menuApiIds)
+	if menuApiErr != nil {
+		response.JsonRedirectExit(r, consts.ErrorInvalidData, "相关接口未配置", "")
+		return
+	}
+	if menuApiInfo == nil || len(menuApiInfo) == 0 {
+		response.JsonRedirectExit(r, consts.ErrorAccessDenied, "接口未绑定菜单,请联系管理员!", "")
+		return
+	}
+	var apiIds []int
+	for _, menuApi := range menuApiInfo {
+		apiIds = append(apiIds, menuApi.ApiId)
+	}
+	//获取所有的接口
+	apiInfo, apiErr := service.SysApi().GetInfoByIds(r.Context(), apiIds)
+	if apiErr != nil {
+		response.JsonRedirectExit(r, consts.ErrorInvalidData, "获取接口失败", "")
+		return
+	}
+	if apiInfo == nil || len(apiInfo) == 0 {
+		response.JsonRedirectExit(r, consts.ErrorInvalidData, "相关接口未配置", "")
+		return
+	}
+	var isExist = false
+	//获取请求路径
+	for _, api := range apiInfo {
+		if strings.EqualFold(url, api.Address) {
+			isExist = true
+			break
+		}
+	}
+	if !isExist {
+		response.JsonRedirectExit(r, consts.ErrorAccessDenied, "无权限访问", "")
+		return
+	}
+
 	r.Middleware.Next()
 }
 
