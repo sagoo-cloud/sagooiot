@@ -41,8 +41,8 @@ func (s *sDictType) List(ctx context.Context, input *model.DictTypeDoInput) (tot
 		if input.Status != "" {
 			m = m.Where(dao.SysDictType.Columns().Status+" = ", gconv.Int(input.Status))
 		}
-		if input.DictClass != "" {
-			m = m.Where(dao.SysDictType.Columns().DictClass+" = ", input.DictClass)
+		if input.ModuleClassify != "" {
+			m = m.Where(dao.SysDictType.Columns().ModuleClassify+" = ", input.ModuleClassify)
 		}
 		total, err = m.Count()
 		liberr.ErrIsNil(ctx, err, "获取字典类型失败")
@@ -66,13 +66,13 @@ func (s *sDictType) Add(ctx context.Context, input *model.AddDictTypeInput, user
 		liberr.ErrIsNil(ctx, err)
 		parentId := 0
 		_, err = dao.SysDictType.Ctx(ctx).Insert(do.SysDictType{
-			DictName:  input.DictName,
-			DictType:  input.DictType,
-			Status:    input.Status,
-			CreateBy:  userId,
-			Remark:    input.Remark,
-			DictClass: input.DictClass,
-			ParentId:  parentId,
+			DictName:       input.DictName,
+			DictType:       input.DictType,
+			Status:         input.Status,
+			CreateBy:       userId,
+			Remark:         input.Remark,
+			ModuleClassify: input.ModuleClassify,
+			ParentId:       parentId,
 		})
 		liberr.ErrIsNil(ctx, err, "添加字典类型失败")
 		//清除缓存
@@ -93,12 +93,12 @@ func (s *sDictType) Edit(ctx context.Context, input *model.EditDictTypeInput, us
 			liberr.ValueIsNil(dictType, "字典类型不存在")
 			//修改字典类型
 			_, e = dao.SysDictType.Ctx(ctx).TX(tx).WherePri(input.DictId).Update(do.SysDictType{
-				DictName:  input.DictName,
-				DictType:  input.DictType,
-				Status:    input.Status,
-				UpdateBy:  userId,
-				Remark:    input.Remark,
-				DictClass: input.DictClass,
+				DictName:       input.DictName,
+				DictType:       input.DictType,
+				Status:         input.Status,
+				UpdateBy:       userId,
+				Remark:         input.Remark,
+				ModuleClassify: input.ModuleClassify,
 			})
 			liberr.ErrIsNil(ctx, e, "修改字典类型失败")
 			//修改字典数据

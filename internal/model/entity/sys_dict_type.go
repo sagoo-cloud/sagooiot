@@ -15,7 +15,6 @@ type SysDictType struct {
 	DictName       string      `json:"dictName"       description:"字典名称"`
 	DictType       string      `json:"dictType"       description:"字典类型"`
 	ModuleClassify string      `json:"moduleClassify" description:"模块分类"`
-	DictClass      int         `json:"dictClass"      description:"字典分类：取值从字典类型"`
 	Remark         string      `json:"remark"         description:"备注"`
 	Status         uint        `json:"status"         description:"状态（0正常 1停用）"`
 	IsDeleted      int         `json:"isDeleted"      description:"是否删除 0未删除 1已删除"`
