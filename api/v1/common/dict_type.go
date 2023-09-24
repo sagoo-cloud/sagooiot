@@ -25,7 +25,7 @@ type DictTypeAddReq struct {
 	DictName       string `p:"dictName"  v:"required#字典名称不能为空"`
 	DictType       string `p:"dictType"  v:"required#字典类型不能为空"`
 	Status         uint   `p:"status"  v:"required|in:0,1#状态不能为空|状态只能为0或1"`
-	ModuleClassify string `p:"moduleClassify"` //字典分类
+	ModuleClassify string `p:"moduleClassify"`
 	Remark         string `p:"remark"`
 }
 
@@ -48,7 +48,7 @@ type DictTypeEditReq struct {
 	DictName       string `p:"dictName"  v:"required#字典名称不能为空"`
 	DictType       string `p:"dictType"  v:"required#字典类型不能为空"`
 	Status         uint   `p:"status"  v:"required|in:0,1#状态不能为空|状态只能为0或1"`
-	ModuleClassify string `p:"moduleClassify"` //字典分类
+	ModuleClassify string `p:"moduleClassify"`
 	Remark         string `p:"remark"`
 }
 
