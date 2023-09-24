@@ -44,8 +44,7 @@ func (s *sConfigData) List(ctx context.Context, input *model.ConfigDoInput) (tot
 			m = m.Where(dao.SysConfig.Columns().ModuleClassify, input.ModuleClassify)
 		}
 		if len(input.DateRange) > 0 {
-			m = m.WhereGTE(dao.SysConfig.Columns().CreatedAt, input.DateRange[0]).
-				WhereLTE(dao.SysConfig.Columns().CreatedAt, input.DateRange[1])
+			m = m.WhereBetween(dao.SysConfig.Columns().CreatedAt, input.DateRange[0], input.DateRange[1])
 		}
 	}
 	total, err = m.Count()
@@ -85,9 +84,9 @@ func (s *sConfigData) Add(ctx context.Context, input *model.AddConfigInput, user
 func (s *sConfigData) CheckConfigKeyUnique(ctx context.Context, configKey string, configId ...int) (err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
 		data := (*entity.SysConfig)(nil)
-		m := dao.SysConfig.Ctx(ctx).Fields(dao.SysConfig.Columns().ConfigId).Where(dao.SysConfig.Columns().ConfigKey, configKey)
+		m := dao.SysConfig.Ctx(ctx).Fields(dao.SysConfig.Columns().ConfigId).Where(dao.SysConfig.Columns().ConfigKey, configKey).Unscoped()
 		if len(configId) > 0 {
-			m = m.Where(dao.SysConfig.Columns().ConfigId+" != ?", configId[0])
+			m = m.WhereNot(dao.SysConfig.Columns().ConfigId, configId[0])
 		}
 		err = m.Scan(&data)
 		liberr.ErrIsNil(ctx, err, "校验失败")
