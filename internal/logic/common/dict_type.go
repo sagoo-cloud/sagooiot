@@ -32,17 +32,15 @@ func init() {
 func (s *sDictType) List(ctx context.Context, input *model.DictTypeDoInput) (total int, out []*model.SysDictTypeInfoOut, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
 		m := dao.SysDictType.Ctx(ctx)
-		if input.DictName != "" {
-			m = m.Where(dao.SysDictType.Columns().DictName+" like ?", "%"+input.DictName+"%")
-		}
-		if input.DictType != "" {
-			m = m.Where(dao.SysDictType.Columns().DictType+" like ?", "%"+input.DictType+"%")
+		if input.ModuleClassify != "" {
+			m = m.Where(dao.SysDictType.Columns().ModuleClassify, input.ModuleClassify)
 		}
 		if input.Status != "" {
-			m = m.Where(dao.SysDictType.Columns().Status+" = ", gconv.Int(input.Status))
+			m = m.Where(dao.SysDictType.Columns().Status, gconv.Int(input.Status))
 		}
-		if input.ModuleClassify != "" {
-			m = m.Where(dao.SysDictType.Columns().ModuleClassify+" = ", input.ModuleClassify)
+		if input.DictName != "" {
+			m = m.WhereLike(dao.SysDictType.Columns().DictName, "%"+input.DictName+"%")
+			m = m.WhereOrLike(dao.SysDictType.Columns().DictType, "%"+input.DictName+"%")
 		}
 		total, err = m.Count()
 		liberr.ErrIsNil(ctx, err, "获取字典类型失败")
