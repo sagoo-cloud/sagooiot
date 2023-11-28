@@ -29,6 +29,7 @@ type SysPluginsColumns struct {
 	Types     string // 插件类型
 	Author    string //
 	StartTime string //
+	IsDeleted             string // 是否删除 0未删除 1已删除
 }
 
 // sysPluginsColumns holds the columns for table sys_plugins.

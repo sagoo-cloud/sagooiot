@@ -67,3 +67,21 @@ func (s *sContext) GetUserDeptId(ctx context.Context) int {
 	}
 	return 0
 }
+
+// GetChildrenDeptId 获取所有子部门ID
+func (s *sContext) GetChildrenDeptId(ctx context.Context) []int {
+	user := s.GetLoginUser(ctx)
+	if user != nil {
+		return user.ChildrenDeptId
+	}
+	return nil
+}
+
+// GetRequestWay 获取当前系统请求方式
+func (s *sContext) GetRequestWay(ctx context.Context) string {
+	user := s.GetLoginUser(ctx)
+	if user != nil {
+		return user.RequestWay
+	}
+	return ""
+}

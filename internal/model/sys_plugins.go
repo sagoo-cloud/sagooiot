@@ -29,3 +29,17 @@ type SysPluginsEditInput struct {
 	Id int `json:"id"          description:"ID"`
 	SysPluginsAddInput
 }
+
+type SysPluginsInfoRes struct {
+	Types      string `json:"types"                 description:"插件与SagooIOT的通信方式"`
+	HandleType string `json:"handleType"            description:"功能类型"`
+	Name       string `json:"name"                  description:"名称"`
+	Title      string `json:"title"                 description:"标题"`
+}
+
+type SysPluginsInfoOut struct {
+	Types      string `json:"types"                 description:"插件与SagooIOT的通信方式"`
+	HandleType string `json:"handleType"            description:"功能类型"`
+	Name       string `json:"name"                  description:"名称"`
+	Title      string `json:"title"                 description:"标题"`
+}

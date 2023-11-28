@@ -39,3 +39,21 @@ func (a *cMenu) EditSysPluginsStatus(ctx context.Context, req *system.EditSysPlu
 	err = service.SysPlugins().EditStatus(ctx, req.Id, req.Status)
 	return
 }
+
+// GetSysPluginsTypesAll 获取插件通信方式类型
+func (u *cSystemSysPlugins) GetSysPluginsTypesAll(ctx context.Context, req *system.GetSysPluginsTypesAllReq) (res *system.GetSysPluginsTypesAllRes, err error) {
+	out, err := service.SysPlugins().GetSysPluginsTypesAll(ctx, req.Types)
+	if err != nil {
+		return
+	}
+	var data []*model.SysPluginsInfoRes
+	if len(out) > 0 {
+		if err = gconv.Scan(out, &data); err != nil {
+			return
+		}
+	}
+	res = &system.GetSysPluginsTypesAllRes{
+		Data: data,
+	}
+	return
+}

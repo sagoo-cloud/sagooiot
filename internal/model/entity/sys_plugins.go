@@ -12,6 +12,7 @@ import (
 type SysPlugins struct {
 	Id        int         `json:"id"        description:"ID"`
 	Name      string      `json:"name"      description:"名称"`
+	HandleType            string      `json:"handleType"            description:"功能类型"`
 	Title     string      `json:"title"     description:"标题"`
 	Intro     string      `json:"intro"     description:"介绍"`
 	Version   string      `json:"version"   description:"版本"`

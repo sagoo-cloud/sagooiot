@@ -79,3 +79,8 @@ const (
 const (
 	DefaultProtocol = "SagooMqtt"
 )
+
+const (
+	TokenAuth = "token_auth"
+	AKSK      = "aksk"
+)

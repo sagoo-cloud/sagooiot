@@ -14,10 +14,12 @@ type Context struct {
 
 // ContextUser 请求上下文中的用户信息
 type ContextUser struct {
-	Id       int    // 用户ID
-	Passport string // 用户账号
-	Nickname string // 用户名称
-	Avatar   string // 用户
-	IsAdmin  bool   // 是否是管理员
-	DeptId   int    // 部门ID
+	Id             int    // 用户ID
+	Passport       string // 用户账号
+	Nickname       string // 用户名称
+	Avatar         string // 用户
+	IsAdmin        bool   // 是否是管理员
+	DeptId         int    // 部门ID
+	RequestWay     string // 请求方式
+	ChildrenDeptId []int  //子部门ID
 }
