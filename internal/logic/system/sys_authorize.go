@@ -3,7 +3,9 @@ package system
 import (
 	"context"
 	"encoding/json"
+	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
@@ -602,5 +604,151 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			}
 		}
 	}
+	return
+}
+
+// FilterDataByPermissions 根据数据权限过滤数据
+func (s *sSysAuthorize) FilterDataByPermissions(ctx context.Context, model *gdb.Model) (*gdb.Model, error) {
+	where, err := service.SysAuthorize().GetDataWhere(ctx)
+	if err != nil {
+		return model, err
+	}
+	if where != nil && len(where) > 0 {
+		return model.Where(where), err
+	}
+	return model, err
+}
+
+// GetDataWhere 获取数据权限条件查询
+func (s *sSysAuthorize) GetDataWhere(ctx context.Context) (where g.Map, err error) {
+	//判断请求方式
+	requestWay := service.Context().GetRequestWay(ctx)
+	if strings.EqualFold(requestWay, consts.TokenAuth) {
+		loginUserId := service.Context().GetUserId(ctx)
+		loginUserDeptId := service.Context().GetUserDeptId(ctx)
+		//1、获取当前用户所属角色
+		userRoleInfo, userRoleErr := service.SysUserRole().GetInfoByUserId(ctx, loginUserId)
+		if userRoleErr != nil {
+			err = gerror.New("获取用户角色失败")
+			return
+		}
+		if userRoleInfo == nil {
+			err = gerror.New("用户无权限访问")
+			return
+		}
+		//判断用户是否为超级管理员
+		var isSuperAdmin = false
+		var roleIds []int
+		for _, userRole := range userRoleInfo {
+			if userRole.RoleId == 1 {
+				isSuperAdmin = true
+			}
+			roleIds = append(roleIds, userRole.RoleId)
+		}
+		if isSuperAdmin {
+			//超级管理员可以访问所有的数据
+			return
+		}
+		//不是超级管理员则获取所有角色信息
+		var roleInfo []*entity.SysRole
+		err = dao.SysRole.Ctx(ctx).WhereIn(dao.SysRole.Columns().Id, roleIds).Where(g.Map{
+			dao.SysRole.Columns().Status:    1,
+			dao.SysRole.Columns().IsDeleted: 0,
+		}).Scan(&roleInfo)
+		if err != nil {
+			err = gerror.New("获取用户角色失败")
+			return
+		}
+		//2获取角色对应数据权限
+		deptIdArr := gset.New()
+		for _, role := range roleInfo {
+			switch role.DataScope {
+			case 1: //全部数据权限
+				return
+			case 2: //自定数据权限
+				//获取角色所有的部门信息
+				roleDeptInfo, _ := service.SysRoleDept().GetInfoByRoleId(ctx, int(role.Id))
+				if roleDeptInfo == nil {
+					err = gerror.New(role.Name + "自定义数据范围,请先配置部门!")
+					return
+				}
+				var deptIds []int64
+				for _, roleDept := range roleDeptInfo {
+					deptIds = append(deptIds, roleDept.DeptId)
+				}
+				deptIdArr.Add(gconv.Interfaces(deptIds)...)
+			case 3: //本部门数据权限
+				deptIdArr.Add(gconv.Int64(loginUserDeptId))
+			case 4: //本部门及以下数据权限
+				deptIdArr.Add(gconv.Int64(loginUserDeptId))
+				//获取所有部门
+				var deptInfo []*entity.SysDept
+				m := dao.SysDept.Ctx(ctx)
+				_ = m.Where(g.Map{
+					dao.SysDept.Columns().Status:    1,
+					dao.SysDept.Columns().IsDeleted: 0,
+				}).Scan(&deptInfo)
+
+				if deptInfo != nil {
+					//获取当前部门所有的下级部门信息
+					childrenDeptInfo := GetNextDeptInfoByNowDeptId(int64(loginUserDeptId), deptInfo)
+					if childrenDeptInfo != nil {
+						allChildrenDeptInfo := GetAllNextDeptInfoByChildrenDept(childrenDeptInfo, deptInfo, childrenDeptInfo)
+						if allChildrenDeptInfo != nil {
+							for _, allChildrenDept := range allChildrenDeptInfo {
+								deptIdArr.Add(gconv.Int64(allChildrenDept.DeptId))
+							}
+						}
+					}
+				}
+			case 5: //仅限于自己的数据
+				where = g.Map{"created_by": loginUserId}
+				return
+			}
+		}
+		//此添加是为了兼容以前的数据
+		deptIdArr.Add(0)
+		if deptIdArr.Size() > 0 {
+			where = g.Map{"dept_id": deptIdArr.Slice()}
+		}
+	} else if strings.EqualFold(requestWay, consts.AKSK) {
+		//判断是父级部门还是子部门
+		deptIdArr := gset.New()
+		parentDeptId := service.Context().GetUserDeptId(ctx)
+		if parentDeptId != 0 {
+			deptIdArr.Add(gconv.Int64(parentDeptId))
+			//获取所有部门
+			var deptInfo []*entity.SysDept
+			m := dao.SysDept.Ctx(ctx)
+			_ = m.Where(g.Map{
+				dao.SysDept.Columns().Status:    1,
+				dao.SysDept.Columns().IsDeleted: 0,
+			}).Scan(&deptInfo)
+			if deptInfo != nil {
+				//获取当前部门所有的下级部门信息
+				childrenDeptInfo := GetNextDeptInfoByNowDeptId(int64(parentDeptId), deptInfo)
+				if childrenDeptInfo != nil {
+					allChildrenDeptInfo := GetAllNextDeptInfoByChildrenDept(childrenDeptInfo, deptInfo, childrenDeptInfo)
+					if allChildrenDeptInfo != nil {
+						for _, allChildrenDept := range allChildrenDeptInfo {
+							deptIdArr.Add(gconv.Int64(allChildrenDept.DeptId))
+						}
+					}
+				}
+			}
+		} else {
+			//获取传过来的子部门ID
+			childrenDeptIds := service.Context().GetChildrenDeptId(ctx)
+			for _, childrenDeptId := range childrenDeptIds {
+				deptIdArr.Add(gconv.Int64(childrenDeptId))
+			}
+		}
+		//此添加是为了兼容以前的数据
+		deptIdArr.Add(0)
+		if deptIdArr.Size() > 0 {
+			where = g.Map{"dept_id": deptIdArr.Slice()}
+		}
+	}
+
 	return
 }

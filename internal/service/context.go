@@ -18,9 +18,13 @@ type IContext interface {
 	GetLoginUser(ctx context.Context) *model.ContextUser
 	GetUserId(ctx context.Context) int
 	GetUserDeptId(ctx context.Context) int
+	GetChildrenDeptId(ctx context.Context) []int
+	GetRequestWay(ctx context.Context) string
 }
 
-var localContext IContext
+var (
+	localContext IContext
+)
 
 func Context() IContext {
 	if localContext == nil {

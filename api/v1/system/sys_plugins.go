@@ -3,9 +3,11 @@ package system
 import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/sagoo-cloud/sagooiot/api/v1/common"
+
+	"github.com/sagoo-cloud/sagooiot/internal/model"
 )
 
-//GetSysPluginsListReq 获取数据列表
+// GetSysPluginsListReq 获取数据列表
 type GetSysPluginsListReq struct {
 	g.Meta `path:"/plugins/list" method:"get" summary:"获取插件列表" tags:"插件管理"`
 	common.PaginationReq
@@ -15,7 +17,7 @@ type GetSysPluginsListRes struct {
 	common.PaginationRes
 }
 
-//GetSysPluginsByIdReq 获取指定ID的数据
+// GetSysPluginsByIdReq 获取指定ID的数据
 type GetSysPluginsByIdReq struct {
 	g.Meta `path:"/plugins/get" method:"get" summary:"获取插件" tags:"插件管理"`
 	Id     int `json:"id"        description:"id" v:"required#id不能为空"`
@@ -38,3 +40,11 @@ type EditSysPluginsStatusReq struct {
 	Status int `json:"status"          description:"状态，0停用，1启用"`
 }
 type EditSysPluginsStatusRes struct{}
+
+type GetSysPluginsTypesAllReq struct {
+	g.Meta `path:"/plugins/getTypesAll" method:"get" summary:"获取插件类型" tags:"插件管理"`
+	Types  string `json:"types"            description:"功能类型" v:"required#插件类型不能为空 协议(protocol)或者通知(notice)"`
+}
+type GetSysPluginsTypesAllRes struct {
+	Data []*model.SysPluginsInfoRes
+}

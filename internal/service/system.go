@@ -7,6 +7,7 @@ package service
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/sagoo-cloud/sagooiot/api/v1/system"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
@@ -88,6 +89,7 @@ type (
 		DeleteSysPlugins(ctx context.Context, Ids []int) (err error)
 		SaveSysPlugins(ctx context.Context, in model.SysPluginsAddInput) (err error)
 		EditStatus(ctx context.Context, id int, status int) (err error)
+		GetSysPluginsTypesAll(ctx context.Context, types string) (out []*model.SysPluginsInfoOut, err error)
 	}
 	ISysApi interface {
 		GetInfoByIds(ctx context.Context, ids []int) (data []*entity.SysApi, err error)
@@ -176,6 +178,8 @@ type (
 		AddAuthorize(ctx context.Context, roleId int, menuIds []string, buttonIds []string, columnIds []string, apiIds []string) (err error)
 		IsAllowAuthorize(ctx context.Context, roleId int) (isAllow bool, err error)
 		InitAuthorize(ctx context.Context) (err error)
+		FilterDataByPermissions(ctx context.Context, model *gdb.Model) (*gdb.Model, error)
+		GetDataWhere(ctx context.Context) (where g.Map, err error)
 	}
 	ISysUserPost interface {
 		GetInfoByUserId(ctx context.Context, userId int) (data []*entity.SysUserPost, err error)

@@ -7,6 +7,7 @@ import (
 	"github.com/sagoo-cloud/sagooiot/internal/consts"
 	"github.com/sagoo-cloud/sagooiot/internal/dao"
 	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 )
 
@@ -71,7 +72,7 @@ func (s *sSysPlugins) DeleteSysPlugins(ctx context.Context, Ids []int) (err erro
 	return
 }
 
-//SaveSysPlugins 存入插件数据，跟据插件类型与名称，数据中只保存一份
+// SaveSysPlugins 存入插件数据，跟据插件类型与名称，数据中只保存一份
 func (s *sSysPlugins) SaveSysPlugins(ctx context.Context, in model.SysPluginsAddInput) (err error) {
 	var req = g.Map{
 		dao.SysPlugins.Columns().Types: in.Types,
@@ -95,5 +96,34 @@ func (s *sSysPlugins) EditStatus(ctx context.Context, id int, status int) (err e
 	case 1:
 	}
 	_, err = dao.SysPlugins.Ctx(ctx).Data("status", status).Where(dao.SysPlugins.Columns().Id, id).Update()
+	return
+}
+
+// GetSysPluginsTypesAll 获取所有插件的通信方式类型
+func (s *sSysPlugins) GetSysPluginsTypesAll(ctx context.Context, types string) (out []*model.SysPluginsInfoOut, err error) {
+	m := dao.SysPlugins.Ctx(ctx)
+
+	m = m.Where(g.Map{
+		dao.SysPlugins.Columns().Status:    1,
+		dao.SysPlugins.Columns().IsDeleted: 0,
+	}).WhereIn(dao.SysPlugins.Columns().Types, types)
+
+	//根据数据权限过滤数据
+	m, _ = service.SysAuthorize().FilterDataByPermissions(ctx, m)
+
+	//获取当前登录用户ID
+	var plugins []*entity.SysPlugins
+	err = m.Scan(&plugins)
+	if err != nil {
+		return
+	}
+	for _, plugin := range plugins {
+		var sysPlugins = new(model.SysPluginsInfoOut)
+		sysPlugins.Types = plugin.Types
+		sysPlugins.HandleType = plugin.HandleType
+		sysPlugins.Name = plugin.Name
+		sysPlugins.Title = plugin.Title
+		out = append(out, sysPlugins)
+	}
 	return
 }
