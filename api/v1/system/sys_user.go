@@ -131,3 +131,20 @@ type EditUserAvatarReq struct {
 
 type EditUserAvatarRes struct {
 }
+
+type EditUserInfoReq struct {
+	g.Meta       `path:"/user/editUserInfo" tags:"用户管理" method:"put" summary:"修改用户个人资料"`
+	Id           uint   `json:"id"        description:"Id" v:"required#ID不能为空"`
+	Mobile       string `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
+	UserNickname string `json:"userNickname"  description:"用户昵称"`
+	Birthday     string `json:"birthday"      description:"生日"`
+	UserPassword string `json:"userPassword"  description:"登录密码;cmf_password加密"`
+	UserEmail    string `json:"userEmail"     description:"用户登录邮箱"`
+	Sex          int    `json:"sex"           description:"性别;0:保密,1:男,2:女"`
+	Avatar       string `json:"avatar"        description:"用户头像"`
+	Address      string `json:"address"       description:"联系地址"`
+	Describe     string `json:"describe"      description:"描述信息"`
+}
+
+type EditUserInfoRes struct {
+}

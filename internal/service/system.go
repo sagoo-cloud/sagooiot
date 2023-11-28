@@ -164,6 +164,7 @@ type (
 		GetAll(ctx context.Context) (data []*entity.SysUser, err error)
 		CurrentUser(ctx context.Context) (userInfoOut *model.UserInfoOut, menuTreeOut []*model.UserMenuTreeOut, err error)
 		EditUserAvatar(ctx context.Context, id uint, avatar string) (err error)
+		EditUserInfo(ctx context.Context, input *model.EditUserInfoInput) (err error)
 	}
 	ISysAuthorize interface {
 		AuthorizeQuery(ctx context.Context, itemsType string, menuIds []int) (out []*model.AuthorizeQueryTreeOut, err error)

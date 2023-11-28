@@ -8,6 +8,7 @@ import (
 	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
 	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"math"
+	"strings"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -63,6 +64,45 @@ func (s *sDevTSLFunction) ListFunction(ctx context.Context, in *model.ListTSLFun
 	}
 	out.Data = tsl.Functions[start:end]
 
+	return
+}
+
+func (s *sDevTSLFunction) AllFunction(ctx context.Context, key string, inputsValueTypes string) (list []model.TSLFunction, err error) {
+	var p *entity.DevProduct
+
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, key).Scan(&p)
+	if err != nil {
+		return
+	}
+	if p == nil {
+		return nil, gerror.New("产品不存在")
+	}
+
+	j, err := gjson.DecodeToJson(p.Metadata)
+	if err != nil {
+		return
+	}
+	tsl := new(model.TSL)
+	if err = j.Scan(tsl); err != nil {
+		return
+	}
+	if inputsValueTypes != "" {
+		for _, function := range tsl.Functions {
+			num := 0
+			flag := false
+			for _, input := range function.Inputs {
+				if strings.EqualFold(input.ValueType.Type, inputsValueTypes) {
+					flag = true
+					num++
+				}
+			}
+			if flag && num == 1 {
+				list = append(list, function)
+			}
+		}
+	} else {
+		list = tsl.Functions
+	}
 	return
 }
 

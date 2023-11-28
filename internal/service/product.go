@@ -63,6 +63,7 @@ type (
 	}
 	IDevTSLFunction interface {
 		ListFunction(ctx context.Context, in *model.ListTSLFunctionInput) (out *model.ListTSLFunctionOutput, err error)
+		AllFunction(ctx context.Context, key string, inputsValueTypes string) (list []model.TSLFunction, err error)
 		AddFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error)
 		EditFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error)
 		DelFunction(ctx context.Context, in *model.DelTSLFunctionInput) (err error)
