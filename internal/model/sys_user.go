@@ -128,7 +128,7 @@ type EditUserInput struct {
 	UserTypes    string `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile       string `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号" v:"required#手机号不能为空"`
 	UserNickname string `json:"userNickname"  description:"用户昵称" v:"required#用户昵称不能为空"`
-	Birthday     int    `json:"birthday"      description:"生日"`
+	Birthday     string `json:"birthday"      description:"生日"`
 	UserEmail    string `json:"userEmail"     description:"用户登录邮箱"`
 	Sex          int    `json:"sex"           description:"性别;0:保密,1:男,2:女"`
 	Avatar       string `json:"avatar"        description:"用户头像"`
@@ -191,4 +191,17 @@ type UserInfoOut struct {
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"修改日期"`
 	RoleIds       []int       `json:"roleIds"      description:"角色ID数组" v:"required#角色不能为空"`
 	PostIds       []int       `json:"postIds"      description:"岗位ID数组" v:"required#岗位不能为空"`
+}
+
+type EditUserInfoInput struct {
+	Id           uint64 `json:"id"            description:""`
+	Mobile       string `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
+	UserNickname string `json:"userNickname"  description:"用户昵称"`
+	Birthday     string `json:"birthday"      description:"生日"`
+	UserPassword string `json:"userPassword"  description:"登录密码;cmf_password加密"`
+	UserEmail    string `json:"userEmail"     description:"用户登录邮箱"`
+	Sex          int    `json:"sex"           description:"性别;0:保密,1:男,2:女"`
+	Avatar       string `json:"avatar"        description:"用户头像"`
+	Address      string `json:"address"       description:"联系地址"`
+	Describe     string `json:"describe"      description:"描述信息"`
 }

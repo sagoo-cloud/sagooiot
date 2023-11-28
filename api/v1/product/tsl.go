@@ -134,3 +134,12 @@ type DelTSLTagReq struct {
 	*model.DelTSLTagInput
 }
 type DelTSLTagRes struct{}
+
+type AllTSLFunctionReq struct {
+	g.Meta           `path:"/tsl/function/all" method:"get" summary:"所有功能列表" tags:"物模型"`
+	Key              string `json:"key" dc:"产品标识" v:"required#产品标识不能为空"`
+	InputsValueTypes string `json:"inputsValueTypes" dc:"参数值类型"`
+}
+type AllTSLFunctionRes struct {
+	Data []model.TSLFunction
+}

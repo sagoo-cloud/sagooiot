@@ -148,3 +148,13 @@ func (u *cSysUser) EditUserAvatar(ctx context.Context, req *system.EditUserAvata
 	err = service.SysUser().EditUserAvatar(ctx, req.Id, req.Avatar)
 	return
 }
+
+// EditUserInfo 修改用户个人资料
+func (c *cSysUser) EditUserInfo(ctx context.Context, req *system.EditUserInfoReq) (res *system.EditUserInfoRes, err error) {
+	var input *model.EditUserInfoInput
+	if err = gconv.Scan(req, &input); err != nil {
+		return
+	}
+	err = service.SysUser().EditUserInfo(ctx, input)
+	return
+}

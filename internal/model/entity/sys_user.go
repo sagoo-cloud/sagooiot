@@ -15,7 +15,7 @@ type SysUser struct {
 	UserTypes     string      `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile        string      `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
 	UserNickname  string      `json:"userNickname"  description:"用户昵称"`
-	Birthday      int         `json:"birthday"      description:"生日"`
+	Birthday      *gtime.Time `json:"birthday"      description:"生日"`
 	UserPassword  string      `json:"userPassword"  description:"登录密码;cmf_password加密"`
 	UserSalt      string      `json:"userSalt"      description:"加密盐"`
 	UserEmail     string      `json:"userEmail"     description:"用户登录邮箱"`
@@ -32,7 +32,7 @@ type SysUser struct {
 	IsDeleted     int         `json:"isDeleted"     description:"是否删除 0未删除 1已删除"`
 	CreateBy      uint        `json:"createBy"      description:"创建者"`
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"创建日期"`
-	UpdateBy      uint        `json:"updateBy"      description:"更新者"`
+	UpdatedBy     uint        `json:"updatedBy"     description:"更新者"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"修改日期"`
 	DeletedBy     int         `json:"deletedBy"     description:"删除人"`
 	DeletedAt     *gtime.Time `json:"deletedAt"     description:"删除时间"`
