@@ -21,5 +21,8 @@ resource/log/
 #resource/public/
 logs/
 upload/product_icon/
-config.yaml
+manifest/config/config.yaml
+manifest/docker-compose/emqx/
+manifest/docker-compose/mysql/data
+manifest/docker-compose/redis/data
 extend/log/
