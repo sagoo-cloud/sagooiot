@@ -25,4 +25,6 @@ manifest/config/config.yaml
 manifest/docker-compose/emqx/
 manifest/docker-compose/mysql/data
 manifest/docker-compose/redis/data
+manifest/docker-compose/taos/
+manifest/docker-compose/iot-open/resource/log
 extend/log/

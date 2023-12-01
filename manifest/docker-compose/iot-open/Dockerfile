@@ -12,8 +12,6 @@ COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 RUN chmod +x /opt/sagoo-iot-server/sagoo-admin
 
-COPY ./resource/public /opt/sagoo-iot-server/resource/public/
-
 EXPOSE 8200
 
 CMD ["/bin/sh", "-c", "sleep 50 && /entrypoint.sh"]
