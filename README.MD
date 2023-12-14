@@ -3,6 +3,11 @@ Sagoo IOT
 
 English| [简体中文](README.zh-CN.md)
 
+## Copyright Notice
+
+Open source software is not the same as free. SagooIOT is released under the [GPL-3.0](LICENSE) open source license and provides technical exchange and learning. However, according to this license, modified or derived code from SagooIOT may not be released or sold as closed-source commercial software. If you need to use SagooIOT for any commercial purposes locally, please contact the project manager for commercial licensing to ensure your use complies with the GPL license.
+
+## About SagooIOT
 
 SagooIOT is a lightweight IoT platform developed in Go. It supports cross-platform IoT access and management solutions. The platform implements basic functions related to IoT development, based on which a complete set of IoT-related business systems can be quickly built.
 

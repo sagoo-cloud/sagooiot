@@ -87,7 +87,7 @@ func (pm *SysPlugin) GetProtocolPlugin(protocolName string) (obj module.Protocol
 	return
 }
 
-// GetProtocolByName 获取指协议名称的插件
+// GetProtocolByName 获取指定协议名称的插件
 func (pm *SysPlugin) GetProtocolByName(protocolName string) (obj module.Protocol, err error) {
 	//获取插件
 	p, err := pm.pluginManager.GetInterface(protocolName)

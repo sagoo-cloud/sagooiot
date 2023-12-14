@@ -3,6 +3,13 @@ Sagoo IOT
 
 [English](README.MD)| 简体中文
 
+
+## 版权声明
+
+开源软件并不等同于免费。SagooIOT 遵循 [GPL-3.0](LICENSE) 开源协议，并提供技术交流学习。但根据该协议，修改或衍生自 SagooIOT 的代码，不得以闭源的商业软件形式发布或销售。如果您需要将 SagooIOT 在本地用于任何商业目的，请联系项目负责人进行商业授权，以确保您的使用符合 GPL 协议。
+
+## 关于SagooIOT
+
 SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平台的物联网接入及管理方案，平台实现了物联网开发相关的基础功能，基于该功能可以快速的搭建起一整套的IOT相关的业务系统。
 
 前端工程：https://github.com/sagoo-cloud/sagooiot-ui
