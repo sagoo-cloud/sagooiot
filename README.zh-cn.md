@@ -93,14 +93,14 @@ SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平
 
 ## 演示图
 
-| ![login](https://iotdoc.sagoo.cn/imgs/demo/01.png)     | ![overview](https://iotdoc.sagoo.cn/imgs/demo/02.png)                       |
-|--------------------------------------------------------|-----------------------------------------------------------------------------|
-| ![thing](https://iotdoc.sagoo.cn/imgs/demo/03.png)     | ![monitoring](https://iotdoc.sagoo.cn/imgs/demo/04.png)                     |
-| ![deviceLog](https://iotdoc.sagoo.cn/imgs/demo/05.png) | ![video](https://iotdoc.sagoo.cn/imgs/demo/08.png)                          |
-| ![NotificationConfiguration](https://iotdoc.sagoo.cn/imgs/demo/09.png)   | ![Alarm Configuration Management](https://iotdoc.sagoo.cn/imgs/demo/10.png) |
-| ![Alarm Rule Configuration](https://iotdoc.sagoo.cn/imgs/demo/11.png)    | ![user](https://iotdoc.sagoo.cn/imgs/demo/12.png)                           |
-| ![system monitor](https://iotdoc.sagoo.cn/imgs/demo/13.png)      | ![data hub](https://iotdoc.sagoo.cn/imgs/demo/14.png)                       |
-| ![Visualization Rule Engine](https://iotdoc.sagoo.cn/imgs/demo/07.png)   | ![screen](https://iotdoc.sagoo.cn/imgs/demo/06.png)                          |
+| ![login](https://iotdoc.sagoo.cn/imgs/demo/01.png)                     | ![overview](https://iotdoc.sagoo.cn/imgs/demo/02.png)                       |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| ![thing](https://iotdoc.sagoo.cn/imgs/demo/03.png)                     | ![monitoring](https://iotdoc.sagoo.cn/imgs/demo/04.png)                     |
+| ![deviceLog](https://iotdoc.sagoo.cn/imgs/demo/05.png)                 | ![video](https://iotdoc.sagoo.cn/imgs/demo/08.png)                          |
+| ![NotificationConfiguration](https://iotdoc.sagoo.cn/imgs/demo/09.png) | ![Alarm Configuration Management](https://iotdoc.sagoo.cn/imgs/demo/10.png) |
+| ![Alarm Rule Configuration](https://iotdoc.sagoo.cn/imgs/demo/11.png)  | ![user](https://iotdoc.sagoo.cn/imgs/demo/12.png)                           |
+| ![system monitor](https://iotdoc.sagoo.cn/imgs/demo/13.png)            | ![data hub](https://iotdoc.sagoo.cn/imgs/demo/14.png)                       |
+| ![Visualization Rule Engine](https://iotdoc.sagoo.cn/imgs/demo/07.png) | ![screen](https://iotdoc.sagoo.cn/imgs/demo/06.png)                         |
 
 ![configuration](https://iotdoc.sagoo.cn/imgs/configure.jpg)
 
