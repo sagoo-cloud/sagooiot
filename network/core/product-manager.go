@@ -2,33 +2,29 @@ package core
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/network/model"
-	"strconv"
+	"sagooiot/internal/service"
+	"sagooiot/network/core/mapper"
+	"sagooiot/network/model"
 	"sync"
 )
 
 var products sync.Map
 
-func LoadProduct(ctx context.Context, id string) (*model.Product, error) {
-	v, ok := products.Load(id)
+func LoadProduct(ctx context.Context, key string) (*model.Product, error) {
+	v, ok := products.Load(key)
 	if ok {
 		return v.(*model.Product), nil
 	}
 
 	//加载产品
 	var product model.Product
-	productId, err := strconv.Atoi(id)
+	productDetail, err := service.DevProduct().Detail(ctx, key)
 	if err != nil {
 		return nil, err
 	}
-	productDetail, err := service.DevProduct().Detail(ctx, uint(productId))
-	if err != nil {
-		return nil, err
-	}
-	product = mapperProduct(*productDetail)
+	product = mapper.Product(*productDetail)
 
-	products.Store(id, &product)
+	products.Store(key, &product)
 
 	return &product, nil
 }

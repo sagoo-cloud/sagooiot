@@ -1,7 +1,8 @@
 package model
 
 import (
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
+	"github.com/gogf/gf/v2/util/gconv"
+	"sagooiot/internal/consts"
 	"strconv"
 	"time"
 )
@@ -27,7 +28,7 @@ type DataTypeValueExtension struct {
 
 // 参数值（类型、类型参数）
 type TSLValueType struct {
-	Type     string `json:"type" dc:"数据类型" v:"required#请选择数据类型"` // 类型
+	Type     string `json:"type" ` // 类型
 	TSLParam        // 参数
 }
 
@@ -42,12 +43,14 @@ func (t TSLValueType) ConvertValue(v interface{}) interface{} {
 		transfer = TFloat(t.TSLParam)
 	case consts.TypeDouble:
 		transfer = TDouble(t.TSLParam)
-	case consts.TypeText:
+	case consts.TypeText, consts.TypeString:
 		transfer = TText(t.TSLParam)
 	case consts.TypeBool:
 		transfer = TBoolean(t.TSLParam)
 	case consts.TypeDate:
 		transfer = TDate(t.TSLParam)
+	case consts.TypeTimestamp:
+		transfer = TTimestamp(t.TSLParam)
 	case consts.TypeEnum:
 		transfer = TEnum(t.TSLParam)
 	case consts.TypeArray:
@@ -67,18 +70,11 @@ type Transfer interface {
 type TInt TSLParam
 
 func (tInt TInt) Convert(v interface{}) interface{} {
-	number, ok := v.(int)
-	if !ok {
-		floatNumber, floatNumberOk := v.(float64)
-		if !floatNumberOk {
-			return 0
-		}
-		number = int(floatNumber)
-	}
+	number := gconv.Int(v)
 	if tInt.TSLParamBase.Min != nil && *tInt.TSLParamBase.Min > number {
 		return *tInt.TSLParamBase.Min
 	}
-	if tInt.TSLParamBase.Max != nil && *tInt.TSLParamBase.Max > number {
+	if tInt.TSLParamBase.Max != nil && *tInt.TSLParamBase.Max < number {
 		return *tInt.TSLParamBase.Max
 	}
 	return number
@@ -87,14 +83,11 @@ func (tInt TInt) Convert(v interface{}) interface{} {
 type TLong TSLParam
 
 func (tLong TLong) Convert(v interface{}) interface{} {
-	number, ok := v.(float64)
-	if !ok {
-		return 0
-	}
-	if tLong.TSLParamBase.Min != nil && float64(*tLong.TSLParamBase.Min) > number {
+	number := gconv.Int64(v)
+	if tLong.TSLParamBase.Min != nil && int64(*tLong.TSLParamBase.Min) > number {
 		return *tLong.TSLParamBase.Min
 	}
-	if tLong.TSLParamBase.Max != nil && float64(*tLong.TSLParamBase.Max) > number {
+	if tLong.TSLParamBase.Max != nil && int64(*tLong.TSLParamBase.Max) > number {
 		return *tLong.TSLParamBase.Max
 	}
 	return number
@@ -103,14 +96,11 @@ func (tLong TLong) Convert(v interface{}) interface{} {
 type TFloat TSLParam
 
 func (tFloat TFloat) Convert(v interface{}) interface{} {
-	number, ok := v.(float64)
-	if !ok {
-		return 0
-	}
+	number := gconv.Float64(v)
 	if tFloat.TSLParamBase.Min != nil && float32(*tFloat.TSLParamBase.Min) > float32(number) {
 		number = float64(*tFloat.TSLParamBase.Min)
 	}
-	if tFloat.TSLParamBase.Max != nil && float32(*tFloat.TSLParamBase.Max) > float32(number) {
+	if tFloat.TSLParamBase.Max != nil && float32(*tFloat.TSLParamBase.Max) < float32(number) {
 		number = float64(*tFloat.TSLParamBase.Max)
 	}
 	defaultDecimal := 2
@@ -124,10 +114,7 @@ func (tFloat TFloat) Convert(v interface{}) interface{} {
 type TDouble TSLParam
 
 func (tDouble TDouble) Convert(v interface{}) interface{} {
-	number, ok := v.(float64)
-	if !ok {
-		return 0
-	}
+	number := gconv.Float64(v)
 	if tDouble.TSLParamBase.Min != nil && float64(*tDouble.TSLParamBase.Min) > number {
 		number = float64(*tDouble.TSLParamBase.Min)
 	}
@@ -145,10 +132,7 @@ func (tDouble TDouble) Convert(v interface{}) interface{} {
 type TText TSLParam
 
 func (tText TText) Convert(v interface{}) interface{} {
-	text, ok := v.(string)
-	if !ok {
-		return ""
-	}
+	text := gconv.String(v)
 	if tText.MaxLength != nil && *tText.MaxLength > 0 && len(text) > *tText.MaxLength {
 		return text[:*tText.MaxLength-1]
 	} else {
@@ -159,48 +143,53 @@ func (tText TText) Convert(v interface{}) interface{} {
 type TBoolean TSLParam
 
 func (tBoolean TBoolean) Convert(v interface{}) interface{} {
-	b, ok := v.(bool)
-	if !ok {
-		return ""
+	b := gconv.Bool(v)
+	if tBoolean.TSLParamBase.TrueValue != nil && *tBoolean.TSLParamBase.TrueValue == b {
+		return true
 	}
-	//TODO 这里是返回文字还是类型,暂定是返回映射文字
-	if !b && tBoolean.FalseText != nil {
-		return *tBoolean.FalseText
-	} else if b && tBoolean.TrueText != nil {
-		return *tBoolean.TrueText
+	if tBoolean.TSLParamBase.FalseValue != nil && *tBoolean.TSLParamBase.FalseValue == b {
+		return false
 	}
-	return ""
+	return b
 }
 
 type TDate TSLParam
 
-const layout = "2006-01-02 15:04:05"
+const (
+	layoutWithMill   = "2006-01-02 15:04:05.000"
+	layoutWithSecond = "2006-01-02 15:04:05"
+)
 
-func (TDate TDate) Convert(v interface{}) interface{} {
-	str, ok := v.(string)
-	if !ok {
-		return time.Time{}
+func (tDate TDate) Convert(v interface{}) interface{} {
+	str := gconv.String(v)
+	layout := layoutWithMill
+	if len(str) == len(layoutWithSecond) {
+		layout = layoutWithSecond
 	}
 	t, err := time.Parse(layout, str)
 	if err != nil {
-		return time.Time{}
+		return time.Time{}.Format(layoutWithMill)
 	} else {
-		return t
+		return t.Format(layoutWithMill)
 	}
+}
+
+type TTimestamp TSLParam
+
+func (tTimestamp TTimestamp) Convert(v interface{}) interface{} {
+	t := time.UnixMilli(gconv.Int64(v))
+	return t.Format(layoutWithMill)
 }
 
 type TEnum TSLParam
 
 func (tEnum TEnum) Convert(v interface{}) interface{} {
-	tE, ok := v.(string)
-	if !ok {
-		return ""
-	}
+	tE := gconv.String(v)
 	if tEnum.TSLParamExtension.Elements == nil {
 		return ""
 	}
 	for _, node := range tEnum.TSLParamExtension.Elements {
-		if node.Text == tE {
+		if node.Value == tE {
 			return node.Value
 		}
 	}
@@ -236,8 +225,8 @@ func (tObject TObject) Convert(v interface{}) interface{} {
 	if tObject.TSLParamExtension.Properties != nil {
 		for k, value := range m {
 			for _, t := range tObject.TSLParamExtension.Properties {
-				if t.Name == k {
-					result[t.Name] = t.ValueType.ConvertValue(value)
+				if t.Key == k {
+					result[t.Key] = t.ValueType.ConvertValue(value)
 				}
 			}
 		}

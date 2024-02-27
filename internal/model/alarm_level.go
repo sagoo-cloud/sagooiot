@@ -1,6 +1,6 @@
 package model
 
-import "github.com/sagoo-cloud/sagooiot/internal/model/entity"
+import "sagooiot/internal/model/entity"
 
 type AlarmLevelOutput struct {
 	*entity.AlarmLevel

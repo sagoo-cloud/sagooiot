@@ -2,8 +2,8 @@ package alarm
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/alarm"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/alarm"
+	"sagooiot/internal/service"
 )
 
 var AlarmLevel = cAlarmLevel{}

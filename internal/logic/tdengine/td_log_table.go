@@ -2,8 +2,9 @@ package tdengine
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/tsd/comm"
 	"time"
 
 	"github.com/gogf/gf/v2/container/gvar"
@@ -25,12 +26,24 @@ func tdLogTableNew() *sTdLogTable {
 
 // 添加超级表
 func (s *sTdLogTable) CreateStable(ctx context.Context) (err error) {
+	// 资源锁
+	lockKey := "tdLock:initLogTable"
+	lockVal, err := g.Redis().Do(ctx, "SET", lockKey, gtime.Now().Unix(), "NX", "EX", "3600")
+	if err != nil {
+		return
+	}
+	if lockVal.String() != "OK" {
+		return
+	}
+	defer func() {
+		_, err = g.Redis().Do(ctx, "DEL", lockKey)
+	}()
+
 	taos, err := service.TdEngine().GetConn(ctx, dbName)
 	if err != nil {
 		err = gerror.New("获取链接失败")
 		return
 	}
-	defer taos.Close()
 
 	var name string
 	err = taos.QueryRow("SELECT stable_name FROM information_schema.ins_stables WHERE stable_name = 'device_log' LIMIT 1").Scan(&name)
@@ -38,7 +51,7 @@ func (s *sTdLogTable) CreateStable(ctx context.Context) (err error) {
 		return
 	}
 
-	sql := "CREATE STABLE device_log (ts TIMESTAMP, type VARCHAR(20), content VARCHAR(1000)) TAGS (device VARCHAR(255))"
+	sql := "CREATE STABLE device_log (ts TIMESTAMP, type VARCHAR(20), content VARCHAR(5000)) TAGS (device VARCHAR(255))"
 	_, err = taos.Exec(sql)
 
 	return
@@ -51,10 +64,11 @@ func (s *sTdLogTable) Insert(ctx context.Context, log *model.TdLogAddInput) (err
 		err = gerror.New("获取链接失败")
 		return
 	}
-	defer taos.Close()
+
+	table := comm.DeviceLogTable(log.Device)
 
 	sql := "INSERT INTO ? USING device_log TAGS ('?') VALUES ('?', '?', '?')"
-	_, err = taos.Exec(sql, "log_"+log.Device, log.Device, log.Ts.String(), log.Type, log.Content)
+	_, err = taos.Exec(sql, table, log.Device, log.Ts.String(), log.Type, log.Content)
 
 	return
 }
@@ -66,7 +80,6 @@ func (s *sTdLogTable) Clear(ctx context.Context) (err error) {
 		err = gerror.New("获取链接失败")
 		return
 	}
-	defer taos.Close()
 
 	ts := gtime.Now().Add(-7 * 24 * time.Hour).Format("Y-m-d")
 
@@ -83,7 +96,6 @@ func (s *sTdLogTable) GetAll(ctx context.Context, sql string, args ...any) (list
 		err = gerror.New("获取链接失败")
 		return
 	}
-	defer taos.Close()
 
 	rows, err := taos.Query(sql, args...)
 	if err != nil {

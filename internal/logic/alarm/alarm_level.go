@@ -2,12 +2,13 @@ package alarm
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 )
 
 type sAlarmLevel struct{}
@@ -21,14 +22,22 @@ func alarmLevelNew() *sAlarmLevel {
 }
 
 func (s *sAlarmLevel) Detail(ctx context.Context, level uint) (out model.AlarmLevelOutput, err error) {
-	err = dao.AlarmLevel.Ctx(ctx).Where(dao.AlarmLevel.Columns().Level, level).Scan(&out)
+	err = dao.AlarmLevel.Ctx(ctx).Cache(gdb.CacheOption{
+		Duration: 0,
+		Name:     "AlarmLevelDetail",
+		Force:    false,
+	}).Where(dao.AlarmLevel.Columns().Level, level).Scan(&out)
 	return
 }
 
 func (s *sAlarmLevel) All(ctx context.Context) (out *model.AlarmLevelListOutput, err error) {
 	var p []*entity.AlarmLevel
 
-	err = dao.AlarmLevel.Ctx(ctx).Scan(&p)
+	err = dao.AlarmLevel.Ctx(ctx).Cache(gdb.CacheOption{
+		Duration: 0,
+		Name:     "AlarmLevelAll",
+		Force:    false,
+	}).Scan(&p)
 	if err != nil || p == nil {
 		return
 	}
@@ -49,7 +58,10 @@ func (s *sAlarmLevel) Edit(ctx context.Context, in []*model.AlarmLevelEditInput)
 		if err != nil {
 			return
 		}
+		_, err = cache.Instance().Remove(ctx, "AlarmLevelAll")
+		if err != nil {
+			continue
+		}
 	}
-
 	return
 }

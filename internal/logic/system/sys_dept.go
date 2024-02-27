@@ -2,13 +2,15 @@ package system
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility/liberr"
+	"github.com/gogf/gf/v2/os/gtime"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -41,10 +43,41 @@ func (s *sSysDept) GetTree(ctx context.Context, deptName string, status int) (ou
 				if err = gconv.Scan(v, &parentNode); err != nil {
 					return
 				}
-				parentNodeOut = append(parentNodeOut, parentNode)
+				var isExist = false
+				for _, deptOut := range parentNodeOut {
+					if deptOut.DeptId == parentNode.DeptId {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
+
+			} else {
+				//查找根节点
+				parentDept := FindDeptParentByChildrenId(ctx, v.ParentId)
+				if err = gconv.Scan(parentDept, &parentNode); err != nil {
+					return
+				}
+				var isExist = false
+				for _, deptOut := range parentNodeOut {
+					if deptOut.DeptId == parentDept.DeptId {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
 			}
 		}
 	}
+
+	//对父节点进行排序
+	sort.SliceStable(parentNodeOut, func(i, j int) bool {
+		return parentNodeOut[i].OrderNum < parentNodeOut[j].OrderNum
+	})
 	out = deptTree(parentNodeOut, dept)
 	return
 }
@@ -63,6 +96,12 @@ func deptTree(parentNodeOut []*model.DeptOut, data []*model.DeptOut) (dataTree [
 				parentNodeOut[k].Children = append(parentNodeOut[k].Children, node)
 			}
 		}
+
+		//对子节点进行排序
+		sort.SliceStable(v.Children, func(i, j int) bool {
+			return v.Children[i].OrderNum < v.Children[j].OrderNum
+		})
+
 		deptTree(v.Children, data)
 	}
 	return parentNodeOut
@@ -78,8 +117,9 @@ func (s *sSysDept) GetData(ctx context.Context, deptName string, status int) (da
 	if deptName != "" {
 		m = m.WhereLike(dao.SysDept.Columns().DeptName, "%"+deptName+"%")
 	}
+
 	err = m.Where(dao.SysDept.Columns().IsDeleted, 0).
-		OrderDesc(dao.SysDept.Columns().OrderNum).
+		OrderAsc(dao.SysDept.Columns().OrderNum).
 		Scan(&data)
 	if err != nil {
 		return
@@ -98,28 +138,62 @@ func (s *sSysDept) Add(ctx context.Context, input *model.AddDeptInput) (err erro
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 	dept = new(entity.SysDept)
-	if err := gconv.Scan(input, &dept); err != nil {
-		return err
+	if err = gconv.Scan(input, &dept); err != nil {
+		return
 	}
+	//判断是否有权限修改当前用户状态
+	if input.ParentId != -1 {
+		var parentDept *entity.SysDept
+		parentDept, err = s.Detail(ctx, input.ParentId)
+		if err != nil {
+			return
+		}
+		if parentDept == nil {
+			return gerror.New("无权限选择当前部门")
+		}
+	}
+
 	dept.IsDeleted = 0
 	dept.CreatedBy = uint(loginUserId)
 	//开启事务管理
-	err = dao.SysDept.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
-		lastId, err1 := dao.SysDept.Ctx(ctx).Data(dept).InsertAndGetId()
-		if err1 != nil {
-			return err1
+	err = dao.SysDept.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		result, err := dao.SysDept.Ctx(ctx).Data(do.SysDept{
+			OrganizationId: dept.OrganizationId,
+			ParentId:       dept.ParentId,
+			Ancestors:      dept.Ancestors,
+			DeptName:       dept.DeptName,
+			OrderNum:       dept.OrderNum,
+			Leader:         dept.Leader,
+			Phone:          dept.Phone,
+			Email:          dept.Email,
+			Status:         dept.Status,
+			IsDeleted:      dept.IsDeleted,
+			CreatedAt:      dept.CreatedAt,
+			CreatedBy:      dept.CreatedBy,
+		}).Insert()
+		if err != nil {
+			return
 		}
-		err = setAncestors(ctx, input.ParentId, lastId)
+		//获取主键ID
+		lastInsertId, err := service.Sequences().GetSequences(ctx, result, dao.SysDept.Table(), dao.SysDept.Columns().DeptId)
+		if err != nil {
+			return
+		}
+		err = setAncestors(ctx, input.ParentId, lastInsertId)
 		if err != nil {
 			return err
 		}
-		return err
+		return
 	})
 	return
 }
 
 // Edit 修改部门
 func (s *sSysDept) Edit(ctx context.Context, input *model.EditDeptInput) (err error) {
+	if input.DeptId == input.ParentId {
+		return gerror.New("上级部门不能选择自己")
+	}
+
 	var dept1, dept2 *entity.SysDept
 	//根据ID查看部门是否存在
 	dept1 = checkDeptId(ctx, input.DeptId, dept1)
@@ -132,14 +206,26 @@ func (s *sSysDept) Edit(ctx context.Context, input *model.EditDeptInput) (err er
 	if dept2 != nil {
 		return gerror.New("相同部门已存在,无法修改")
 	}
+	//判断是否有权限修改当前用户状态
+	if input.ParentId != -1 {
+		var parentDept *entity.SysDept
+		parentDept, err = s.Detail(ctx, input.ParentId)
+		if err != nil {
+			return
+		}
+		if parentDept == nil {
+			return gerror.New("无权限选择当前部门")
+		}
+	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
-	if err := gconv.Scan(input, &dept1); err != nil {
-		return err
+	if err = gconv.Scan(input, &dept1); err != nil {
+		return
 	}
 	dept1.UpdatedBy = loginUserId
 	//开启事务管理
-	err = dao.SysDept.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
+	err = dao.SysDept.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		_, err = dao.SysDept.Ctx(ctx).Data(dept1).
 			Where(dao.SysDept.Columns().DeptId, input.DeptId).Update()
 		if err != nil {
@@ -147,7 +233,7 @@ func (s *sSysDept) Edit(ctx context.Context, input *model.EditDeptInput) (err er
 		}
 		//修改祖籍字段
 		if dept != input.ParentId {
-			err := setAncestors(ctx, input.ParentId, input.DeptId)
+			err = setAncestors(ctx, input.ParentId, input.DeptId)
 			if err != nil {
 				return gerror.New("祖籍修改失败")
 			}
@@ -159,7 +245,7 @@ func (s *sSysDept) Edit(ctx context.Context, input *model.EditDeptInput) (err er
 				for _, v := range value {
 					newAncestors := strings.Replace(v.String(), deptAnces, lId, -1)
 					//修改相关祖籍字段
-					_, err := dao.SysDept.Ctx(ctx).
+					_, err = dao.SysDept.Ctx(ctx).
 						Data(dao.SysDept.Columns().Ancestors, newAncestors).
 						Where(dao.SysDept.Columns().Ancestors, v.String()).Update()
 					if err != nil {
@@ -175,7 +261,7 @@ func (s *sSysDept) Edit(ctx context.Context, input *model.EditDeptInput) (err er
 					newAncestors := strings.Replace(ancestors.String(), lId, "", -1)
 					newAncestor := newAncestors + v.String()
 					//修改相关祖籍字段
-					_, err := dao.SysDept.Ctx(ctx).
+					_, err = dao.SysDept.Ctx(ctx).
 						Data(dao.SysDept.Columns().Ancestors, newAncestor).
 						Where(dao.SysDept.Columns().Ancestors, v.String()).
 						WhereNot(dao.SysDept.Columns().DeptId, input.DeptId).
@@ -193,7 +279,9 @@ func (s *sSysDept) Edit(ctx context.Context, input *model.EditDeptInput) (err er
 
 // Detail 部门详情
 func (s *sSysDept) Detail(ctx context.Context, deptId int64) (entity *entity.SysDept, err error) {
-	_ = dao.SysDept.Ctx(ctx).Where(g.Map{
+	m := dao.SysDept.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysDept.Columns().DeptId: deptId,
 	}).Scan(&entity)
 	return
@@ -208,6 +296,7 @@ func (s *sSysDept) Del(ctx context.Context, deptId int64) (err error) {
 	if dept == nil {
 		return gerror.New("ID错误")
 	}
+
 	//查询是否有子节点
 	num, err := dao.SysDept.Ctx(ctx).Where(g.Map{
 		dao.SysDept.Columns().ParentId:  deptId,
@@ -219,19 +308,17 @@ func (s *sSysDept) Del(ctx context.Context, deptId int64) (err error) {
 	if num > 0 {
 		return gerror.New("请先删除子节点!")
 	}
+
 	loginUserId := service.Context().GetUserId(ctx)
 	//更新部门信息
 	_, err = dao.SysDept.Ctx(ctx).
 		Data(g.Map{
 			dao.SysDept.Columns().DeletedBy: uint(loginUserId),
+			dao.SysDept.Columns().DeletedAt: gtime.Now(),
 			dao.SysDept.Columns().IsDeleted: 1,
 		}).
 		Where(dao.SysDept.Columns().DeptId, deptId).
 		Update()
-	//删除部门信息
-	_, err = dao.SysDept.Ctx(ctx).
-		Where(dao.SysDept.Columns().DeptId, deptId).
-		Delete()
 	return
 }
 
@@ -286,7 +373,9 @@ func checkDeptId(ctx context.Context, DeptId int64, dept *entity.SysDept) *entit
 
 // GetAll 获取全部部门数据
 func (s *sSysDept) GetAll(ctx context.Context) (data []*entity.SysDept, err error) {
-	_ = dao.SysDept.Ctx(ctx).Where(g.Map{
+	m := dao.SysDept.Ctx(ctx)
+
+	_ = m.Where(g.Map{
 		dao.SysDept.Columns().Status:    1,
 		dao.SysDept.Columns().IsDeleted: 0,
 	}).Scan(&data)
@@ -294,20 +383,21 @@ func (s *sSysDept) GetAll(ctx context.Context) (data []*entity.SysDept, err erro
 }
 
 func (s *sSysDept) GetFromCache(ctx context.Context) (list []*entity.SysDept, err error) {
-	err = g.Try(ctx, func(ctx context.Context) {
-		cache := common.Cache()
-		//从缓存获取
-		iList := cache.GetOrSetFuncLock(ctx, consts.CacheSysDept, func(ctx context.Context) (value interface{}, err error) {
-			err = dao.SysDept.Ctx(ctx).Scan(&list)
-			liberr.ErrIsNil(ctx, err, "获取部门列表失败")
-			value = list
+	//从缓存获取
+	iList, err := cache.Instance().GetOrSetFuncLock(ctx, consts.CacheSysDept, func(ctx context.Context) (value interface{}, err error) {
+		err = dao.SysDept.Ctx(ctx).Scan(&list)
+		if err != nil {
 			return
-		}, 0, consts.CacheSysAuthTag)
-		if iList != nil {
-			err = gconv.Struct(iList, &list)
-			liberr.ErrIsNil(ctx, err)
 		}
-	})
+		value = list
+		return
+	}, 0)
+	if iList != nil {
+		err = gconv.Struct(iList.Val(), &list)
+		if err != nil {
+			return
+		}
+	}
 	return
 }
 func (s *sSysDept) FindSonByParentId(deptList []*entity.SysDept, deptId int64) []*entity.SysDept {
@@ -320,4 +410,29 @@ func (s *sSysDept) FindSonByParentId(deptList []*entity.SysDept, deptId int64) [
 		}
 	}
 	return children
+}
+
+// FindDeptParentByChildrenId 根据子节点获取根节点
+func FindDeptParentByChildrenId(ctx context.Context, parentId int64) *entity.SysDept {
+	var dept *entity.SysDept
+
+	_ = dao.SysDept.Ctx(ctx).Where(g.Map{
+		dao.SysDept.Columns().DeptId: parentId,
+	}).Scan(&dept)
+
+	if dept.ParentId != -1 {
+		return FindDeptParentByChildrenId(ctx, dept.ParentId)
+	}
+	return dept
+}
+
+// GetDeptInfosByParentId 根据父ID获取子部门信息
+func (s *sSysDept) GetDeptInfosByParentId(ctx context.Context, parentId int) (data []*entity.SysDept, err error) {
+	m := dao.SysDept.Ctx(ctx)
+	_ = m.Where(g.Map{
+		dao.SysDept.Columns().Status:    1,
+		dao.SysDept.Columns().IsDeleted: 0,
+		dao.SysDept.Columns().ParentId:  parentId,
+	}).Scan(&data)
+	return
 }

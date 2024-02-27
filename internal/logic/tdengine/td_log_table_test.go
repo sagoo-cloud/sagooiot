@@ -2,9 +2,9 @@ package tdengine
 
 import (
 	"context"
-	_ "github.com/sagoo-cloud/sagooiot/internal/logic/product"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	_ "sagooiot/internal/logic/product"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 	"testing"
 
 	_ "github.com/gogf/gf/contrib/drivers/mysql/v2"

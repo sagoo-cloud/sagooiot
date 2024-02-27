@@ -3,9 +3,9 @@ package system
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	systemV1 "github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	systemV1 "sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var SysPost = cPost{}

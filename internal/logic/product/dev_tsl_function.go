@@ -3,11 +3,11 @@ package product
 import (
 	"context"
 	"encoding/json"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"math"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 	"strings"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -27,7 +27,7 @@ func devTSLFunctionNew() *sDevTSLFunction {
 func (s *sDevTSLFunction) ListFunction(ctx context.Context, in *model.ListTSLFunctionInput) (out *model.ListTSLFunctionOutput, err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -109,7 +109,7 @@ func (s *sDevTSLFunction) AllFunction(ctx context.Context, key string, inputsVal
 func (s *sDevTSLFunction) AddFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -137,7 +137,7 @@ func (s *sDevTSLFunction) AddFunction(ctx context.Context, in *model.TSLFunction
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return
@@ -146,7 +146,7 @@ func (s *sDevTSLFunction) AddFunction(ctx context.Context, in *model.TSLFunction
 func (s *sDevTSLFunction) EditFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -167,7 +167,7 @@ func (s *sDevTSLFunction) EditFunction(ctx context.Context, in *model.TSLFunctio
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Functions {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -183,7 +183,7 @@ func (s *sDevTSLFunction) EditFunction(ctx context.Context, in *model.TSLFunctio
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return
@@ -192,7 +192,7 @@ func (s *sDevTSLFunction) EditFunction(ctx context.Context, in *model.TSLFunctio
 func (s *sDevTSLFunction) DelFunction(ctx context.Context, in *model.DelTSLFunctionInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -213,7 +213,7 @@ func (s *sDevTSLFunction) DelFunction(ctx context.Context, in *model.DelTSLFunct
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Functions {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -228,7 +228,7 @@ func (s *sDevTSLFunction) DelFunction(ctx context.Context, in *model.DelTSLFunct
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return

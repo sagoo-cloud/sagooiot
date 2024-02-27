@@ -1,16 +1,21 @@
 package middleware
 
 import (
+	"context"
+	"encoding/json"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/net/gtrace"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility/response"
-	"github.com/sagoo-cloud/sagooiot/utility/utils"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/queues"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/response"
 	"strings"
 )
 
@@ -31,7 +36,6 @@ func New() *sMiddleware {
 // ResponseHandler 返回处理中间件
 func (s *sMiddleware) ResponseHandler(r *ghttp.Request) {
 	r.Middleware.Next()
-
 	// 如果已经有返回内容，那么该中间件什么也不做
 	if r.Response.BufferLength() > 0 {
 		return
@@ -57,10 +61,10 @@ func (s *sMiddleware) ResponseHandler(r *ghttp.Request) {
 		}
 	} else {
 		if r.IsAjaxRequest() {
-			response.JsonExit(r, code.Code(), "", res)
+			response.Json(r, code.Code(), "", res)
 		} else {
 			// 什么都不做，业务API自行处理模板渲染的成功逻辑。
-			response.JsonExit(r, code.Code(), "", res)
+			response.Json(r, code.Code(), "", res)
 		}
 	}
 }
@@ -68,22 +72,29 @@ func (s *sMiddleware) ResponseHandler(r *ghttp.Request) {
 // Ctx 自定义上下文对象
 func (s *sMiddleware) Ctx(r *ghttp.Request) {
 	ctx := r.GetCtx()
-	// 初始化登录用户信息
-	data, err := service.SysToken().ParseToken(r)
-	if err != nil {
-		// 执行下一步请求逻辑
-		r.Middleware.Next()
-	}
-	if data != nil {
-		context := new(model.Context)
-		err = gconv.Struct(data.Data, &context.User)
+	r.SetCtx(r.GetNeverDoneCtx())
+
+	if r.GetHeader("Authorization") != "" {
+		// 初始化登录用户信息
+		data, err := service.SysToken().ParseToken(r)
 		if err != nil {
-			g.Log().Error(ctx, err)
 			// 执行下一步请求逻辑
 			r.Middleware.Next()
 		}
-		service.Context().Init(r, context)
+		if data != nil {
+			contextModel := new(model.Context)
+			err = gconv.Struct(data.Data, &contextModel.User)
+			//请求方式
+			contextModel.User.RequestWay = consts.TokenAuth
+			if err != nil {
+				g.Log().Error(ctx, err)
+				// 执行下一步请求逻辑
+				r.Middleware.Next()
+			}
+			service.Context().Init(r, contextModel)
+		}
 	}
+
 	// 执行下一步请求逻辑
 	r.Middleware.Next()
 }
@@ -96,9 +107,26 @@ func (s *sMiddleware) Auth(r *ghttp.Request) {
 		return
 	}
 
+	//判断是否启用安全控制
+	var configDataByIsSecurityControlEnabled *entity.SysConfig
+	configDataByIsSecurityControlEnabled, _ = service.ConfigData().GetConfigByKey(r.Context(), consts.SysIsSecurityControlEnabled)
+	sysApiSwitch := 0
+	if configDataByIsSecurityControlEnabled != nil && strings.EqualFold(configDataByIsSecurityControlEnabled.ConfigValue, "1") {
+		//查询API开关是否打开
+		sysApiSwitchConfig, _ := service.ConfigData().GetConfigByKey(r.Context(), consts.SysApiSwitch)
+		if sysApiSwitchConfig != nil {
+			sysApiSwitch = gconv.Int(sysApiSwitchConfig.ConfigValue)
+		}
+	}
+
+	if sysApiSwitch == 0 {
+		r.Middleware.Next()
+		return
+	}
+
 	//判断用户是否有访问权限
 	url := r.Request.URL.Path
-	if strings.EqualFold(url, "/api/v1/system/user/currentUser") {
+	if strings.EqualFold(url, "/api/v1/system/user/currentUser") || strings.EqualFold(url, "/api/v1/common/dict/data/list") {
 		r.Middleware.Next()
 		return
 	}
@@ -186,38 +214,46 @@ func (s *sMiddleware) Auth(r *ghttp.Request) {
 	}
 
 	r.Middleware.Next()
+
 }
 
 // MiddlewareCORS 跨域处理
 func (s *sMiddleware) MiddlewareCORS(r *ghttp.Request) {
-
+	r.SetCtx(r.GetNeverDoneCtx())
 	//自定义跨域限制
-	//corsOptions := r.Response.DefaultCORSOptions()
-	// you can set options
-	//corsOptions.AllowDomain = []string{"goframe.org", "baidu.com"}
-	//r.Response.CORS(corsOptions)
-
-	//采用默认接受所有跨域
-	r.Response.CORSDefault()
-
+	corsOptions := r.Response.DefaultCORSOptions()
+	corsConfig := g.Cfg().MustGet(context.Background(), "server.allowedDomains").Strings()
+	if corsConfig == nil || len(corsConfig) == 0 {
+		//采用默认接受所有跨域
+		r.Response.CORSDefault()
+	} else {
+		corsOptions.AllowDomain = corsConfig
+		r.Response.CORS(corsOptions)
+	}
 	r.Middleware.Next()
 }
 
 // OperationLog 操作日志
 func (s *sMiddleware) OperationLog(r *ghttp.Request) {
-	//获取当前登录用户信息
-	loginUserId := service.Context().GetUserId(r.GetCtx())
-	if loginUserId == 0 {
-		return
+	data := service.SysOperLog().AnalysisLog(r.GetCtx())
+
+	// 写入队列
+	logData, _ := json.Marshal(data)
+	err := queues.ScheduledSysOperLog.Push(context.Background(), consts.QueueDeviceAlarmLogTopic, logData, 10)
+	if err != nil {
+		g.Log().Debug(context.TODO(), err)
 	}
-	var (
-		url             = r.Request.URL //请求地址
-		err             = r.GetError()
-		handlerResponse = r.GetHandlerResponse()
-		body            = r.GetMap()
-	)
 
-	res := gconv.Map(handlerResponse)
+}
 
-	service.SysOperLog().Invoke(r.GetCtx(), loginUserId, url, body, r.Method, utils.GetClientIp(r.GetCtx()), res, err)
+func (s *sMiddleware) Tracing(r *ghttp.Request) {
+	_, span := gtrace.NewSpan(r.Context(), r.Method+"_"+r.Request.RequestURI)
+	defer span.End()
+	r.Middleware.Next()
+}
+
+func (s *sMiddleware) I18n(r *ghttp.Request) {
+	lang := r.GetQuery("lang", "zh-CN").String()
+	r.SetCtx(gi18n.WithLanguage(r.Context(), lang))
+	r.Middleware.Next()
 }

@@ -3,8 +3,9 @@ package system
 import (
 	"context"
 	"github.com/gogf/gf/v2/text/gstr"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"image/color"
+	"sagooiot/internal/service"
+	"time"
 
 	"github.com/mojocn/base64Captcha"
 )
@@ -12,11 +13,11 @@ import (
 type sCaptcha struct{}
 
 var (
-	captchaStore  = base64Captcha.DefaultMemStore
+	captchaStore  = base64Captcha.NewMemoryStore(100, 60*time.Second)
 	captchaDriver = &base64Captcha.DriverString{
 		Height:          80,
 		Width:           240,
-		NoiseCount:      50,
+		NoiseCount:      0, //文本噪声计数
 		ShowLineOptions: 20,
 		Length:          4,
 		Source:          "abcdefghjkmnpqrstuvwxyz23456789",
@@ -38,7 +39,7 @@ func New() *sCaptcha {
 func (s *sCaptcha) GetVerifyImgString(ctx context.Context) (idKeyC string, base64stringC string, err error) {
 	driver := captchaDriver.ConvertFonts()
 	c := base64Captcha.NewCaptcha(driver, captchaStore)
-	idKeyC, base64stringC, err = c.Generate()
+	idKeyC, base64stringC, _, err = c.Generate()
 	return
 }
 

@@ -2,8 +2,10 @@ package product
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/product"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/gogf/gf/v2/util/gconv"
+	"sagooiot/api/v1/product"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var TSLProperty = cTSLProperty{}
@@ -11,7 +13,12 @@ var TSLProperty = cTSLProperty{}
 type cTSLProperty struct{}
 
 func (c *cTSLProperty) ListProperty(ctx context.Context, req *product.ListTSLPropertyReq) (res *product.ListTSLPropertyRes, err error) {
-	out, err := service.DevTSLProperty().ListProperty(ctx, req.ListTSLPropertyInput)
+	var reqData = new(model.ListTSLPropertyInput)
+	err = gconv.Scan(req, &reqData)
+	if err != nil {
+		return nil, err
+	}
+	out, err := service.DevTSLProperty().ListProperty(ctx, reqData)
 	res = &product.ListTSLPropertyRes{
 		ListTSLPropertyOutput: out,
 	}
@@ -19,7 +26,7 @@ func (c *cTSLProperty) ListProperty(ctx context.Context, req *product.ListTSLPro
 }
 
 func (c *cTSLProperty) AllProperty(ctx context.Context, req *product.AllTSLPropertyReq) (res *product.AllTSLPropertyRes, err error) {
-	list, err := service.DevTSLProperty().AllProperty(ctx, req.Key)
+	list, err := service.DevTSLProperty().AllProperty(ctx, req.ProductKey)
 	res = &product.AllTSLPropertyRes{
 		Data: list,
 	}
@@ -37,6 +44,11 @@ func (c *cTSLProperty) EditProperty(ctx context.Context, req *product.EditTSLPro
 }
 
 func (c *cTSLProperty) DelProperty(ctx context.Context, req *product.DelTSLPropertyReq) (res *product.DelTSLPropertyRes, err error) {
-	err = service.DevTSLProperty().DelProperty(ctx, req.DelTSLPropertyInput)
+	var reqData = new(model.DelTSLPropertyInput)
+	err = gconv.Scan(req, &reqData)
+	if err != nil {
+		return nil, err
+	}
+	err = service.DevTSLProperty().DelProperty(ctx, reqData)
 	return
 }

@@ -1,0 +1,13 @@
+version: "3"
+services:
+  asynqmon:
+    image: hibiken/asynqmon:master
+    ports:
+      - '3302:8080'
+    command:
+      - --redis-url=redis://192.168.5.105:6379/0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: '1024M'

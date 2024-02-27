@@ -6,11 +6,12 @@ import (
 	"github.com/gogf/gf/v2/encoding/gyaml"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 )
 
 type sSystemPluginsConfig struct{}
@@ -22,7 +23,7 @@ func init() {
 	service.RegisterSystemPluginsConfig(sSystemPluginsConfigNew())
 }
 
-//GetPluginsConfigList 获取列表数据
+// GetPluginsConfigList 获取列表数据
 func (s *sSystemPluginsConfig) GetPluginsConfigList(ctx context.Context, in *model.GetPluginsConfigListInput) (total, page int, list []*model.PluginsConfigOutput, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
 		m := dao.SysPluginsConfig.Ctx(ctx)
@@ -35,7 +36,7 @@ func (s *sSystemPluginsConfig) GetPluginsConfigList(ctx context.Context, in *mod
 		if in.PageSize == 0 {
 			in.PageSize = consts.PageSize
 		}
-		err = m.Page(page, in.PageSize).Order("created_at desc").Scan(&list)
+		err = m.Page(page, in.PageSize).Scan(&list)
 		if err != nil {
 			err = gerror.New("获取数据失败")
 		}
@@ -43,13 +44,13 @@ func (s *sSystemPluginsConfig) GetPluginsConfigList(ctx context.Context, in *mod
 	return
 }
 
-//GetPluginsConfigById 获取指定ID数据
+// GetPluginsConfigById 获取指定ID数据
 func (s *sSystemPluginsConfig) GetPluginsConfigById(ctx context.Context, id int) (out *model.PluginsConfigOutput, err error) {
 	err = dao.SysPluginsConfig.Ctx(ctx).Where(dao.SysPluginsConfig.Columns().Id, id).Scan(&out)
 	return
 }
 
-//GetPluginsConfigByName 获取指定ID数据
+// GetPluginsConfigByName 获取指定ID数据
 func (s *sSystemPluginsConfig) GetPluginsConfigByName(ctx context.Context, types, name string) (out *model.PluginsConfigOutput, err error) {
 	var reqData = g.Map{
 		dao.SysPluginsConfig.Columns().Type: types,
@@ -59,19 +60,28 @@ func (s *sSystemPluginsConfig) GetPluginsConfigByName(ctx context.Context, types
 	return
 }
 
-//AddPluginsConfig 添加数据
+// AddPluginsConfig 添加数据
 func (s *sSystemPluginsConfig) AddPluginsConfig(ctx context.Context, in model.PluginsConfigAddInput) (err error) {
-	_, err = dao.SysPluginsConfig.Ctx(ctx).Insert(in)
+	_, err = dao.SysPluginsConfig.Ctx(ctx).Data(do.SysPluginsConfig{
+		Type:  in.Type,
+		Name:  in.Name,
+		Value: in.Value,
+		Doc:   in.Doc,
+	}).Insert()
+	err = s.updateCache(ctx, in.Type, in.Name, in.Value)
+
 	return
 }
 
-//EditPluginsConfig 修改数据
+// EditPluginsConfig 修改数据
 func (s *sSystemPluginsConfig) EditPluginsConfig(ctx context.Context, in model.PluginsConfigEditInput) (err error) {
 	_, err = dao.SysPluginsConfig.Ctx(ctx).FieldsEx(dao.SysPluginsConfig.Columns().Id).Where(dao.SysPluginsConfig.Columns().Id, in.Id).Update(in)
+	err = s.updateCache(ctx, in.Type, in.Name, in.Value)
+
 	return
 }
 
-//SavePluginsConfig 更新数据，有数据就修改，没有数据就添加
+// SavePluginsConfig 更新数据，有数据就修改，没有数据就添加
 func (s *sSystemPluginsConfig) SavePluginsConfig(ctx context.Context, in model.PluginsConfigAddInput) (err error) {
 	var reqData = g.Map{
 		dao.SysPluginsConfig.Columns().Id: in.Type,
@@ -86,24 +96,20 @@ func (s *sSystemPluginsConfig) SavePluginsConfig(ctx context.Context, in model.P
 	return
 }
 
-//DeletePluginsConfig 删除数据
+// DeletePluginsConfig 删除数据
 func (s *sSystemPluginsConfig) DeletePluginsConfig(ctx context.Context, Ids []int) (err error) {
 	_, err = dao.SysPluginsConfig.Ctx(ctx).Delete(dao.SysPluginsConfig.Columns().Id+" in (?)", Ids)
 	return
 }
 
-//UpdateAllPluginsConfigCache 将插件数据更新到缓存
-func (s *sSystemPluginsConfig) UpdateAllPluginsConfigCache() (err error) {
+// UpdateAllPluginsConfigCache 将插件数据更新到缓存
+func (s *sSystemPluginsConfig) UpdateAllPluginsConfigCache(ctx context.Context) (err error) {
 
 	var dataList []*model.PluginsConfigOutput
 	err = dao.SysPluginsConfig.Ctx(context.TODO()).Scan(&dataList)
 	if err != nil {
 		return
 	}
-
-	var (
-		ctx = gctx.New()
-	)
 	for _, datum := range dataList {
 		err = s.updateCache(ctx, datum.Type, datum.Name, datum.Value)
 	}
@@ -111,21 +117,19 @@ func (s *sSystemPluginsConfig) UpdateAllPluginsConfigCache() (err error) {
 }
 
 func (s *sSystemPluginsConfig) updateCache(ctx context.Context, pluginsType, name, value string) (err error) {
-
-	//缓存的key的规则是："plugins+插件类型+插件名称
-	key := "plugins" + pluginsType + name
-	_, err = g.Redis().Do(ctx, "SET", key, value)
+	key := fmt.Sprintf(consts.PluginsTypeName, pluginsType, name)
+	err = cache.Instance().Set(ctx, key, value, 0)
 
 	return
 }
 
-//GetPluginsConfigData 获取列表数据
+// GetPluginsConfigData 获取列表数据
 func (s *sSystemPluginsConfig) GetPluginsConfigData(pluginType, pluginName string) (res map[interface{}]interface{}, err error) {
-	key := "plugins" + pluginType + pluginName
-	fmt.Println(key)
-	pcgData, err := g.Redis().Do(context.TODO(), "GET", key)
-
+	key := fmt.Sprintf(consts.PluginsTypeName, pluginType, pluginName)
+	pcgData, err := cache.Instance().Get(context.Background(), key)
+	if err != nil {
+		return
+	}
 	err = gyaml.DecodeTo([]byte(pcgData.String()), &res)
-
 	return
 }

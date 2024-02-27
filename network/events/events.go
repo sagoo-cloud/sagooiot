@@ -7,7 +7,7 @@ import (
 
 type Handler func(args ...interface{})
 
-//EventInterface Events接口
+// EventInterface Events接口
 type EventInterface interface {
 	Emit(event string, data ...interface{})
 	On(event string, fn interface{})
@@ -24,7 +24,7 @@ type subscriber struct {
 	once     bool
 }
 
-//Emit 发送消息
+// Emit 发送消息
 func (e *EventEmitter) Emit(event string, data ...interface{}) {
 	sub, ok1 := e.events.Load(event)
 	subAll, ok2 := e.events.Load("*")
@@ -45,7 +45,9 @@ func (e *EventEmitter) Emit(event string, data ...interface{}) {
 		//args := make([]reflect.Value, 1+len(data))
 		subscribers.Range(func(key, value interface{}) bool {
 			handler := value.(*subscriber)
-			handler.callback.Call(args[1:])
+			if args != nil && len(args) > 2 {
+				handler.callback.Call(args[1:])
+			}
 			//处理仅订阅一次
 			if handler.once {
 				subscribers.Delete(key)
@@ -69,7 +71,7 @@ func (e *EventEmitter) Emit(event string, data ...interface{}) {
 	}
 }
 
-//On 监听
+// On 监听
 func (e *EventEmitter) On(event string, fn interface{}) {
 	callback := reflect.ValueOf(fn)
 	val, ok := e.events.Load(event)
@@ -84,7 +86,7 @@ func (e *EventEmitter) On(event string, fn interface{}) {
 	})
 }
 
-//Once 监听一次
+// Once 监听一次
 func (e *EventEmitter) Once(event string, fn interface{}) {
 	callback := reflect.ValueOf(fn)
 	val, ok := e.events.Load(event)
@@ -99,7 +101,7 @@ func (e *EventEmitter) Once(event string, fn interface{}) {
 	})
 }
 
-//Off 取消监听
+// Off 取消监听
 func (e *EventEmitter) Off(event string, fn interface{}) {
 	callback := reflect.ValueOf(fn)
 	val, ok := e.events.Load(event)

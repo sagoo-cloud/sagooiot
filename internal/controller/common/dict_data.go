@@ -3,9 +3,9 @@ package common
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 type cDictData struct{}

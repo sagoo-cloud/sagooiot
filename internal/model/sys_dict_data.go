@@ -62,8 +62,8 @@ type SysDictDataOut struct {
 	ListClass string      `json:"listClass" description:"表格回显样式"`
 	IsDefault int         `json:"isDefault" description:"是否默认（1是 0否）"`
 	Status    int         `json:"status"    description:"状态（0正常 1停用）"`
-	CreateBy  uint64      `json:"createBy"  description:"创建者"`
-	UpdateBy  uint64      `json:"updateBy"  description:"更新者"`
+	CreatedBy uint64      `json:"createdBy"  description:"创建者"`
+	UpdatedBy uint64      `json:"updatedBy"  description:"更新者"`
 	Remark    string      `json:"remark"    description:"备注"`
 	CreatedAt *gtime.Time `json:"createdAt" description:"创建时间"`
 	UpdatedAt *gtime.Time `json:"updatedAt" description:"修改时间"`
@@ -79,8 +79,8 @@ type SysDictDataRes struct {
 	ListClass string      `json:"listClass" description:"表格回显样式"`
 	IsDefault int         `json:"isDefault" description:"是否默认（1是 0否）"`
 	Status    int         `json:"status"    description:"状态（0正常 1停用）"`
-	CreateBy  uint64      `json:"createBy"  description:"创建者"`
-	UpdateBy  uint64      `json:"updateBy"  description:"更新者"`
+	CreatedBy uint64      `json:"createdBy"  description:"创建者"`
+	UpdatedBy uint64      `json:"updatedBy"  description:"更新者"`
 	Remark    string      `json:"remark"    description:"备注"`
 	CreatedAt *gtime.Time `json:"createdAt" description:"创建时间"`
 	UpdatedAt *gtime.Time `json:"updatedAt" description:"修改时间"`

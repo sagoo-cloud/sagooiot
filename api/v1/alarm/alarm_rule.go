@@ -1,14 +1,15 @@
 package alarm
 
 import (
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/model"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 type AlarmRuleListReq struct {
 	g.Meta `path:"/rule/list" method:"get" summary:"告警规则列表" tags:"告警"`
-	*model.AlarmRuleListInput
+	common.PaginationReq
 }
 type AlarmRuleListRes struct {
 	*model.AlarmRuleListOutput
@@ -71,7 +72,20 @@ type AlarmRuleTriggerParamReq struct {
 	g.Meta      `path:"/rule/trigger_param" method:"get" summary:"触发条件参数" tags:"告警"`
 	ProductKey  string `json:"productKey" dc:"产品标识"`
 	TriggerType int    `json:"triggerType" dc:"触发类型:1=上线,2=离线,3=属性上报,4=事件上报"`
+	EventKey    string `json:"eventKey" dc:"事件标识"`
 }
 type AlarmRuleTriggerParamRes struct {
 	List []model.TriggerParamOutput `json:"list" dc:"触发条件参数列表"`
 }
+
+type AlarmCronRuleAddReq struct {
+	g.Meta `path:"/rule/cron/add" method:"post" summary:"新增定时触发告警规则" tags:"告警"`
+	*model.AlarmCronRuleAddInput
+}
+type AlarmCronRuleAddRes struct{}
+
+type AlarmCronRuleEditReq struct {
+	g.Meta `path:"/rule/cron/edit" method:"put" summary:"编辑定时触发告警规则" tags:"告警"`
+	*model.AlarmCronRuleEditInput
+}
+type AlarmCronRuleEditRes struct{}

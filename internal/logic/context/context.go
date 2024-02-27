@@ -3,9 +3,9 @@ package context
 import (
 	"context"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 type sContext struct {
@@ -75,6 +75,15 @@ func (s *sContext) GetChildrenDeptId(ctx context.Context) []int {
 		return user.ChildrenDeptId
 	}
 	return nil
+}
+
+// GetUserName 获取当前登录用户账户
+func (s *sContext) GetUserName(ctx context.Context) string {
+	user := s.GetLoginUser(ctx)
+	if user != nil {
+		return user.UserName
+	}
+	return ""
 }
 
 // GetRequestWay 获取当前系统请求方式

@@ -12,7 +12,7 @@ import (
 	"github.com/gogf/gf/v2/os/grpool"
 	"github.com/gogf/gf/v2/os/gtimer"
 	"github.com/gorilla/websocket"
-	"github.com/sagoo-cloud/sagooiot/internal/webscoket"
+	"sagooiot/internal/webscoket"
 	"time"
 )
 

@@ -5,12 +5,13 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/grpool"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 )
 
 type sSysUserOnline struct {
@@ -37,7 +38,16 @@ func (s *sSysUserOnline) Invoke(ctx context.Context, data *entity.SysUserOnline)
 
 // Add 记录用户在线
 func (s *sSysUserOnline) Add(ctx context.Context, data *entity.SysUserOnline) {
-	_, err := dao.SysUserOnline.Ctx(ctx).Data(data).Save()
+	_, err := dao.SysUserOnline.Ctx(ctx).Data(do.SysUserOnline{
+		Uuid:      data.Uuid,
+		Key:       data.Key,
+		Token:     data.Token,
+		CreatedAt: data.CreatedAt,
+		UserName:  data.UserName,
+		Ip:        data.Ip,
+		Explorer:  data.Explorer,
+		Os:        data.Os,
+	}).Insert()
 	if err != nil {
 		g.Log().Error(ctx, err)
 	}
@@ -59,7 +69,7 @@ func (s *sSysUserOnline) GetInfoByToken(ctx context.Context, token string) (data
 }
 
 // DelByIds 根据IDS删除信息
-func (s *sSysUserOnline) DelByIds(ctx context.Context, ids []uint) (err error) {
+func (s *sSysUserOnline) DelByIds(ctx context.Context, ids []int) (err error) {
 	_, err = dao.SysUserOnline.Ctx(ctx).WhereIn(dao.SysUserOnline.Columns().Id, ids).Delete()
 	if err != nil {
 		return gerror.New("删除失败")
@@ -85,7 +95,7 @@ func (s *sSysUserOnline) UserOnlineList(ctx context.Context, input *model.UserOn
 		input.PageNum = 1
 	}
 	if input.PageSize == 0 {
-		input.PageSize = consts.DefaultPageSize
+		input.PageSize = consts.PageSize
 	}
 	//获取在线用户信息
 	err = m.Page(input.PageNum, input.PageSize).OrderDesc(dao.SysUser.Columns().CreatedAt).Scan(&out)
@@ -103,7 +113,7 @@ func (s *sSysUserOnline) UserOnlineStrongBack(ctx context.Context, id int) (err 
 		return gerror.New("ID错误")
 	}
 	//删除缓存信息
-	common.Cache().Remove(ctx, userOnline.Key)
+	_, err = cache.Instance().Remove(ctx, userOnline.Key)
 	//删除在线用户
 	_, err = dao.SysUserOnline.Ctx(ctx).Where(dao.SysUserOnline.Columns().Id, id).Delete()
 	return

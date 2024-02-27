@@ -2,8 +2,8 @@ package product
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 type sDevTSLDataType struct{}
@@ -47,7 +47,8 @@ func (s *sDevTSLDataType) DataTypeValueList(ctx context.Context) (out *model.Dat
 
 	// 扩展类型
 	extensionType := []model.DataTypeValueExtension{
-		{Title: "date(时间戳)", Type: "date"},
+		{Title: "date(2006-01-02 15:04:05或者2006-01-02 15:04:05.000)", Type: "date"},
+		{Title: "timestamp(时间戳/毫秒)", Type: "timestamp"},
 		{Title: "enum(枚举)", Type: "enum", TSLParamExtension: model.TSLParamExtension{Elements: tEnum}},
 		{Title: "array(数组)", Type: "array", TSLParamExtension: model.TSLParamExtension{ElementType: tArray}},
 		{Title: "object(结构体)", Type: "object", TSLParamExtension: model.TSLParamExtension{Properties: tObject}},

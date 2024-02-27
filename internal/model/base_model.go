@@ -5,7 +5,7 @@ type PaginationInput struct {
 	DateRange []string `p:"dateRange"`             //日期范围
 	OrderBy   string   //排序方式
 	PageNum   int      `json:"pageNum" in:"query" d:"1"  v:"min:0#分页号码错误"     dc:"分页号码，默认1"`
-	PageSize  int      `json:"PageSize" in:"query" d:"10" v:"max:50#分页数量最大50条" dc:"分页数量，最大50"`
+	PageSize  int      `json:"PageSize" in:"query" d:"10" v:"max:500#分页数量最大500条" dc:"分页数量，最大500"`
 }
 
 type PaginationOutput struct {

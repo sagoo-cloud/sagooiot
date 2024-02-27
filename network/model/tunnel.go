@@ -3,8 +3,8 @@ package model
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/gogf/gf/v2/text/gregex"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -36,8 +36,8 @@ type Tunnel struct {
 }
 
 type DefaultDevice struct {
-	Station   int    `json:"station"`
-	ProductId string `json:"product_id"`
+	Station    int    `json:"station"`
+	ProductKey string `json:"product_key"`
 }
 
 type TunnelEx struct {
@@ -72,7 +72,15 @@ func (p *RegisterPacket) Check(buf []byte) (deviceKey string, checkOk bool) {
 		if p.regex == nil {
 			p.regex = regexp.MustCompile(p.Regex)
 		}
-		match, _ := gregex.MatchString(p.Regex, string(buf))
+		data := string(buf)
+		data = strings.ReplaceAll(data, "\n", "")
+		data = strings.ReplaceAll(data, "\r", "")
+		re := regexp.MustCompile(p.Regex)
+		match := re.FindStringSubmatch(data)
+		if match == nil {
+			return "", false
+		}
+		//todo  这里check获取的数据需要再次确认
 		return match[1], p.regex.Match(buf)
 	}
 	if p.Length > 0 {

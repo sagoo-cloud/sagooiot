@@ -1,17 +1,8 @@
 package consts
 
 const (
-	Version                  = "v0.2.0"             // 当前服务版本(用于模板展示)
-	CaptchaDefaultName       = "CaptchaDefaultName" // 验证码默认存储空间名称
-	ContextKey               = "ContextKey"         // 上下文变量存储键名，前后端系统共享
-	FileMaxUploadCountMinute = 10                   // 同一用户1分钟之内最大上传数量
-	DefaultPageSize          = 10                   //默认分页条数
-)
-
-// 系统启动OR禁用常量
-const (
-	Start    = 1 //启动
-	Disabled = 0 //禁用
+	ContextKey = "ContextKey" // 上下文变量存储键名，前后端系统共享
+	PageSize   = 10           //默认分页条数
 )
 
 // 权限类型常量
@@ -45,16 +36,13 @@ const (
 )
 
 const (
-	Weather        = 1 //天气
-	LoopRegulation = 2 //环路监管
-	LoopMap        = 3 //分布图
-	Energy         = 4 //能耗分析
+	Weather = 1 //天气
+
 )
 
 // 服务状态
 const (
-	ServerStatusOffline = 0
-	ServerStatusOnline  = 1
+	ServerStatusOnline = 1
 )
 
 // ServerListLimit 服务限制
@@ -62,18 +50,7 @@ const (
 	ServerListLimit = 10000
 )
 
-// 业务单元
-const (
-	PLOT  = "plot"
-	Floor = "floor"
-	Unit  = "unit"
-)
-
-// 系统参数KEY常量
-const (
-	IsAutoRunJob        = "sys.auto.run.job"
-	IsOpenAccessControl = "sys.access.control"
-)
+const ApiTypes = "api_types"
 
 // 默认的插件协议
 const (
@@ -83,4 +60,19 @@ const (
 const (
 	TokenAuth = "token_auth"
 	AKSK      = "aksk"
+)
+
+// 文件路径
+const (
+	LogPath      = "./resource/log/run/"
+	RunLogPath   = "./var/"
+	MysqlLogPath = "./resource/log/sql/"
+)
+
+// RSA 公私钥文件路径
+const (
+	RsaPublicKeyFile  = "resource/rsa/public.pem"
+	RsaPrivateKeyFile = "resource/rsa/private.pem"
+	RsaOAEP           = "OAEP"
+	RsaPKCS1v15       = "PKCS1v15"
 )

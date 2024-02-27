@@ -3,7 +3,7 @@ package sys
 import (
 	"errors"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/webscoket/common"
+	"sagooiot/internal/webscoket/common"
 )
 
 func Ping(ctx *common.WorkContext) (g.Map, error) {

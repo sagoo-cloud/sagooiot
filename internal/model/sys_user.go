@@ -30,7 +30,7 @@ type UserListOut struct {
 	UserTypes     string         `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile        string         `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
 	UserNickname  string         `json:"userNickname"  description:"用户昵称"`
-	Birthday      int            `json:"birthday"      description:"生日"`
+	Birthday      *gtime.Time    `json:"birthday"      description:"生日"`
 	UserEmail     string         `json:"userEmail"     description:"用户登录邮箱"`
 	Sex           int            `json:"sex"           description:"性别;0:保密,1:男,2:女"`
 	Avatar        string         `json:"avatar"        description:"用户头像"`
@@ -42,9 +42,9 @@ type UserListOut struct {
 	LastLoginIp   string         `json:"lastLoginIp"   description:"最后登录ip"`
 	LastLoginTime *gtime.Time    `json:"lastLoginTime" description:"最后登录时间"`
 	Status        uint           `json:"status"        description:"用户状态;0:禁用,1:正常,2:未验证"`
-	CreateBy      uint           `json:"createBy"      description:"创建者"`
+	CreatedBy     uint           `json:"createdBy"      description:"创建者"`
 	CreatedAt     *gtime.Time    `json:"createdAt"     description:"创建日期"`
-	UpdateBy      uint           `json:"updateBy"      description:"更新者"`
+	UpdatedBy     uint           `json:"updatedBy"      description:"更新者"`
 	UpdatedAt     *gtime.Time    `json:"updatedAt"     description:"修改日期"`
 	Dept          *DetailDeptRes `json:"dept"     description:"部门信息"`
 	RolesNames    string         `json:"rolesNames"     description:"角色信息"`
@@ -56,7 +56,7 @@ type UserListRes struct {
 	UserTypes     string         `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile        string         `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
 	UserNickname  string         `json:"userNickname"  description:"用户昵称"`
-	Birthday      int            `json:"birthday"      description:"生日"`
+	Birthday      *gtime.Time    `json:"birthday"      description:"生日"`
 	UserEmail     string         `json:"userEmail"     description:"用户登录邮箱"`
 	Sex           int            `json:"sex"           description:"性别;0:保密,1:男,2:女"`
 	Avatar        string         `json:"avatar"        description:"用户头像"`
@@ -68,9 +68,9 @@ type UserListRes struct {
 	LastLoginIp   string         `json:"lastLoginIp"   description:"最后登录ip"`
 	LastLoginTime *gtime.Time    `json:"lastLoginTime" description:"最后登录时间"`
 	Status        uint           `json:"status"        description:"用户状态;0:禁用,1:正常,2:未验证"`
-	CreateBy      uint           `json:"createBy"      description:"创建者"`
+	CreatedBy     uint           `json:"createdBy"      description:"创建者"`
 	CreatedAt     *gtime.Time    `json:"createdAt"     description:"创建日期"`
-	UpdateBy      uint           `json:"updateBy"      description:"更新者"`
+	UpdatedBy     uint           `json:"updatedBy"      description:"更新者"`
 	UpdatedAt     *gtime.Time    `json:"updatedAt"     description:"修改日期"`
 	Dept          *DetailDeptRes `json:"dept"     description:"部门信息"`
 	RolesNames    string         `json:"rolesNames"     description:"角色信息"`
@@ -82,7 +82,7 @@ type UserRes struct {
 	UserTypes     string         `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile        string         `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
 	UserNickname  string         `json:"userNickname"  description:"用户昵称"`
-	Birthday      int            `json:"birthday"      description:"生日"`
+	Birthday      *gtime.Time    `json:"birthday"      description:"生日"`
 	UserEmail     string         `json:"userEmail"     description:"用户登录邮箱"`
 	Sex           int            `json:"sex"           description:"性别;0:保密,1:男,2:女"`
 	Avatar        string         `json:"avatar"        description:"用户头像"`
@@ -94,9 +94,9 @@ type UserRes struct {
 	LastLoginIp   string         `json:"lastLoginIp"   description:"最后登录ip"`
 	LastLoginTime *gtime.Time    `json:"lastLoginTime" description:"最后登录时间"`
 	Status        uint           `json:"status"        description:"用户状态;0:禁用,1:正常,2:未验证"`
-	CreateBy      uint           `json:"createBy"      description:"创建者"`
+	CreatedBy     uint           `json:"createdBy"      description:"创建者"`
 	CreatedAt     *gtime.Time    `json:"createdAt"     description:"创建日期"`
-	UpdateBy      uint           `json:"updateBy"      description:"更新者"`
+	UpdatedBy     uint           `json:"updatedBy"      description:"更新者"`
 	UpdatedAt     *gtime.Time    `json:"updatedAt"     description:"修改日期"`
 	Dept          *DetailDeptRes `json:"dept"     description:"部门信息"`
 	RolesNames    string         `json:"rolesNames"     description:"角色信息"`
@@ -107,7 +107,7 @@ type AddUserInput struct {
 	UserTypes    string `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile       string `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号" v:"required#手机号不能为空"`
 	UserNickname string `json:"userNickname"  description:"用户昵称" v:"required#用户昵称不能为空"`
-	Birthday     int    `json:"birthday"      description:"生日"`
+	Birthday     string `json:"birthday"      description:"生日"`
 	UserPassword string `json:"userPassword"  description:"登录密码;cmf_password加密"`
 	UserEmail    string `json:"userEmail"     description:"用户登录邮箱"`
 	Sex          int    `json:"sex"           description:"性别;0:保密,1:男,2:女"`
@@ -148,7 +148,7 @@ type UserInfoRes struct {
 	UserTypes     string      `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile        string      `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
 	UserNickname  string      `json:"userNickname"  description:"用户昵称"`
-	Birthday      int         `json:"birthday"      description:"生日"`
+	Birthday      *gtime.Time `json:"birthday"      description:"生日"`
 	UserEmail     string      `json:"userEmail"     description:"用户登录邮箱"`
 	Sex           int         `json:"sex"           description:"性别;0:保密,1:男,2:女"`
 	Avatar        string      `json:"avatar"        description:"用户头像"`
@@ -160,9 +160,9 @@ type UserInfoRes struct {
 	LastLoginIp   string      `json:"lastLoginIp"   description:"最后登录ip"`
 	LastLoginTime *gtime.Time `json:"lastLoginTime" description:"最后登录时间"`
 	Status        uint        `json:"status"        description:"用户状态;0:禁用,1:正常,2:未验证"`
-	CreateBy      uint        `json:"createBy"      description:"创建者"`
+	CreatedBy     uint        `json:"createdBy"      description:"创建者"`
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"创建日期"`
-	UpdateBy      uint        `json:"updateBy"      description:"更新者"`
+	UpdatedBy     uint        `json:"updatedBy"      description:"更新者"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"修改日期"`
 	RoleIds       []int       `json:"roleIds"      description:"角色ID数组" v:"required#角色不能为空"`
 	PostIds       []int       `json:"postIds"      description:"岗位ID数组" v:"required#岗位不能为空"`
@@ -173,7 +173,7 @@ type UserInfoOut struct {
 	UserTypes     string      `json:"userTypes"     description:"系统 system 企业 company"`
 	Mobile        string      `json:"mobile"        description:"中国手机不带国家代码，国际手机号格式为：国家代码-手机号"`
 	UserNickname  string      `json:"userNickname"  description:"用户昵称"`
-	Birthday      int         `json:"birthday"      description:"生日"`
+	Birthday      *gtime.Time `json:"birthday"      description:"生日"`
 	UserEmail     string      `json:"userEmail"     description:"用户登录邮箱"`
 	Sex           int         `json:"sex"           description:"性别;0:保密,1:男,2:女"`
 	Avatar        string      `json:"avatar"        description:"用户头像"`
@@ -185,9 +185,9 @@ type UserInfoOut struct {
 	LastLoginIp   string      `json:"lastLoginIp"   description:"最后登录ip"`
 	LastLoginTime *gtime.Time `json:"lastLoginTime" description:"最后登录时间"`
 	Status        uint        `json:"status"        description:"用户状态;0:禁用,1:正常,2:未验证"`
-	CreateBy      uint        `json:"createBy"      description:"创建者"`
+	CreatedBy     uint        `json:"createdBy"      description:"创建者"`
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"创建日期"`
-	UpdateBy      uint        `json:"updateBy"      description:"更新者"`
+	UpdatedBy     uint        `json:"updatedBy"      description:"更新者"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"修改日期"`
 	RoleIds       []int       `json:"roleIds"      description:"角色ID数组" v:"required#角色不能为空"`
 	PostIds       []int       `json:"postIds"      description:"岗位ID数组" v:"required#岗位不能为空"`

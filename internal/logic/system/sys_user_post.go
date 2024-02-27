@@ -2,10 +2,11 @@ package system
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 )
 
 type sSysUserPost struct {
@@ -19,7 +20,7 @@ func sysUserPostNew() *sSysUserPost {
 	return &sSysUserPost{}
 }
 
-//GetInfoByUserId 根据用户ID获取信息
+// GetInfoByUserId 根据用户ID获取信息
 func (s *sSysUserPost) GetInfoByUserId(ctx context.Context, userId int) (data []*entity.SysUserPost, err error) {
 	var userPost []*entity.SysUserPost
 	err = dao.SysUserPost.Ctx(ctx).Where(dao.SysUserPost.Columns().UserId, userId).Scan(&userPost)
@@ -35,6 +36,40 @@ func (s *sSysUserPost) GetInfoByUserId(ctx context.Context, userId int) (data []
 			if num > 0 {
 				data = append(data, post)
 			}
+		}
+	}
+	return
+}
+
+// BindUserAndPost 添加用户与岗位绑定关系
+func (s *sSysUserPost) BindUserAndPost(ctx context.Context, userId int, postIds []int) (err error) {
+	if len(postIds) > 0 {
+		//删除原有用户与岗位绑定管理
+		_, err = dao.SysUserPost.Ctx(ctx).Where(dao.SysUserPost.Columns().UserId, userId).Delete()
+		if err != nil {
+			return gerror.New("删除用户与岗位绑定关系失败")
+		}
+
+		var sysUserPosts []*entity.SysUserPost
+		//查询用户与岗位是否存在
+		for _, postId := range postIds {
+			/*var sysUserPost *entity.SysUserPost
+			err = dao.SysUserPost.Ctx(ctx).Where(g.Map{
+				dao.SysUserPost.Columns().UserId: userId,
+				dao.SysUserPost.Columns().PostId: postId,
+			}).Scan(&sysUserPost)
+			if sysUserPost == nil {
+
+			}*/
+			//添加用户与岗位绑定管理
+			var sysUserPost = new(entity.SysUserPost)
+			sysUserPost.UserId = userId
+			sysUserPost.PostId = postId
+			sysUserPosts = append(sysUserPosts, sysUserPost)
+		}
+		_, err = dao.SysUserPost.Ctx(ctx).Data(sysUserPosts).Insert()
+		if err != nil {
+			return gerror.New("绑定岗位失败")
 		}
 	}
 	return

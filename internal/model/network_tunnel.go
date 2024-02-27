@@ -55,7 +55,7 @@ type NetworkTunnelAddInput struct {
 	Retry     string `json:"retry"     description:""`
 	Heartbeat string `json:"heartbeat" description:""`
 	Serial    string `json:"serial"    description:""`
-	Protoccol string `json:"protoccol" description:""`
+	Protocol  string `json:"protocol" description:""`
 	Status    int    `json:"status"    description:""`
 	Remark    string `json:"remark"    description:"备注"`
 }

@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var SysNotifications = cSysNotifications{}

@@ -6,13 +6,16 @@ import (
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
+	"sort"
 )
 
 type sSysMenu struct {
@@ -28,7 +31,6 @@ func init() {
 
 // GetAll 获取全部菜单数据
 func (s *sSysMenu) GetAll(ctx context.Context) (data []*entity.SysMenu, err error) {
-	cache := common.Cache()
 	err = dao.SysMenu.Ctx(ctx).Where(g.Map{
 		dao.SysMenu.Columns().Status:    1,
 		dao.SysMenu.Columns().IsDeleted: 0,
@@ -37,9 +39,12 @@ func (s *sSysMenu) GetAll(ctx context.Context) (data []*entity.SysMenu, err erro
 		return
 	}
 	if data != nil && len(data) > 0 {
-		cache.Set(ctx, consts.CacheSysMenu, data, 0)
+		err = cache.Instance().Set(ctx, consts.CacheSysMenu, data, 0)
+		if err != nil {
+			return
+		}
 	} else {
-		cache.Remove(ctx, consts.CacheSysMenu)
+		_, err = cache.Instance().Remove(ctx, consts.CacheSysMenu)
 	}
 	return
 }
@@ -56,12 +61,61 @@ func (s *sSysMenu) GetTree(ctx context.Context, title string, status int) (data 
 				if err = gconv.Scan(v, &parentNode); err != nil {
 					return
 				}
-				parentNodeOut = append(parentNodeOut, parentNode)
+
+				var isExist = false
+				for _, menuOut := range parentNodeOut {
+					if menuOut.Id == parentNode.Id {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
+			} else {
+				//查找根节点
+				var parentMenu *entity.SysMenu
+				parentMenu, err = FindMenuParentByChildrenId(ctx, int(v.ParentId))
+				if err != nil {
+
+				}
+				if err = gconv.Scan(parentMenu, &parentNode); err != nil {
+					return
+				}
+				var isExist = false
+				for _, menuOut := range parentNodeOut {
+					if menuOut.Id == int64(parentMenu.Id) {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
 			}
 		}
+		//对父节点进行排序
+		sort.SliceStable(parentNodeOut, func(i, j int) bool {
+			return parentNodeOut[i].Weigh > parentNodeOut[j].Weigh
+		})
 		data = MenuTree(parentNodeOut, menuInfo)
 	}
 
+	return
+}
+
+// FindMenuParentByChildrenId 根据子节点获取根节点
+func FindMenuParentByChildrenId(ctx context.Context, parentId int) (out *entity.SysMenu, err error) {
+	err = dao.SysMenu.Ctx(ctx).Where(g.Map{
+		dao.SysMenu.Columns().Id:        parentId,
+		dao.SysMenu.Columns().IsDeleted: 0,
+	}).Scan(&out)
+	if err != nil {
+		return
+	}
+	if out.ParentId != -1 {
+		return FindMenuParentByChildrenId(ctx, out.ParentId)
+	}
 	return
 }
 
@@ -79,6 +133,10 @@ func MenuTree(parentNodeOut []*model.SysMenuOut, data []*model.SysMenuOut) (data
 				parentNodeOut[k].Children = append(parentNodeOut[k].Children, node)
 			}
 		}
+		//对子节点进行排序
+		sort.SliceStable(v.Children, func(i, j int) bool {
+			return v.Children[i].Weigh > v.Children[j].Weigh
+		})
 		MenuTree(v.Children, data)
 	}
 	return parentNodeOut
@@ -100,7 +158,31 @@ func (s *sSysMenu) Add(ctx context.Context, input *model.AddMenuInput) (err erro
 	}
 	menu.IsDeleted = 0
 	menu.CreatedBy = uint(loginUserId)
-	_, err = dao.SysMenu.Ctx(ctx).Data(menu).Insert()
+	_, err = dao.SysMenu.Ctx(ctx).Data(do.SysMenu{
+		ParentId:   menu.ParentId,
+		Name:       menu.Name,
+		Title:      menu.Title,
+		Icon:       menu.Icon,
+		Condition:  menu.Condition,
+		Remark:     menu.Remark,
+		MenuType:   menu.MenuType,
+		Weigh:      menu.Weigh,
+		IsHide:     menu.IsHide,
+		Path:       menu.Path,
+		Component:  menu.Component,
+		IsLink:     menu.IsLink,
+		ModuleType: menu.ModuleType,
+		ModelId:    menu.ModelId,
+		IsIframe:   menu.IsIframe,
+		IsCached:   menu.IsCached,
+		Redirect:   menu.Redirect,
+		IsAffix:    menu.IsAffix,
+		LinkUrl:    menu.LinkUrl,
+		Status:     menu.Status,
+		IsDeleted:  menu.IsDeleted,
+		CreatedBy:  menu.CreatedBy,
+		CreatedAt:  menu.CreatedAt,
+	}).Insert()
 	if err != nil {
 		return err
 	}
@@ -184,10 +266,9 @@ func (s *sSysMenu) Del(ctx context.Context, menuId int64) (err error) {
 	loginUserId := service.Context().GetUserId(ctx)
 	_, err = dao.SysMenu.Ctx(ctx).Data(g.Map{
 		dao.SysMenu.Columns().DeletedBy: uint(loginUserId),
+		dao.SysMenu.Columns().DeletedAt: gtime.Now(),
 		dao.SysMenu.Columns().IsDeleted: 1,
 	}).Where(dao.SysMenu.Columns().Id, menuId).Update()
-	//删除菜单信息
-	_, err = dao.SysMenu.Ctx(ctx).Where(dao.SysMenu.Columns().Id, menuId).Delete()
 	//获取所有的菜单
 	_, err = s.GetAll(ctx)
 	if err != nil {
@@ -221,7 +302,7 @@ func checkMenuJoin(ctx context.Context, menuId int64) string {
 		dao.SysMenuButton.Columns().IsDeleted: 0,
 	}).Count()
 	if num > 0 {
-		return "存在菜单列表关联!"
+		return "存在菜单按钮关联!"
 	}
 	//查询关联按钮
 	num, _ = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
@@ -229,7 +310,7 @@ func checkMenuJoin(ctx context.Context, menuId int64) string {
 		dao.SysMenuColumn.Columns().IsDeleted: 0,
 	}).Count()
 	if num > 0 {
-		return "存在菜单按钮关联!"
+		return "存在菜单列表关联!"
 	}
 	return ""
 }
@@ -264,19 +345,20 @@ func checkMenuId(ctx context.Context, MenuId int64, menu *entity.SysMenu) *entit
 
 // GetInfoByMenuIds 根据菜单ID数组获取菜单信息
 func (s *sSysMenu) GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenu, err error) {
-	cache := common.Cache()
 	var tmpData *gvar.Var
-	tmpData = cache.Get(ctx, consts.CacheSysMenu)
+	tmpData, err = cache.Instance().Get(ctx, consts.CacheSysMenu)
 	if err != nil {
 		return
 	}
 
 	var tmpMenuInfo []*entity.SysMenu
-	json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo)
 
 	var menuInfo []*entity.SysMenu
 	//根据菜单ID数组获取菜单列表信息
-	if tmpData != nil {
+	if tmpData.Val() != nil {
+		if err = json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo); err != nil {
+			return
+		}
 		for _, menuId := range menuIds {
 			for _, menuTmp := range tmpMenuInfo {
 				if menuId == int(menuTmp.Id) {

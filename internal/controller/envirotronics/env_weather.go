@@ -3,9 +3,9 @@ package envirotronics
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/envirotronics"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/envirotronics"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var Weather = cWeather{}
@@ -51,7 +51,7 @@ func (a *cWeather) GetCityWeatherById(ctx context.Context, req *envirotronics.Ge
 
 // GetCityTemperatureById 根据ID获取指定城市的温度图表
 func (a *cWeather) GetCityTemperatureById(ctx context.Context, req *envirotronics.GetCityTemperatureByIdReq) (res *envirotronics.GetCityTemperatureByIdRes, err error) {
-	cityWeatherEchartOut, avgCityWeatherEchartOut, foreCastCityWeatherEchartOut, foreCastAvgCityWeatherEchartOut, err := service.EnvWeather().GetCityTemperatureById(ctx, req.Id, req.Types)
+	cityWeatherEchartOut, avgCityWeatherEchartOut, foreCastCityWeatherHighEchartOut, foreCastCityWeatherLowEchartOut, err := service.EnvWeather().GetCityTemperatureById(ctx, req.Id, req.Types)
 	if err != nil {
 		return
 	}
@@ -67,23 +67,23 @@ func (a *cWeather) GetCityTemperatureById(ctx context.Context, req *envirotronic
 			return
 		}
 	}
-	var foreCastCityWeatherEchartRes []*model.CityWeatherEchartRes
-	if foreCastCityWeatherEchartOut != nil {
-		if err = gconv.Scan(foreCastCityWeatherEchartOut, &foreCastCityWeatherEchartRes); err != nil {
+	var foreCastCityWeatherHighEchartRes []*model.CityWeatherEchartRes
+	if foreCastCityWeatherHighEchartOut != nil {
+		if err = gconv.Scan(foreCastCityWeatherHighEchartOut, &foreCastCityWeatherHighEchartRes); err != nil {
 			return
 		}
 	}
-	var foreCastAvgCityWeatherEchartRes []*model.CityWeatherEchartRes
-	if foreCastAvgCityWeatherEchartOut != nil {
-		if err = gconv.Scan(foreCastAvgCityWeatherEchartOut, &foreCastAvgCityWeatherEchartRes); err != nil {
+	var foreCastCityWeatherLowEchartRes []*model.CityWeatherEchartRes
+	if foreCastCityWeatherLowEchartOut != nil {
+		if err = gconv.Scan(foreCastCityWeatherLowEchartOut, &foreCastCityWeatherLowEchartRes); err != nil {
 			return
 		}
 	}
 	res = &envirotronics.GetCityTemperatureByIdRes{
-		Info:            cityWeatherEchartRes,
-		AvgInfo:         avgCityWeatherEchartRes,
-		ForeCastInfo:    foreCastCityWeatherEchartRes,
-		ForeCastAvgInfo: foreCastAvgCityWeatherEchartRes,
+		Info:             cityWeatherEchartRes,
+		AvgInfo:          avgCityWeatherEchartRes,
+		ForeCastHighInfo: foreCastCityWeatherHighEchartRes,
+		ForeCastLowInfo:  foreCastCityWeatherLowEchartRes,
 	}
 	return
 }
@@ -123,6 +123,34 @@ func (a *cWeather) GetCityWindpowerById(ctx context.Context, req *envirotronics.
 		AvgInfo:         avgCityWeatherEchartRes,
 		ForeCastInfo:    foreCastCityWeatherEchartRes,
 		ForeCastAvgInfo: foreCastAvgCityWeatherEchartRes,
+	}
+	return
+}
+
+// GetCityWeatherHistoryById 根据ID获取指定城市的天气历史数据
+func (a *cWeather) GetCityWeatherHistoryById(ctx context.Context, req *envirotronics.GetCityWeatherHistoryByIdReq) (res *envirotronics.GetCityWeatherHistoryByIdRes, err error) {
+	out, err := service.EnvWeather().GetCityWeatherHistoryById(ctx, req.Id, req.DateTime)
+	if err != nil {
+		return
+	}
+	var cityWeatherHistoryListRes []*model.CityWeatherHistoryListRes
+	if out != nil {
+		if err = gconv.Scan(out, &cityWeatherHistoryListRes); err != nil {
+			return
+		}
+	}
+
+	res = &envirotronics.GetCityWeatherHistoryByIdRes{
+		Info: cityWeatherHistoryListRes,
+	}
+	return
+}
+
+// GetCityWeatherHistoryByIdExport 根据ID获取指定城市的天气历史数据导出
+func (a *cWeather) GetCityWeatherHistoryByIdExport(ctx context.Context, req *envirotronics.GetCityWeatherHistoryByIdExportReq) (res *envirotronics.GetCityWeatherHistoryByIdExportRes, err error) {
+	err = service.EnvWeather().GetCityWeatherHistoryByIdExport(ctx, req.Id, req.DateTime)
+	if err != nil {
+		return
 	}
 	return
 }

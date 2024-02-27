@@ -2,12 +2,12 @@ package product
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/do"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -45,6 +45,7 @@ func (s *sDevCategory) GetNameByIds(ctx context.Context, categoryIds []uint) (na
 	err = dao.DevProductCategory.Ctx(ctx).
 		Fields(c.Id, c.Name).
 		WhereIn(c.Id, categoryIds).
+		OrderAsc(c.Sort).
 		OrderDesc(c.Id).
 		Scan(&categorys)
 	if err != nil || len(categorys) == 0 {
@@ -65,46 +66,40 @@ func (s *sDevCategory) GetNameByIds(ctx context.Context, categoryIds []uint) (na
 	return
 }
 
+// ListForPage 产品分类列表
 func (s *sDevCategory) ListForPage(ctx context.Context, page, limit int, name string) (out []*model.ProductCategoryTreeOutput, total int, err error) {
 	if page < 1 {
 		page = 1
 	}
 	if limit < 1 {
-		limit = consts.DefaultPageSize
+		limit = consts.PageSize
 	}
 
-	m := dao.DevProductCategory.Ctx(ctx).Fields("id").
-		Where(dao.DevProductCategory.Columns().ParentId, 0).
+	m := dao.DevProductCategory.Ctx(ctx).
+		OrderAsc(dao.DevProductCategory.Columns().Sort).
 		OrderDesc(dao.DevProductCategory.Columns().Id)
 
 	if name != "" {
 		m = m.WhereLike(dao.DevProductCategory.Columns().Name, "%"+name+"%")
 	}
 
-	total, _ = m.Count()
-	if total > 0 {
-		ids, _ := m.Page(page, limit).Array()
-
-		var categorys []*entity.DevProductCategory
-
-		err = dao.DevProductCategory.Ctx(ctx).
-			WhereIn(dao.DevProductCategory.Columns().Id, ids).
-			WhereOr(dao.DevProductCategory.Columns().ParentId, ids).
-			OrderDesc(dao.DevProductCategory.Columns().Id).
-			Scan(&categorys)
-		if err != nil || len(categorys) == 0 {
-			return
-		}
-
-		out = Tree(categorys, 0)
+	var categorys []*entity.DevProductCategory
+	err = m.Scan(&categorys)
+	if err != nil {
+		return
 	}
+	out = Tree(categorys, 0)
+	total = len(out)
+	start := (page - 1) * limit
+	end := page * limit
+	out = out[start:end]
 
 	return
 }
 
 func (s *sDevCategory) List(ctx context.Context, name string) (out []*model.ProductCategoryTreeOutput, err error) {
 	var categorys []*entity.DevProductCategory
-	m := dao.DevProductCategory.Ctx(ctx).OrderDesc(dao.DevProductCategory.Columns().Id)
+	m := dao.DevProductCategory.Ctx(ctx).OrderAsc(dao.DevProductCategory.Columns().Sort).OrderDesc(dao.DevProductCategory.Columns().Id)
 	if name != "" {
 		m = m.WhereLike(dao.DevProductCategory.Columns().Name, "%"+name+"%")
 	}
@@ -114,7 +109,13 @@ func (s *sDevCategory) List(ctx context.Context, name string) (out []*model.Prod
 		return
 	}
 
-	out = Tree(categorys, 0)
+	if name != "" {
+		if err = gconv.Scan(categorys, &out); err != nil {
+			return
+		}
+	} else {
+		out = Tree(categorys, 0)
+	}
 
 	return
 }
@@ -139,11 +140,13 @@ func (s *sDevCategory) Add(ctx context.Context, in *model.AddProductCategoryInpu
 	loginUserId := service.Context().GetUserId(ctx)
 
 	_, err = dao.DevProductCategory.Ctx(ctx).Data(do.DevProductCategory{
-		ParentId: in.ParentId,
-		Key:      in.Key,
-		Name:     in.Name,
-		Desc:     in.Desc,
-		CreateBy: uint(loginUserId),
+		DeptId:    service.Context().GetUserDeptId(ctx),
+		ParentId:  in.ParentId,
+		Key:       in.Key,
+		Name:      in.Name,
+		Sort:      in.Sort,
+		Desc:      in.Desc,
+		CreatedBy: uint(loginUserId),
 	}).Insert()
 	if err != nil {
 		return
@@ -163,14 +166,19 @@ func (s *sDevCategory) Edit(ctx context.Context, in *model.EditProductCategoryIn
 		return gerror.New("分类不存在")
 	}
 
+	if category.Id == in.ParentId {
+		return gerror.New("上级分类节点选择错误,请重新选择!")
+	}
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 
 	_, err = dao.DevProductCategory.Ctx(ctx).Data(do.DevProductCategory{
-		Key:      in.Key,
-		Name:     in.Name,
-		Desc:     in.Desc,
-		UpdateBy: uint(loginUserId),
+		ParentId:  in.ParentId,
+		Key:       in.Key,
+		Name:      in.Name,
+		Sort:      in.Sort,
+		Desc:      in.Desc,
+		UpdatedBy: uint(loginUserId),
 	}).Where(dao.DevProductCategory.Columns().Id, in.Id).Update()
 
 	return

@@ -3,9 +3,9 @@ package system
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 // Login 登录管理
@@ -15,7 +15,8 @@ type cLogin struct{}
 
 // Login 登录
 func (a *cLogin) Login(ctx context.Context, req *system.LoginDoReq) (res *system.LoginDoRes, err error) {
-	out, token, err := service.Login().Login(ctx, req.VerifyKey, req.Captcha, req.UserName, req.Password)
+
+	out, token, isChangePassword, err := service.Login().Login(ctx, req.VerifyKey, req.Captcha, req.UserName, req.Password)
 	if err != nil {
 		return
 	}
@@ -26,8 +27,9 @@ func (a *cLogin) Login(ctx context.Context, req *system.LoginDoReq) (res *system
 		}
 	}
 	res = &system.LoginDoRes{
-		UserInfo: loginUserRes,
-		Token:    token,
+		UserInfo:    loginUserRes,
+		Token:       token,
+		IsChangePwd: isChangePassword,
 	}
 	return
 }
@@ -35,5 +37,11 @@ func (a *cLogin) Login(ctx context.Context, req *system.LoginDoReq) (res *system
 // LoginOut 退出登录
 func (a *cLogin) LoginOut(ctx context.Context, req *system.LoginOutReq) (res *system.LoginOutRes, err error) {
 	err = service.Login().LoginOut(ctx)
+	return
+}
+
+// EditPassword 修改密码
+func (a *cLogin) EditPassword(ctx context.Context, req *system.EditPasswordReq) (res *system.EditPasswordRes, err error) {
+	err = service.SysUser().EditPassword(ctx, req.UserName, req.OldUserPassword, req.UserPassword)
 	return
 }

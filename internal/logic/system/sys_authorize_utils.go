@@ -3,16 +3,16 @@ package system
 import (
 	"context"
 	"encoding/json"
-	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"reflect"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
+	"sort"
 	"strings"
 )
 
@@ -61,8 +61,8 @@ func GetAllAuthorizeQueryParentTree(childrenMenuTreeRes []*model.AuthorizeQueryT
 }
 
 // GetRoleTree 获取角色树
-func GetRoleTree(roleInfo []*entity.SysRole) (dataTree []*model.RoleTreeOut, err error) {
-	var parentNodeRes []*model.RoleTreeOut
+func GetRoleTree(ctx context.Context, roleInfo []*entity.SysRole) (dataTree []*model.RoleTreeOut, err error) {
+	var parentNodeOut []*model.RoleTreeOut
 	if roleInfo != nil {
 		//获取所有的根节点
 		for _, v := range roleInfo {
@@ -71,11 +71,43 @@ func GetRoleTree(roleInfo []*entity.SysRole) (dataTree []*model.RoleTreeOut, err
 				if err = gconv.Scan(v, &parentNode); err != nil {
 					return
 				}
-				parentNodeRes = append(parentNodeRes, parentNode)
+
+				var isExist = false
+				for _, roleOut := range parentNodeOut {
+					if roleOut.Id == parentNode.Id {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
+			} else {
+				//查找根节点
+				parentRole := FindRoleParentByChildrenId(ctx, v.ParentId)
+				if err = gconv.Scan(parentRole, &parentNode); err != nil {
+					return
+				}
+				var isExist = false
+				for _, roleOut := range parentNodeOut {
+					if roleOut.Id == parentRole.Id {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
 			}
 		}
 	}
-	treeData := RoleTree(parentNodeRes, roleInfo)
+
+	//对父节点进行排序
+	sort.SliceStable(parentNodeOut, func(i, j int) bool {
+		return parentNodeOut[i].ListOrder < parentNodeOut[j].ListOrder
+	})
+
+	treeData := RoleTree(parentNodeOut, roleInfo)
 	return treeData, nil
 }
 
@@ -93,12 +125,30 @@ func RoleTree(parentNodeRes []*model.RoleTreeOut, data []*entity.SysRole) (dataT
 				parentNodeRes[k].Children = append(parentNodeRes[k].Children, node)
 			}
 		}
+		//对子节点进行排序
+		sort.SliceStable(v.Children, func(i, j int) bool {
+			return v.Children[i].ListOrder < v.Children[j].ListOrder
+		})
 		RoleTree(v.Children, data)
 	}
 	return parentNodeRes
 }
 
-func GetApiTree(apiInfo []*entity.SysApi) (dataTree []*model.SysApiTreeOut, err error) {
+// FindRoleParentByChildrenId 根据子节点获取角色根节点
+func FindRoleParentByChildrenId(ctx context.Context, parentId int) *entity.SysRole {
+	var role *entity.SysRole
+
+	_ = dao.SysRole.Ctx(ctx).Where(g.Map{
+		dao.SysRole.Columns().Id: parentId,
+	}).Scan(&role)
+
+	if role.ParentId != -1 {
+		return FindRoleParentByChildrenId(ctx, role.ParentId)
+	}
+	return role
+}
+
+func GetApiTree(apiInfo []*model.SysApiTreeOut) (dataTree []*model.SysApiTreeOut, err error) {
 	var parentNodeRes []*model.SysApiTreeOut
 	if apiInfo != nil {
 		//获取所有的根节点
@@ -122,7 +172,7 @@ func GetApiTree(apiInfo []*entity.SysApi) (dataTree []*model.SysApiTreeOut, err 
 }
 
 // ApiTree 生成接口树结构
-func ApiTree(parentNodeRes []*model.SysApiTreeOut, data []*entity.SysApi) (dataTree []*model.SysApiTreeOut) {
+func ApiTree(parentNodeRes []*model.SysApiTreeOut, data []*model.SysApiTreeOut) (dataTree []*model.SysApiTreeOut) {
 	//循环所有一级菜单
 	for k, v := range parentNodeRes {
 		//查询所有该菜单下的所有子菜单
@@ -142,12 +192,13 @@ func ApiTree(parentNodeRes []*model.SysApiTreeOut, data []*entity.SysApi) (dataT
 
 // GetMenuInfo 根据菜单ID获取指定菜单信息或者获取所有菜单信息
 func GetMenuInfo(ctx context.Context, menuIds []int) (userMenuTreeOut []*model.UserMenuTreeOut, err error) {
-	cache := common.Cache()
 	//查看REDIS是否存在
-	tmpData := cache.Get(ctx, consts.CacheSysMenu)
+	tmpData, err := cache.Instance().Get(ctx, consts.CacheSysMenu)
 	//将缓存菜单转为struct
 	var tmpMenuInfo []*entity.SysMenu
-	json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo)
+	if err = json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo); err != nil {
+		return
+	}
 
 	var menuInfo []*entity.SysMenu
 	if menuIds != nil {
@@ -381,7 +432,17 @@ func GetAuthorizeItemsTypeTreeOut(ctx context.Context, menuIds []int, itemsType 
 		//获取相关接口ID
 		var apiIds []int
 		for _, menuApi := range menuApiInfo {
-			apiIds = append(apiIds, menuApi.ApiId)
+			var isExits = false
+			for _, apiId := range apiIds {
+				if apiId == menuApi.ApiId {
+					isExits = true
+					break
+				}
+			}
+			if !isExits {
+				apiIds = append(apiIds, menuApi.ApiId)
+			}
+
 		}
 
 		//获取相关接口信息
@@ -393,24 +454,27 @@ func GetAuthorizeItemsTypeTreeOut(ctx context.Context, menuIds []int, itemsType 
 				if err = gconv.Scan(apiInfo, &apiInfoOut); err != nil {
 					return
 				}
+
+				var childrenApiMap []g.Map
 				for _, menuApi := range menuApiInfo {
 					if menuApi.MenuId == int(menu.Id) {
 						for _, api := range apiInfoOut {
 							if menuApi.ApiId == api.Id {
+								var childrenMap g.Map
 								//菜单与接口绑定ID
 								api.Id = int(menuApi.Id)
 								//接口ID
 								api.ApiId = api.Id
 								api.Title = api.Name
-								var childrenMap g.Map
 								if err = gconv.Scan(api, &childrenMap); err != nil {
 									return
 								}
-								menu.Children = append(menu.Children, childrenMap)
+								childrenApiMap = append(childrenApiMap, childrenMap)
 							}
 						}
 					}
 				}
+				menu.Children = append(menu.Children, childrenApiMap...)
 			}
 		}
 
@@ -432,6 +496,10 @@ func GetUserMenuTree(userMenuTreeRes []*model.UserMenuTreeOut) (dataTree []*mode
 			}
 		}
 	}
+	//对父节点进行排序
+	sort.SliceStable(userMenuParentNodeTreeRes, func(i, j int) bool {
+		return userMenuParentNodeTreeRes[i].Weigh > userMenuParentNodeTreeRes[j].Weigh
+	})
 	treeData := UserMenuTree(userMenuParentNodeTreeRes, userMenuTreeRes)
 	return treeData
 }
@@ -446,6 +514,10 @@ func UserMenuTree(userMenuParentNodeTreeRes []*model.UserMenuTreeOut, data []*mo
 				userMenuParentNodeTreeRes[k].Children = append(userMenuParentNodeTreeRes[k].Children, j)
 			}
 		}
+		//对子节点进行排序
+		sort.SliceStable(v.Children, func(i, j int) bool {
+			return v.Children[i].Weigh > v.Children[j].Weigh
+		})
 		UserMenuTree(v.Children, data)
 	}
 	return userMenuParentNodeTreeRes
@@ -545,108 +617,6 @@ func UserMenuColumnTree(parentMenuColumnNodeRes []*model.UserMenuColumnOut, data
 		UserMenuColumnTree(v.Children, data)
 	}
 	return parentMenuColumnNodeRes
-}
-
-// GetDataWhere 获取数据权限条件查询
-func GetDataWhere(ctx context.Context, loginUserId int, entity interface{}) (where g.Map, err error) {
-	//获取当前登录用户信息
-	userInfo, err := service.SysUser().GetUserById(ctx, uint(loginUserId))
-	if err != nil {
-		err = gerror.New("登录用户信息错误")
-		return
-	}
-	if userInfo == nil {
-		err = gerror.New("登录用户不存在无法访问")
-		return
-	}
-	if userInfo != nil && userInfo.Status == 0 {
-		err = gerror.New("登录用户已禁用无法访问")
-		return
-	}
-	if userInfo != nil && userInfo.Status == 2 {
-		err = gerror.New("登录用户未验证无法访问")
-		return
-	}
-	t := reflect.TypeOf(entity)
-	for i := 0; i < t.Elem().NumField(); i++ {
-		if t.Elem().Field(i).Name == "CreatedBy" {
-			//若存在用户id的字段，则生成判断数据权限的条件
-			//1、获取当前用户所属角色
-			userRoleInfo, userRoleErr := service.SysUserRole().GetInfoByUserId(ctx, loginUserId)
-			if userRoleErr != nil {
-				err = gerror.New("获取用户角色失败")
-				return
-			}
-			if userRoleInfo == nil {
-				err = gerror.New("用户无权限访问")
-				return
-			}
-			//判断用户是否为超级管理员
-			var isSuperAdmin = false
-			var roleIds []int
-			for _, userRole := range userRoleInfo {
-				if userRole.RoleId == 1 {
-					isSuperAdmin = true
-				}
-				roleIds = append(roleIds, userRole.RoleId)
-			}
-			if isSuperAdmin {
-				//超级管理员可以访问所有的数据
-				return
-			}
-			//不是超级管理员则获取所有角色信息
-			roleInfo, roleInfoErr := service.SysRole().GetInfoByIds(ctx, roleIds)
-			if roleInfoErr != nil {
-				err = gerror.New("获取用户角色失败")
-				return
-			}
-			//2获取角色对应数据权限
-			deptIdArr := gset.New()
-			for _, role := range roleInfo {
-				switch role.DataScope {
-				case 1: //全部数据权限
-					return
-				case 2: //自定数据权限
-					//获取角色所有的部门信息
-					roleDeptInfo, _ := service.SysRoleDept().GetInfoByRoleId(ctx, int(role.Id))
-					if roleDeptInfo == nil {
-						err = gerror.New(role.Name + "自定义数据范围,请先配置部门!")
-						return
-					}
-					var deptIds []int64
-					for _, roleDept := range roleDeptInfo {
-						deptIds = append(deptIds, roleDept.DeptId)
-					}
-					deptIdArr.Add(gconv.Interfaces(deptIds)...)
-				case 3: //本部门数据权限
-					deptIdArr.Add(gconv.Int64(userInfo.DeptId))
-				case 4: //本部门及以下数据权限
-					deptIdArr.Add(gconv.Int64(userInfo.DeptId))
-					//获取所有的部门信息
-					deptInfo, _ := service.SysDept().GetAll(ctx)
-					if deptInfo != nil {
-						//获取当前部门所有的下级部门信息
-						childrenDeptInfo := GetNextDeptInfoByNowDeptId(int64(userInfo.DeptId), deptInfo)
-						if childrenDeptInfo != nil {
-							allChildrenDeptInfo := GetAllNextDeptInfoByChildrenDept(childrenDeptInfo, deptInfo, childrenDeptInfo)
-							if allChildrenDeptInfo != nil {
-								for _, allChildrenDept := range allChildrenDeptInfo {
-									deptIdArr.Add(gconv.Int64(allChildrenDept.DeptId))
-								}
-							}
-						}
-					}
-				case 5: //仅限于自己的数据
-					where = g.Map{"created_by": userInfo.Id}
-					return
-				}
-			}
-			if deptIdArr.Size() > 0 {
-				where = g.Map{"dept_id": deptIdArr.Slice()}
-			}
-		}
-	}
-	return
 }
 
 // GetNextDeptInfoByNowDeptId 获取当前部门ID下一层级的部门信息

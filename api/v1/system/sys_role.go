@@ -2,7 +2,7 @@ package system
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/internal/model"
 )
 
 type RoleTreeReq struct {

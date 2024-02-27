@@ -1,13 +1,5 @@
 package model
 
-// 设备上报的报文解析为平台统一的消息，消息体结构如下
-type DefaultMessageType struct {
-	ReturnTime string         `json:"return_time"`
-	DataType   string         `json:"data_type"`
-	DeviceKey  string         `json:"device_key"`
-	Data       map[string]any `json:"data"`
-}
-
 // 通用的结构体
 type (
 	Header struct {
@@ -24,10 +16,11 @@ type (
 		MergeLatest              bool `json:"mergeLatest" desc:"是否合并最新属性数据。设置此消息头后，将会把最新的消息合并到消息体里（需要开启最新数据存储。"`
 	}
 	Common struct {
-		H         Header
-		DeviceKey string
-		MessageId string
-		Timestamp int64
+		H                Header
+		DeviceKey        string
+		GatewayDeviceKey string
+		MessageId        string
+		Timestamp        int64
 	}
 )
 
@@ -96,13 +89,15 @@ type (
 type (
 	Message             any
 	DeviceOnlineMessage struct {
-		DeviceKey string
-		Timestamp int64
+		DeviceKey  string
+		ProductKey string
+		Timestamp  int64
 	}
 
 	DeviceOfflineMessage struct {
-		DeviceKey string
-		Timestamp int64
+		DeviceKey  string
+		ProductKey string
+		Timestamp  int64
 	}
 )
 

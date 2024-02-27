@@ -2,11 +2,12 @@ package system
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/internal/model"
 )
 
 type GetApiAllReq struct {
 	g.Meta `path:"/api/GetAll" method:"get" summary:"获取所有接口" tags:"接口API管理"`
+	Method string `json:"method"    description:"请求方式(数据字典维护)"`
 }
 type GetApiAllRes struct {
 	Data []*model.SysApiAllRes
@@ -28,6 +29,7 @@ type AddApiReq struct {
 	ParentId int    `json:"parentId"  description:""`
 	Name     string `json:"name"      description:"名称"     v:"required#请输入名称"`
 	Types    int    `json:"types"     description:"1 分类 2接口" v:"required#请选择类型"`
+	ApiTypes string `json:"apiTypes"  description:"数据字典维护" v:"required#请选择接口类型"`
 	Method   string `json:"method"    description:"请求方式(数据字典维护)"`
 	Address  string `json:"address"   description:"接口地址"`
 	Remark   string `json:"remark"    description:"备注"`
@@ -45,6 +47,7 @@ type EditApiReq struct {
 	ParentId int    `json:"parentId"  description:""`
 	Name     string `json:"name"      description:"名称"     v:"required#请输入名称"`
 	Types    int    `json:"types"     description:"1 分类 2接口" v:"required#请选择类型"`
+	ApiTypes string `json:"apiTypes"  description:"数据字典维护" v:"required#请选择接口类型"`
 	Method   string `json:"method"    description:"请求方式(数据字典维护)"`
 	Address  string `json:"address"   description:"接口地址" `
 	Remark   string `json:"remark"    description:"备注"`
@@ -76,4 +79,17 @@ type EditApiStatusReq struct {
 	Status int `json:"status"    description:"状态 0 停用 1启用"`
 }
 type EditApiStatusRes struct {
+}
+
+type ImportApiFileReq struct {
+	g.Meta `path:"/api/import" method:"post" summary:"导入Api文件" tags:"接口API管理"`
+}
+type ImportApiFileRes struct {
+}
+
+type BindApiMenusReq struct {
+	g.Meta    `path:"/api/bindMenus" method:"post" summary:"批量绑定菜单" tags:"接口API管理"`
+	BindMenus []*model.BindMenusReq `json:"bindMenus" description:"接口ID"`
+}
+type BindApiMenusRes struct {
 }

@@ -2,8 +2,10 @@ package alarm
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/alarm"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/gogf/gf/v2/util/gconv"
+	"sagooiot/api/v1/alarm"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var AlarmRule = cAlarmRule{}
@@ -11,7 +13,9 @@ var AlarmRule = cAlarmRule{}
 type cAlarmRule struct{}
 
 func (c *cAlarmRule) List(ctx context.Context, req *alarm.AlarmRuleListReq) (res *alarm.AlarmRuleListRes, err error) {
-	out, err := service.AlarmRule().List(ctx, req.AlarmRuleListInput)
+	var reqData = new(model.AlarmRuleListInput)
+	err = gconv.Scan(req, &reqData)
+	out, err := service.AlarmRule().List(ctx, reqData)
 	res = &alarm.AlarmRuleListRes{
 		AlarmRuleListOutput: out,
 	}
@@ -74,11 +78,21 @@ func (c *cAlarmRule) TriggerType(ctx context.Context, req *alarm.AlarmRuleTrigge
 }
 
 func (c *cAlarmRule) TriggerParam(ctx context.Context, req *alarm.AlarmRuleTriggerParamReq) (res *alarm.AlarmRuleTriggerParamRes, err error) {
-	out, err := service.AlarmRule().TriggerParam(ctx, req.ProductKey, req.TriggerType)
+	out, err := service.AlarmRule().TriggerParam(ctx, req.ProductKey, req.TriggerType, req.EventKey)
 	if err != nil || out == nil {
 		return
 	}
 	res = new(alarm.AlarmRuleTriggerParamRes)
 	res.List = out
+	return
+}
+
+func (c *cAlarmRule) AddCronRule(ctx context.Context, req *alarm.AlarmCronRuleAddReq) (res *alarm.AlarmCronRuleAddRes, err error) {
+	err = service.AlarmRule().AddCronRule(ctx, req.AlarmCronRuleAddInput)
+	return
+}
+
+func (c *cAlarmRule) EditCronRule(ctx context.Context, req *alarm.AlarmCronRuleEditReq) (res *alarm.AlarmCronRuleEditRes, err error) {
+	err = service.AlarmRule().EditCronRule(ctx, req.AlarmCronRuleEditInput)
 	return
 }

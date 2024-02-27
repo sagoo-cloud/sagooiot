@@ -2,8 +2,8 @@ package product
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/product"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/product"
+	"sagooiot/internal/service"
 )
 
 var Category = cCategory{}

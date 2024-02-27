@@ -2,15 +2,11 @@ package system
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
-	systemV1 "github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility"
-	"github.com/sagoo-cloud/sagooiot/utility/response"
-
 	"github.com/gogf/gf/v2/util/gconv"
+	systemV1 "sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 )
 
 var SysLoginLog = cSysLoginLog{}
@@ -46,19 +42,7 @@ func (a *cSysLoginLog) Export(ctx context.Context, req *systemV1.SysLoginLogDoEx
 	if err != nil {
 		return
 	}
-	_, _, outList, err := service.SysLoginLog().GetList(ctx, reqData)
-	if err != nil {
-		return
-	}
-
-	//处理数据并导出
-	var resData []interface{}
-	for _, d := range outList {
-		resData = append(resData, d)
-	}
-	data := utility.ToExcel(resData)
-	var request = g.RequestFromCtx(ctx)
-	response.ToXls(request, data, "SysLoginLog")
+	err = service.SysLoginLog().Export(ctx, reqData)
 
 	return
 }

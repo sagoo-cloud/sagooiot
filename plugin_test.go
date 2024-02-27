@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/extend"
-	"github.com/sagoo-cloud/sagooiot/extend/model"
-	"github.com/sagoo-cloud/sagooiot/extend/module"
 	"net"
+	"sagooiot/pkg/plugins"
+	"sagooiot/pkg/plugins/model"
+	"sagooiot/pkg/plugins/module"
 	"testing"
 )
 
 func TestManagerInit(t *testing.T) {
-	manager := extend.NewManager("protocol", "protocol-*", "./plugins/built", &module.ProtocolPlugin{})
+	manager := plugins.NewManager("protocol", "protocol-*", "./plugins/built", &module.ProtocolPlugin{})
 	defer manager.Dispose()
 	err := manager.Init()
 	if err != nil {
@@ -23,13 +23,14 @@ func TestManagerInit(t *testing.T) {
 		t.Log(info.Path)
 		t.Log(info.Client)
 	}
+
 	t.Log(manager)
 
 }
 
 // 测试获取插件信息
 func TestProtocolInfo(t *testing.T) {
-	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
+	p, err := plugins.GetProtocolPlugin().GetProtocolByName("tgn52")
 	if err != nil {
 		return
 	}
@@ -46,14 +47,17 @@ type TestData struct {
 
 // 测试协议的编码方法
 func TestProtocolEncode(t *testing.T) {
-	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
+	p, err := plugins.GetProtocolPlugin().GetProtocolByName("tf100")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 	td := new(TestData)
 	td.Name = "aaaa"
 	td.Value = "bbbbb"
-	res := p.Encode(td)
+
+	var reqData = model.DataReq{}
+	reqData.Data = gconv.Bytes(td)
+	res := p.Encode(reqData)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -63,7 +67,7 @@ func TestProtocolEncode(t *testing.T) {
 // 测试自定义协议解析
 func TestProtocol(t *testing.T) {
 	data := gconv.Bytes("NB1;1234567;1;2;+25.5;00;030;+21;+22")
-	p, err := extend.GetProtocolPlugin().GetProtocolPlugin("tgn52")
+	p, err := plugins.GetProtocolPlugin().GetProtocolByName("tgn52")
 	if err != nil {
 		return
 	}
@@ -78,7 +82,7 @@ func TestProtocol(t *testing.T) {
 
 // 测试插件服务使用，需要先将要测试的插件进行编译
 func TestProtocolPluginServer(t *testing.T) {
-	extend.GetProtocolPlugin()
+	plugins.GetProtocolPlugin()
 	NetData()
 }
 
@@ -115,7 +119,7 @@ func doServerStuff(conn net.Conn) {
 		fmt.Printf("Received data: %v\n", string(buf[:l]))
 
 		//获取协议插件解析后的数据 传入插件ID，及需要解析的数据
-		data, err := extend.GetProtocolPlugin().GetProtocolUnpackData("tgn52", buf[:l])
+		data, err := plugins.GetProtocolPlugin().GetProtocolDecodeData("tgn52", buf[:l])
 		fmt.Println("============通过插件获取数据：", data)
 	}
 }
@@ -123,30 +127,65 @@ func doServerStuff(conn net.Conn) {
 func TestNotice(t *testing.T) {
 
 	// 准备通知数据
+	var nso []model.NoticeSendObject
+	nso = append(nso, model.NoticeSendObject{
+		Name:  "mail",
+		Value: "xjy@sagoo.cn",
+	})
+	nso = append(nso, model.NoticeSendObject{
+		Name:  "wework",
+		Value: "all",
+	})
+
 	var msg = model.NoticeInfoData{}
-	msg.Totag = "[{\"name\":\"mail\",\"value\":\"940290@qq.com\"},{\"name\":\"webhook\",\"value\":\"cccc\"}],{\"name\":\"sms\",\"value\":\"13700005102\"}]"
-	msg.MsgBody = "new111111"
+	msg.Totag = nso
+	msg.MsgBody = "{'code':'19001'}"
 	msg.MsgTitle = "title111112222"
+	msg.TemplateCode = "SMS_464050874"
 
 	//通过邮件发送通知
-	res, err := extend.GetNoticePlugin().NoticeSend("mail", msg)
+	res, err := plugins.GetNoticePlugin().NoticeSend("mail", msg)
+	if err != nil {
+		t.Log("Error: ", err.Error())
+	}
+	t.Log(res)
+	//
+	////通过短信发送通知
+	//res, err := plugins.GetNoticePlugin().NoticeSend("sms", msg)
+	//if err != nil {
+	//	t.Log("Error: ", err.Error())
+	//}
+	//t.Log(res)
+	//
+	//通过webhook发送通知
+	//res, err := plugins.GetNoticePlugin().NoticeSend("webhook", msg)
+	//if err != nil {
+	//	t.Log("Error: ", err.Error())
+	//}
+	//t.Log(res)
+	//
+	////通过企业微信发送通知
+	//res, err := plugins.GetNoticePlugin().NoticeSend("wework", msg)
+	//if err != nil {
+	//	t.Log("Error: ", err.Error())
+	//}
+	//t.Log(res)
+	//
+	////通过钉钉发送通知
+	//res, err = plugins.GetNoticePlugin().NoticeSend("dingding", msg)
+	//if err != nil {
+	//	t.Log("Error: ", err.Error())
+	//}
+	//t.Log(res)
+
+}
+
+// TestModbus 测试modbus
+func TestModbus(t *testing.T) {
+	data := gconv.Bytes("aadsfsfsfdfsfsdfsfs")
+	res, err := plugins.GetProtocolPlugin().GetProtocolDecodeData("modbus", data)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 	t.Log(res)
-
-	//通过企业微信发送通知
-	res, err = extend.GetNoticePlugin().NoticeSend("wework", msg)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-	t.Log(res)
-
-	//通过钉钉发送通知
-	res, err = extend.GetNoticePlugin().NoticeSend("dingding", msg)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-	t.Log(res)
-
 }

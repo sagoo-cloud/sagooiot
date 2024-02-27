@@ -1,8 +1,8 @@
 package network
 
 import (
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/model"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -33,7 +33,7 @@ type AddNetworkTunnelReq struct {
 	g.Meta    `path:"/tunnel/add" method:"post" summary:"添加通道" tags:"网络组件管理"`
 	Name      string `json:"name"          description:"" v:"required#名称不能为空"`
 	Types     string `json:"types"          description:"" v:"required#类型不能为空"`
-	Addr      string `json:"addr"          description:"" v:"required#地址不能为空"`
+	Addr      string `json:"addr"          description:""`
 	Remote    string `json:"remote"          description:""`
 	Status    string `json:"status"          description:""`
 	Retry     string `json:"retry"          description:""`
@@ -50,7 +50,7 @@ type EditNetworkTunnelReq struct {
 	Id        int    `json:"id"        description:"id" v:"required#id不能为空"`
 	Name      string `json:"name"          description:"" v:"required#名称不能为空"`
 	Types     string `json:"types"          description:"" v:"required#类型不能为空"`
-	Addr      string `json:"addr"          description:"" v:"required#地址不能为空"`
+	Addr      string `json:"addr"          description:""`
 	Remote    string `json:"remote"          description:""`
 	Status    string `json:"status"          description:""`
 	Retry     string `json:"retry"          description:""`

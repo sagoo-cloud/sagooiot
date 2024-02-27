@@ -1,7 +1,7 @@
 package product
 
 import (
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/internal/model"
 
 	"github.com/gogf/gf/v2/frame/g"
 )

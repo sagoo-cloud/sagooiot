@@ -2,8 +2,8 @@ package system
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/model"
 )
 
 type GetJobListReq struct {
@@ -16,6 +16,13 @@ type GetJobListReq struct {
 type GetJobListRes struct {
 	Data []*model.SysJobRes
 	common.PaginationRes
+}
+
+type GetJobFunListReq struct {
+	g.Meta `path:"/job/fun_list" method:"get" summary:"获取任务可用方法列表" tags:"定时任务管理"`
+}
+type GetJobFunListRes struct {
+	Data []*model.SysJobFunListOut
 }
 
 type AddJobReq struct {

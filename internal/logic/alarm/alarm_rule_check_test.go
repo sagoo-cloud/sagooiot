@@ -2,10 +2,13 @@ package alarm
 
 import (
 	"context"
-	_ "github.com/sagoo-cloud/sagooiot/internal/logic/notice"
-	_ "github.com/sagoo-cloud/sagooiot/internal/logic/product"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	_ "sagooiot/internal/logic/context"
+	_ "sagooiot/internal/logic/notice"
+	_ "sagooiot/internal/logic/product"
+	_ "sagooiot/internal/logic/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 	"testing"
 	"time"
 
@@ -16,21 +19,16 @@ import (
 func TestCheck(t *testing.T) {
 	productKey := "monipower20221103"
 	deviceKey := "t20221333"
-	data := map[string]any{
-		"ts": gtime.Datetime(),
-		"va": 92.12,
+	// param := model.ReportPropertyData{
+	// 	"va": {92.12, gtime.Now().Unix()},
+	// }
+	param := model.ReportStatusData{
+		Status:     "online",
+		CreateTime: gtime.Now().Unix(),
 	}
-	err := service.AlarmRule().Check(context.TODO(), productKey, deviceKey, model.AlarmTriggerTypeProperty, data)
+	err := service.AlarmRule().Check(context.TODO(), productKey, deviceKey, consts.AlarmTriggerTypeOnline, param)
 	if err != nil {
 		t.Fatal(err)
 	}
 	time.Sleep(10 * time.Second)
-}
-
-func TestCache(t *testing.T) {
-	rs, err := service.AlarmRule().Cache(context.TODO())
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(rs)
 }

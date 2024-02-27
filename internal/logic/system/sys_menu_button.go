@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/gogf/gf/v2/os/gtime"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -28,14 +30,48 @@ func init() {
 }
 
 // GetList 获取全部菜单按钮数据
-func (s *sSysMenuButton) GetList(ctx context.Context, status int, name string, menuId int) (data []model.UserMenuButtonRes, err error) {
-	var menuButton []model.UserMenuButtonRes
-	menuButton, err = s.GetData(ctx, status, name, menuId, menuButton)
-	return menuButton, err
+func (s *sSysMenuButton) GetList(ctx context.Context, status int, name string, menuId int) (data []*model.UserMenuButtonOut, err error) {
+	var menuButton []model.UserMenuButtonOut
+	menuButton, err = s.GetData(ctx, status, name, menuId)
+
+	var parentNodeOut []*model.UserMenuButtonOut
+	if menuButton != nil {
+		//获取所有的根节点
+		for _, v := range menuButton {
+			var parentNode *model.UserMenuButtonOut
+			if v.ParentId == -1 {
+				if err = gconv.Scan(v, &parentNode); err != nil {
+					return
+				}
+				parentNodeOut = append(parentNodeOut, parentNode)
+			}
+		}
+	}
+	data = ButtonTree(parentNodeOut, menuButton)
+	return
+}
+
+// ButtonTree MenuButtonTree 生成菜单按钮树结构
+func ButtonTree(parentNodeOut []*model.UserMenuButtonOut, data []model.UserMenuButtonOut) (dataTree []*model.UserMenuButtonOut) {
+	//循环所有一级菜单
+	for k, v := range parentNodeOut {
+		//查询所有该菜单下的所有子菜单
+		for _, j := range data {
+			var node *model.UserMenuButtonOut
+			if j.ParentId == v.Id {
+				if err := gconv.Scan(j, &node); err != nil {
+					return
+				}
+				parentNodeOut[k].Children = append(parentNodeOut[k].Children, node)
+			}
+		}
+		ButtonTree(v.Children, data)
+	}
+	return parentNodeOut
 }
 
 // GetData 执行获取数据操作
-func (s *sSysMenuButton) GetData(ctx context.Context, status int, name string, menuId int, menuButton []model.UserMenuButtonRes) (data []model.UserMenuButtonRes, err error) {
+func (s *sSysMenuButton) GetData(ctx context.Context, status int, name string, menuId int) (data []model.UserMenuButtonOut, err error) {
 	m := dao.SysMenuButton.Ctx(ctx)
 
 	if status != -1 {
@@ -48,8 +84,8 @@ func (s *sSysMenuButton) GetData(ctx context.Context, status int, name string, m
 	err = m.Where(g.Map{
 		dao.SysMenuButton.Columns().IsDeleted: 0,
 		dao.SysMenuButton.Columns().MenuId:    menuId,
-	}).Scan(&menuButton)
-	return menuButton, err
+	}).Scan(&data)
+	return
 }
 
 // Add 添加菜单按钮
@@ -72,7 +108,17 @@ func (s *sSysMenuButton) Add(ctx context.Context, input *model.AddMenuButtonInpu
 	}
 	menuButton.IsDeleted = 0
 	menuButton.CreatedBy = uint(loginUserId)
-	_, err = dao.SysMenuButton.Ctx(ctx).Data(menuButton).Insert()
+	_, err = dao.SysMenuButton.Ctx(ctx).Data(do.SysMenuButton{
+		ParentId:    menuButton.ParentId,
+		MenuId:      menuButton.MenuId,
+		Name:        menuButton.Name,
+		Types:       menuButton.Types,
+		Description: menuButton.Description,
+		Status:      menuButton.Status,
+		IsDeleted:   menuButton.IsDeleted,
+		CreatedBy:   menuButton.CreatedBy,
+		CreatedAt:   gtime.Now(),
+	}).Insert()
 	if err != nil {
 		return err
 	}
@@ -165,12 +211,11 @@ func (s *sSysMenuButton) Del(ctx context.Context, id int64) (err error) {
 	_, err = dao.SysMenuButton.Ctx(ctx).
 		Data(g.Map{
 			dao.SysMenuButton.Columns().DeletedBy: uint(loginUserId),
+			dao.SysMenuButton.Columns().DeletedAt: gtime.Now(),
 			dao.SysMenuButton.Columns().IsDeleted: 1,
 		}).Where(dao.SysMenuButton.Columns().Id, id).
 		Update()
-	//删除菜单按钮信息
-	_, err = dao.SysMenuButton.Ctx(ctx).Where(dao.SysMenuButton.Columns().Id, id).
-		Delete()
+
 	//获取该菜单下所有的菜单按钮
 	_, err = s.GetInfoByMenuId(ctx, menuButton.MenuId)
 	if err != nil {
@@ -186,16 +231,17 @@ func (s *sSysMenuButton) Del(ctx context.Context, id int64) (err error) {
 
 // GetInfoByButtonIds 根据按钮ID数组获取菜单按钮信息
 func (s *sSysMenuButton) GetInfoByButtonIds(ctx context.Context, ids []int) (data []*entity.SysMenuButton, err error) {
-	cache := common.Cache()
 	var tmpData *gvar.Var
-	tmpData = cache.Get(ctx, consts.CacheSysMenuButton)
+	tmpData, err = cache.Instance().Get(ctx, consts.CacheSysMenuButton)
 
 	var tmpSysMenuButton []*entity.SysMenuButton
 
 	var menuButtonInfo []*entity.SysMenuButton
 	//根据菜单ID数组获取菜单列表信息
 	if tmpData.Val() != nil {
-		json.Unmarshal([]byte(tmpData.Val().(string)), &tmpSysMenuButton)
+		if err = json.Unmarshal([]byte(tmpData.Val().(string)), &tmpSysMenuButton); err != nil {
+			return
+		}
 		for _, id := range ids {
 			for _, tmp := range tmpSysMenuButton {
 				if id == int(tmp.Id) {
@@ -219,14 +265,13 @@ func (s *sSysMenuButton) GetInfoByButtonIds(ctx context.Context, ids []int) (dat
 
 // GetInfoByMenuIds 根据菜单ID数组获取菜单按钮信息
 func (s *sSysMenuButton) GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenuButton, err error) {
-	cache := common.Cache()
 	//获取缓存菜单按钮信息
 	for _, v := range menuIds {
 		var tmpData *gvar.Var
-		tmpData = cache.Get(ctx, consts.CacheSysMenuButton+"_"+gconv.String(v))
+		tmpData, err = cache.Instance().Get(ctx, consts.CacheSysMenuButton+"_"+gconv.String(v))
 		if tmpData.Val() != nil {
 			var sysMenuButton []*entity.SysMenuButton
-			json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuButton)
+			err = json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuButton)
 			data = append(data, sysMenuButton...)
 		}
 	}
@@ -241,7 +286,6 @@ func (s *sSysMenuButton) GetInfoByMenuIds(ctx context.Context, menuIds []int) (d
 
 // GetInfoByMenuId 根据菜单ID数组获取菜单按钮信息
 func (s *sSysMenuButton) GetInfoByMenuId(ctx context.Context, menuId int) (data []*entity.SysMenuButton, err error) {
-	cache := common.Cache()
 	err = dao.SysMenuButton.Ctx(ctx).Where(g.Map{
 		dao.SysMenuButton.Columns().IsDeleted: 0,
 		dao.SysMenuButton.Columns().Status:    1,
@@ -251,9 +295,9 @@ func (s *sSysMenuButton) GetInfoByMenuId(ctx context.Context, menuId int) (data 
 		return
 	}
 	if data != nil && len(data) > 0 {
-		cache.Set(ctx, consts.CacheSysMenuButton+"_"+gconv.String(menuId), data, 0)
+		_ = cache.Instance().Set(ctx, consts.CacheSysMenuButton+"_"+gconv.String(menuId), data, 0)
 	} else {
-		cache.Remove(ctx, consts.CacheSysMenuButton+"_"+gconv.String(menuId))
+		_, err = cache.Instance().Remove(ctx, consts.CacheSysMenuButton+"_"+gconv.String(menuId))
 	}
 
 	return
@@ -261,7 +305,6 @@ func (s *sSysMenuButton) GetInfoByMenuId(ctx context.Context, menuId int) (data 
 
 // GetAll 获取所有的按钮信息
 func (s *sSysMenuButton) GetAll(ctx context.Context) (data []*entity.SysMenuButton, err error) {
-	cache := common.Cache()
 	err = dao.SysMenuButton.Ctx(ctx).Where(g.Map{
 		dao.SysMenuButton.Columns().IsDeleted: 0,
 		dao.SysMenuButton.Columns().Status:    1,
@@ -271,9 +314,9 @@ func (s *sSysMenuButton) GetAll(ctx context.Context) (data []*entity.SysMenuButt
 		return
 	}
 	if data != nil && len(data) > 0 {
-		cache.Set(ctx, consts.CacheSysMenuButton, data, 0)
+		_ = cache.Instance().Set(ctx, consts.CacheSysMenuButton, data, 0)
 	} else {
-		cache.Remove(ctx, consts.CacheSysMenuButton)
+		_, err = cache.Instance().Remove(ctx, consts.CacheSysMenuButton)
 	}
 
 	return

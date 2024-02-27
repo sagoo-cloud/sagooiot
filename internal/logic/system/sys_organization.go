@@ -5,11 +5,14 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -26,7 +29,7 @@ func init() {
 	service.RegisterSysOrganization(SysOrganizationNew())
 }
 
-// GetList 获取组织数据
+// GetTree 获取组织数据
 func (s *sSysOrganization) GetTree(ctx context.Context, name string, status int) (data []*model.OrganizationOut, err error) {
 	orgainzationInfo, err := s.GetData(ctx, name, status)
 	var parentNodeOut []*model.OrganizationOut
@@ -38,10 +41,42 @@ func (s *sSysOrganization) GetTree(ctx context.Context, name string, status int)
 				if err = gconv.Scan(v, &parentNode); err != nil {
 					return
 				}
-				parentNodeOut = append(parentNodeOut, parentNode)
+
+				var isExist = false
+				for _, orgOut := range parentNodeOut {
+					if orgOut.Id == parentNode.Id {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
+			} else {
+				//查找根节点
+				parentOrg := FindOrgParentByChildrenId(ctx, int(v.ParentId))
+				if err = gconv.Scan(parentOrg, &parentNode); err != nil {
+					return
+				}
+				var isExist = false
+				for _, orgOut := range parentNodeOut {
+					if orgOut.Id == parentOrg.Id {
+						isExist = true
+						break
+					}
+				}
+				if !isExist {
+					parentNodeOut = append(parentNodeOut, parentNode)
+				}
 			}
 		}
 	}
+
+	//对父节点进行排序
+	sort.SliceStable(parentNodeOut, func(i, j int) bool {
+		return parentNodeOut[i].OrderNum < parentNodeOut[j].OrderNum
+	})
+
 	data = OrganizationTree(parentNodeOut, orgainzationInfo)
 	return
 }
@@ -60,9 +95,28 @@ func OrganizationTree(parentNodeOut []*model.OrganizationOut, data []*model.Orga
 				parentNodeOut[k].Children = append(parentNodeOut[k].Children, node)
 			}
 		}
+		//对子节点进行排序
+		sort.SliceStable(v.Children, func(i, j int) bool {
+			return v.Children[i].OrderNum < v.Children[j].OrderNum
+		})
+
 		OrganizationTree(v.Children, data)
 	}
 	return parentNodeOut
+}
+
+// FindOrgParentByChildrenId 根据子节点获取岗位根节点
+func FindOrgParentByChildrenId(ctx context.Context, parentId int) *entity.SysOrganization {
+	var org *entity.SysOrganization
+
+	_ = dao.SysOrganization.Ctx(ctx).Where(g.Map{
+		dao.SysOrganization.Columns().Id: parentId,
+	}).Scan(&org)
+
+	if org.ParentId != -1 {
+		return FindOrgParentByChildrenId(ctx, int(org.ParentId))
+	}
+	return org
 }
 
 // GetData 执行获取数据操作
@@ -75,8 +129,9 @@ func (s *sSysOrganization) GetData(ctx context.Context, name string, status int)
 	if name != "" {
 		m = m.WhereLike(dao.SysOrganization.Columns().Name, "%"+name+"%")
 	}
+
 	err = m.Where(dao.SysOrganization.Columns().IsDeleted, 0).
-		OrderDesc(dao.SysOrganization.Columns().OrderNum).
+		OrderAsc(dao.SysOrganization.Columns().OrderNum).
 		Scan(&data)
 	if err != nil {
 		return
@@ -89,25 +144,59 @@ func (s *sSysOrganization) Add(ctx context.Context, input *model.AddOrganization
 	//根据名称查看组织是否存在
 	organization := checkOrganizationName(ctx, input.Name, 0)
 	if organization != nil {
-		return gerror.New("组织已存在,无法添加")
+		return gerror.New("区域已存在,无法添加")
 	}
-	organization = new(entity.SysOrganization)
-	organization.Number = "org_" + strconv.FormatInt(time.Now().Unix(), 10)
+	/*organization = new(entity.SysOrganization)*/
+	/*organization.Number = "org_" + strconv.FormatInt(time.Now().Unix(), 10)*/
+
+	//获取上级组织信息
+	if input.ParentId != -1 {
+		var parentOrg *entity.SysOrganization
+		parentOrg, err = s.Detail(ctx, input.ParentId)
+		if err != nil {
+			return
+		}
+		if parentOrg == nil {
+			err = gerror.Newf("无权限选择当前区域")
+			return
+		}
+	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 	organization = new(entity.SysOrganization)
-	if err := gconv.Scan(input, &organization); err != nil {
+	if err = gconv.Scan(input, &organization); err != nil {
 		return err
 	}
-	organization.IsDeleted = 0
-	organization.CreatedBy = uint(loginUserId)
+	/*organization.IsDeleted = 0
+	organization.CreatedBy = uint(loginUserId)*/
 	//开启事务管理
-	err = dao.SysOrganization.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
-		lastId, err1 := dao.SysOrganization.Ctx(ctx).Data(organization).InsertAndGetId()
-		if err1 != nil {
-			return err1
+	err = dao.SysOrganization.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		result, err := dao.SysOrganization.Ctx(ctx).Data(do.SysOrganization{
+			DeptId:    service.Context().GetUserDeptId(ctx),
+			ParentId:  organization.ParentId,
+			Ancestors: organization.Ancestors,
+			Name:      organization.Name,
+			Number:    "org_" + strconv.FormatInt(time.Now().Unix(), 10),
+			OrderNum:  organization.OrderNum,
+			Leader:    organization.Leader,
+			Phone:     organization.Phone,
+			Email:     organization.Email,
+			Status:    organization.Status,
+			IsDeleted: 0,
+			CreatedAt: gtime.Now(),
+			CreatedBy: uint(loginUserId),
+		}).Insert()
+		if err != nil {
+			return
 		}
-		err = setOrganizationAncestors(ctx, input.ParentId, lastId)
+		//获取主键ID
+		lastInsertId, err := service.Sequences().GetSequences(ctx, result, dao.SysOrganization.Table(), dao.SysOrganization.Columns().Id)
+		if err != nil {
+			return
+		}
+
+		err = setOrganizationAncestors(ctx, input.ParentId, lastInsertId)
 		if err != nil {
 			return err
 		}
@@ -118,26 +207,42 @@ func (s *sSysOrganization) Add(ctx context.Context, input *model.AddOrganization
 
 // Edit 修改组织
 func (s *sSysOrganization) Edit(ctx context.Context, input *model.EditOrganizationInput) (err error) {
+	if input.Id == input.ParentId {
+		return gerror.New("父级不能为自己")
+	}
 	var organization1, organization2 *entity.SysOrganization
 	//根据ID查看组织是否存在
 	organization1 = checkOrganizationId(ctx, input.Id, organization1)
 	organization := organization1.ParentId
 	organizationAnces := organization1.Ancestors
 	if organization1 == nil {
-		return gerror.New("组织不存在")
+		return gerror.New("区域不存在")
 	}
 	organization2 = checkOrganizationName(ctx, input.Name, input.Id)
 	if organization2 != nil {
-		return gerror.New("相同组织已存在,无法修改")
+		return gerror.New("相同区域已存在,无法修改")
 	}
+	//判断上级组织是否可以选择
+	if input.ParentId != -1 {
+		var parentOrg *entity.SysOrganization
+		parentOrg, err = s.Detail(ctx, input.ParentId)
+		if err != nil {
+			return
+		}
+		if parentOrg == nil {
+			err = gerror.Newf("无权限选择区域")
+			return
+		}
+	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
-	if err := gconv.Scan(input, &organization1); err != nil {
+	if err = gconv.Scan(input, &organization1); err != nil {
 		return err
 	}
 	organization1.UpdatedBy = loginUserId
 	//开启事务管理
-	err = dao.SysOrganization.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
+	err = dao.SysOrganization.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		_, err = dao.SysOrganization.Ctx(ctx).Data(organization1).
 			Where(dao.SysOrganization.Columns().Id, input.Id).Update()
 		if err != nil {
@@ -191,12 +296,11 @@ func (s *sSysOrganization) Edit(ctx context.Context, input *model.EditOrganizati
 
 // Detail 组织详情
 func (s *sSysOrganization) Detail(ctx context.Context, id int64) (entity *entity.SysOrganization, err error) {
-	_ = dao.SysOrganization.Ctx(ctx).Where(g.Map{
+	m := dao.SysOrganization.Ctx(ctx)
+
+	_ = m.Where(g.Map{
 		dao.SysOrganization.Columns().Id: id,
 	}).Scan(&entity)
-	if entity == nil {
-		return nil, gerror.New("ID错误")
-	}
 	return
 }
 
@@ -220,6 +324,7 @@ func (s *sSysOrganization) Del(ctx context.Context, id int64) (err error) {
 	if num > 0 {
 		return gerror.New("请先删除子节点!")
 	}
+
 	loginUserId := service.Context().GetUserId(ctx)
 	//更新组织信息
 	_, err = dao.SysOrganization.Ctx(ctx).
@@ -236,7 +341,9 @@ func (s *sSysOrganization) Del(ctx context.Context, id int64) (err error) {
 
 // GetAll 获取全部组织数据
 func (s *sSysOrganization) GetAll(ctx context.Context) (data []*entity.SysOrganization, err error) {
-	err = dao.SysOrganization.Ctx(ctx).Where(g.Map{
+	m := dao.SysOrganization.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysOrganization.Columns().Status:    1,
 		dao.SysOrganization.Columns().IsDeleted: 0,
 	}).Scan(&data)
@@ -272,7 +379,10 @@ func setOrganizationAncestors(ctx context.Context, ParentId int64, lastId int64)
 
 // Count 获取组织数量
 func (s *sSysOrganization) Count(ctx context.Context) (count int, err error) {
-	count, _ = dao.SysOrganization.Ctx(ctx).Where(g.Map{
+
+	m := dao.SysOrganization.Ctx(ctx)
+
+	count, _ = m.Where(g.Map{
 		dao.SysOrganization.Columns().IsDeleted: 0,
 	}).Count()
 	return

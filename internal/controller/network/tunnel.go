@@ -2,9 +2,9 @@ package network
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/network"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/network"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"

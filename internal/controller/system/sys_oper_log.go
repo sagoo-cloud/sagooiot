@@ -2,10 +2,10 @@ package system
 
 import (
 	"context"
-	systemV1 "github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	systemV1 "sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 
 	"github.com/gogf/gf/v2/util/gconv"
 )

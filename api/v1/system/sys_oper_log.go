@@ -1,9 +1,9 @@
 package system
 
 import (
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
 
 	"github.com/gogf/gf/v2/frame/g"
 )

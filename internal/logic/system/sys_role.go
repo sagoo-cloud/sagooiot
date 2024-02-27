@@ -2,17 +2,19 @@ package system
 
 import (
 	"context"
+	"errors"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility/liberr"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 	"strings"
 )
 
@@ -29,7 +31,9 @@ func sysRoleNew() *sSysRole {
 
 // GetAll 获取所有的角色
 func (s *sSysRole) GetAll(ctx context.Context) (entity []*entity.SysRole, err error) {
-	err = dao.SysRole.Ctx(ctx).Where(g.Map{
+	m := dao.SysRole.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysRole.Columns().Status:    1,
 		dao.SysRole.Columns().IsDeleted: 0,
 	}).OrderAsc(dao.SysRole.Columns().ListOrder).Scan(&entity)
@@ -50,7 +54,7 @@ func (s *sSysRole) GetTree(ctx context.Context, name string, status int) (out []
 	err = m.OrderAsc(dao.SysRole.Columns().ListOrder).Scan(&e)
 
 	if len(e) > 0 {
-		out, err = GetRoleTree(e)
+		out, err = GetRoleTree(ctx, e)
 		if err != nil {
 			return
 		}
@@ -69,6 +73,16 @@ func (s *sSysRole) Add(ctx context.Context, input *model.AddRoleInput) (err erro
 	if role != nil {
 		return gerror.New("角色已存在,无法添加")
 	}
+	//判断是否有权限删除当前角色
+	if input.ParentId != -1 {
+		var parentRole *entity.SysRole
+		parentRole, err = s.GetInfoById(ctx, uint(input.ParentId))
+		if parentRole == nil {
+			err = gerror.Newf("无权限选择当前角色")
+			return
+		}
+	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 	role = new(entity.SysRole)
@@ -79,8 +93,19 @@ func (s *sSysRole) Add(ctx context.Context, input *model.AddRoleInput) (err erro
 	role.Remark = input.Remark
 	role.Status = input.Status
 	role.IsDeleted = 0
-	role.CreateBy = uint(loginUserId)
-	_, err = dao.SysRole.Ctx(ctx).Data(role).Insert()
+	role.CreatedBy = uint(loginUserId)
+	_, err = dao.SysRole.Ctx(ctx).Data(do.SysRole{
+		DeptId:    service.Context().GetUserDeptId(ctx),
+		ParentId:  role.ParentId,
+		ListOrder: role.ListOrder,
+		Name:      role.Name,
+		DataScope: role.DataScope,
+		Remark:    role.Remark,
+		Status:    role.Status,
+		IsDeleted: role.IsDeleted,
+		CreatedBy: role.CreatedBy,
+		CreatedAt: gtime.Now(),
+	}).Insert()
 	if err != nil {
 		return err
 	}
@@ -89,6 +114,9 @@ func (s *sSysRole) Add(ctx context.Context, input *model.AddRoleInput) (err erro
 
 // Edit 编辑
 func (s *sSysRole) Edit(ctx context.Context, input *model.EditRoleInput) (err error) {
+	if input.Id == uint(input.ParentId) {
+		return gerror.New("父级不能为自己")
+	}
 	var role *entity.SysRole
 	//根据ID查询角色是否存在
 	err = dao.SysRole.Ctx(ctx).Where(g.Map{
@@ -98,6 +126,16 @@ func (s *sSysRole) Edit(ctx context.Context, input *model.EditRoleInput) (err er
 	if role == nil {
 		return gerror.New("ID错误,无法修改")
 	}
+	//判断上级角色是否可以选择
+	if input.ParentId != -1 {
+		var parentRole *entity.SysRole
+		parentRole, err = s.GetInfoById(ctx, uint(input.ParentId))
+		if parentRole == nil {
+			err = gerror.Newf("无权限选择当前角色")
+			return
+		}
+	}
+
 	//查看角色名称是否存在
 	var roleByName *entity.SysRole
 	err = dao.SysRole.Ctx(ctx).Where(g.Map{
@@ -114,7 +152,7 @@ func (s *sSysRole) Edit(ctx context.Context, input *model.EditRoleInput) (err er
 	role.ListOrder = input.ListOrder
 	role.Remark = input.Remark
 	role.Status = input.Status
-	role.UpdateBy = uint(loginUserId)
+	role.UpdatedBy = uint(loginUserId)
 	_, err = dao.SysRole.Ctx(ctx).Data(role).Where(dao.SysRole.Columns().Id, input.Id).Update()
 	if err != nil {
 		return err
@@ -124,7 +162,9 @@ func (s *sSysRole) Edit(ctx context.Context, input *model.EditRoleInput) (err er
 
 // GetInfoById 根据ID获取角色信息
 func (s *sSysRole) GetInfoById(ctx context.Context, id uint) (entity *entity.SysRole, err error) {
-	err = dao.SysRole.Ctx(ctx).Where(g.Map{
+	m := dao.SysRole.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysRole.Columns().Id: id,
 	}).Scan(&entity)
 	return
@@ -150,11 +190,13 @@ func (s *sSysRole) DelInfoById(ctx context.Context, id uint) (err error) {
 	if num > 0 {
 		return gerror.New("请先删除子节点!")
 	}
+
 	loginUserId := service.Context().GetUserId(ctx)
-	//开启十五
-	err = dao.SysRole.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
+	//开启事务
+	err = dao.SysRole.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		_, err = dao.SysRole.Ctx(ctx).Data(g.Map{
 			dao.SysRole.Columns().DeletedBy: uint(loginUserId),
+			dao.SysRole.Columns().DeletedAt: gtime.Now(),
 			dao.SysRole.Columns().IsDeleted: 1,
 		}).Where(dao.SysRole.Columns().Id, id).Update()
 		//删除角色信息
@@ -176,7 +218,9 @@ func (s *sSysRole) DelInfoById(ctx context.Context, id uint) (err error) {
 		_, err = dao.SysAuthorize.Ctx(ctx).Data(g.Map{
 			dao.SysAuthorize.Columns().IsDeleted: 1,
 			dao.SysAuthorize.Columns().DeletedBy: loginUserId,
+			dao.SysAuthorize.Columns().DeletedAt: gtime.Now(),
 		}).Where(dao.SysAuthorize.Columns().RoleId, id).Update()
+		//删除权限配置
 		_, err = dao.SysAuthorize.Ctx(ctx).Where(dao.SysAuthorize.Columns().RoleId, id).Delete()
 		return
 	})
@@ -185,33 +229,34 @@ func (s *sSysRole) DelInfoById(ctx context.Context, id uint) (err error) {
 }
 
 // GetRoleList 获取角色列表
-func (s *sSysRole) GetRoleList(ctx context.Context) (list []*model.RoleInfoRes, err error) {
-	cache := common.Cache()
+func (s *sSysRole) GetRoleList(ctx context.Context) (list []*model.RoleInfoOut, err error) {
 	//从缓存获取
-	iList := cache.GetOrSetFuncLock(ctx, consts.CacheSysRole, s.getRoleListFromDb, 0, consts.CacheSysAuthTag)
+	iList, err := cache.Instance().GetOrSetFuncLock(ctx, consts.CacheSysRole, s.getRoleListFromDb, 0)
 	if iList != nil {
-		err = gconv.Struct(iList, &list)
+		err = gconv.Struct(iList.Val(), &list)
 	}
 	return
 }
 
 // 从数据库获取所有角色
 func (s *sSysRole) getRoleListFromDb(ctx context.Context) (value interface{}, err error) {
-	err = g.Try(ctx, func(ctx2 context.Context) {
-		var v []*entity.SysRole
-		//从数据库获取
-		err = dao.SysRole.Ctx(ctx).
-			Order(dao.SysRole.Columns().ListOrder + " asc," + dao.SysRole.Columns().Id + " asc").
-			Scan(&v)
-		liberr.ErrIsNil(ctx, err, "获取角色数据失败")
-		value = v
-	})
+	var v []*entity.SysRole
+	m := dao.SysRole.Ctx(ctx)
+	//从数据库获取
+	err = m.
+		Order(dao.SysRole.Columns().ListOrder + " asc," + dao.SysRole.Columns().Id + " asc").
+		Scan(&v)
+	if err != nil {
+		return nil, errors.New("获取角色数据失败")
+	}
+	value = v
 	return
 }
 
 // GetInfoByIds 根据ID数组获取角色信息
 func (s *sSysRole) GetInfoByIds(ctx context.Context, id []int) (entity []*entity.SysRole, err error) {
-	err = dao.SysRole.Ctx(ctx).WhereIn(dao.SysRole.Columns().Id, id).Where(g.Map{
+	m := dao.SysRole.Ctx(ctx)
+	err = m.WhereIn(dao.SysRole.Columns().Id, id).Where(g.Map{
 		dao.SysRole.Columns().Status:    1,
 		dao.SysRole.Columns().IsDeleted: 0,
 	}).Scan(&entity)
@@ -235,6 +280,7 @@ func (s *sSysRole) DataScope(ctx context.Context, id int, dataScope uint, deptId
 	if role != nil && role.Status == 0 {
 		return gerror.New("角色已禁用,无法授权")
 	}
+
 	//获取登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 
@@ -242,7 +288,7 @@ func (s *sSysRole) DataScope(ctx context.Context, id int, dataScope uint, deptId
 	err = g.Try(ctx, func(ctx context.Context) {
 		//修改角色数据范围
 		role.DataScope = dataScope
-		role.UpdateBy = uint(loginUserId)
+		role.UpdatedBy = uint(loginUserId)
 		_, editErr := dao.SysRole.Ctx(ctx).Data(role).Where(dao.SysRole.Columns().Id, id).Update()
 		if editErr != nil {
 			err = gerror.New("修改角色信息失败")
@@ -306,6 +352,7 @@ func (s *sSysRole) GetAuthorizeById(ctx context.Context, id int) (menuIds []stri
 		err = gerror.New("角色已禁用,无法查询")
 		return
 	}
+
 	//根据角色ID获取权限信息
 	authorizeInfo, err := service.SysAuthorize().GetInfoByRoleId(ctx, id)
 	if err != nil {

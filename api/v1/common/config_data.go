@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/internal/model"
 )
 
 type ConfigSearchReq struct {
@@ -35,7 +35,7 @@ type ConfigAddRes struct {
 
 type ConfigGetReq struct {
 	g.Meta `path:"/config/get" tags:"系统参数管理" method:"get" summary:"获取系统参数"`
-	Id     int `p:"id"`
+	Id     int `p:"id" v:"required#ID不能为空"`
 }
 
 type ConfigGetRes struct {
@@ -63,4 +63,39 @@ type ConfigDeleteReq struct {
 }
 
 type ConfigDeleteRes struct {
+}
+
+type ConfigGetByKeyReq struct {
+	g.Meta    `path:"/config/getInfoByKey" tags:"系统参数管理" method:"get" summary:"根据KEY获取系统参数"`
+	ConfigKey string `p:"configKey"   description:"参数键名" v:"required#参数键名不能为空"`
+}
+
+type ConfigGetByKeyRes struct {
+	g.Meta `mime:"application/json"`
+	Data   *model.SysConfigRes `json:"data"`
+}
+
+type ConfigGetByKeysReq struct {
+	g.Meta    `path:"/config/getInfoByKeys" tags:"系统参数管理" method:"get" summary:"根据KEY数组获取系统参数"`
+	ConfigKey []string `p:"configKey"   description:"参数键名" v:"required#参数键名不能为空"`
+}
+
+type ConfigGetByKeysRes struct {
+	g.Meta `mime:"application/json"`
+	Data   []*model.SysConfigRes `json:"data"`
+}
+
+type GetSysConfigSettingReq struct {
+	g.Meta `path:"/getSysConfigSetting" method:"get" summary:"获取系统配置" tags:"系统参数管理"`
+	Types  int `p:"types"   description:"类型  0 基础配置 1 安全配置"`
+}
+type GetSysConfigSettingRes struct {
+	Info []*model.SysConfigRes `json:"data"`
+}
+
+type EditSysConfigSettingReq struct {
+	g.Meta     `path:"/editSysConfigSetting" method:"put" summary:"修改系统配置" tags:"系统参数管理"`
+	ConfigInfo []*model.EditConfigReq
+}
+type EditSysConfigSettingRes struct {
 }

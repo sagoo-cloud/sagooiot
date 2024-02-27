@@ -3,6 +3,7 @@ package system
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -10,14 +11,15 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/grand"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility/liberr"
-	"github.com/sagoo-cloud/sagooiot/utility/utils"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
+	"sagooiot/pkg/utility/utils"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -61,21 +63,56 @@ func (s *sSysUser) GetAdminUserByUsernamePassword(ctx context.Context, userName 
 	}
 	//验证密码是否正确
 	if utils.EncryptPassword(password, user.UserSalt) != user.UserPassword {
+		//判断获取是否启动安全控制和允许再次登录时间
+		configKeys := []string{consts.SysIsSecurityControlEnabled, consts.SysAgainLoginDate}
+		var configDatas []*entity.SysConfig
+		configDatas, err = service.ConfigData().GetByKeys(ctx, configKeys)
+		if err != nil {
+			return
+		}
+		isSecurityControlEnabled := "0" //是否启动安全控制
+		againLoginDate := 1             //允许再次登录时间
+		for _, configData := range configDatas {
+			if strings.EqualFold(configData.ConfigKey, consts.SysIsSecurityControlEnabled) {
+				isSecurityControlEnabled = configData.ConfigValue
+			}
+			if strings.EqualFold(configData.ConfigKey, consts.SysAgainLoginDate) {
+				againLoginDate, err = strconv.Atoi(configData.ConfigValue)
+				if err != nil {
+					err = gerror.New("允许再次登录时间配置错误")
+					return nil, err
+				}
+			}
+		}
+		if strings.EqualFold(isSecurityControlEnabled, "1") {
+			tmpData, _ := cache.Instance().Get(ctx, consts.CacheSysErrorPrefix+"_"+gconv.String(userName))
+			var num = 1
+			if tmpData.Val() != nil {
+				tempValue, _ := strconv.Atoi(tmpData.Val().(string))
+				num = tempValue + 1
+			}
+			//存入缓存
+			err := cache.Instance().Set(ctx, consts.CacheSysErrorPrefix+"_"+gconv.String(userName), num, time.Duration(againLoginDate*60)*time.Second)
+			if err != nil {
+				return nil, err
+			}
+		}
 		err = gerror.New("密码错误")
 		return
 	}
-	return user, nil
+	return
 }
 
 // UpdateLoginInfo 更新用户登录信息
 func (s *sSysUser) UpdateLoginInfo(ctx context.Context, id uint64, ip string) (err error) {
-	err = g.Try(ctx, func(ctx context.Context) {
-		_, err = dao.SysUser.Ctx(ctx).WherePri(id).Update(g.Map{
-			dao.SysUser.Columns().LastLoginIp:   ip,
-			dao.SysUser.Columns().LastLoginTime: gtime.Now(),
-		})
-		liberr.ErrIsNil(ctx, err, "更新用户登录信息失败")
+	_, err = dao.SysUser.Ctx(ctx).WherePri(id).Update(g.Map{
+		dao.SysUser.Columns().LastLoginIp:   ip,
+		dao.SysUser.Columns().LastLoginTime: gtime.Now(),
 	})
+	if err != nil {
+		return errors.New("更新用户登录信息失败")
+	}
+
 	return
 }
 
@@ -89,7 +126,7 @@ func (s *sSysUser) UserList(ctx context.Context, input *model.UserListDoInput) (
 	if input.DeptId != 0 {
 		//m = m.Where(dao.SysUser.Columns().DeptId, req.DeptId)
 		deptIds, _ := s.getSearchDeptIds(ctx, gconv.Int64(input.DeptId))
-		m = m.Where("dept_id in (?)", deptIds)
+		m = m.WhereIn(dao.SysUser.Columns().DeptId, deptIds)
 	}
 	if input.UserName != "" {
 		m = m.Where(dao.SysUser.Columns().UserName, input.UserName)
@@ -104,6 +141,7 @@ func (s *sSysUser) UserList(ctx context.Context, input *model.UserListDoInput) (
 		m = m.Where("created_at >=? AND created_at <?", input.DateRange[0], gtime.NewFromStrFormat(input.DateRange[1], "Y-m-d").AddDate(0, 0, 1))
 	}
 	m = m.Where(dao.SysUser.Columns().IsDeleted, 0)
+
 	//获取总数
 	total, err = m.Count()
 	if err != nil {
@@ -114,7 +152,7 @@ func (s *sSysUser) UserList(ctx context.Context, input *model.UserListDoInput) (
 		input.PageNum = 1
 	}
 	if input.PageSize == 0 {
-		input.PageSize = consts.DefaultPageSize
+		input.PageSize = consts.PageSize
 	}
 	//获取用户信息
 	err = m.Page(input.PageNum, input.PageSize).OrderDesc(dao.SysUser.Columns().CreatedAt).Scan(&out)
@@ -189,8 +227,15 @@ func (s *sSysUser) Add(ctx context.Context, input *model.AddUserInput) (err erro
 	if num > 0 {
 		return gerror.New("手机号已存在")
 	}
+
+	//判断是否有权限选择当前部门
+	_, err = service.SysDept().Detail(ctx, int64(input.DeptId))
+	if err != nil {
+		return
+	}
+
 	//开启事务管理
-	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
+	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		//添加用户
 		var sysUser *entity.SysUser
 		if err = gconv.Scan(input, &sysUser); err != nil {
@@ -203,13 +248,43 @@ func (s *sSysUser) Add(ctx context.Context, input *model.AddUserInput) (err erro
 		sysUser.IsDeleted = 0
 		//获取当前登录用户ID
 		loginUserId := service.Context().GetUserId(ctx)
-		sysUser.CreateBy = uint(loginUserId)
 		//添加用户信息
-		lastInsertId, err := dao.SysUser.Ctx(ctx).Data(sysUser).InsertAndGetId()
+		result, err := dao.SysUser.Ctx(ctx).Data(do.SysUser{
+			UserName:     sysUser.UserName,
+			UserTypes:    sysUser.UserTypes,
+			Mobile:       sysUser.Mobile,
+			UserNickname: sysUser.UserNickname,
+			Birthday:     sysUser.Birthday,
+			UserPassword: sysUser.UserPassword,
+			UserSalt:     sysUser.UserSalt,
+			UserEmail:    sysUser.UserEmail,
+			Sex:          sysUser.Sex,
+			Avatar:       sysUser.Avatar,
+			DeptId:       sysUser.DeptId,
+			Remark:       sysUser.Remark,
+			IsAdmin:      sysUser.IsAdmin,
+			Address:      sysUser.Address,
+			Describe:     sysUser.Describe,
+			Status:       sysUser.Status,
+			IsDeleted:    sysUser.IsDeleted,
+			CreatedBy:    uint(loginUserId),
+			CreatedAt:    gtime.Now(),
+		}).Insert()
 		if err != nil {
 			return gerror.New("添加用户失败")
 		}
-		err = BindUserAndPost(ctx, int(lastInsertId), input.PostIds)
+
+		//获取主键ID
+		lastInsertId, err := service.Sequences().GetSequences(ctx, result, dao.SysUser.Table(), dao.SysUser.Columns().Id)
+		if err != nil {
+			return
+		}
+
+		//绑定岗位
+		err = service.SysUserPost().BindUserAndPost(ctx, int(lastInsertId), input.PostIds)
+
+		//绑定角色
+		err = service.SysUserRole().BindUserAndRole(ctx, int(lastInsertId), input.RoleIds)
 
 		return err
 	})
@@ -245,8 +320,9 @@ func (s *sSysUser) Edit(ctx context.Context, input *model.EditUserInput) (err er
 	if sysUserByMobile != nil && sysUserByMobile.Id != input.Id {
 		return gerror.New("手机号已存在")
 	}
+
 	//开启事务管理
-	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) (err error) {
+	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		//编辑用户
 		sysUser.UserNickname = input.UserNickname
 		sysUser.DeptId = input.DeptId
@@ -268,86 +344,23 @@ func (s *sSysUser) Edit(ctx context.Context, input *model.EditUserInput) (err er
 		if err != nil {
 			return gerror.New("编辑用户失败")
 		}
-		//删除原有用户与岗位绑定管理
-		_, err = dao.SysUserPost.Ctx(ctx).Where(dao.SysUserPost.Columns().UserId, input.Id).Delete()
-		if err != nil {
-			return gerror.New("删除用户与岗位绑定关系失败")
-		}
 
-		err = BindUserAndPost(ctx, int(input.Id), input.PostIds)
+		//绑定岗位
+		err = service.SysUserPost().BindUserAndPost(ctx, int(input.Id), input.PostIds)
 
-		//删除原有用户与角色绑定管理
-		_, err = dao.SysUserRole.Ctx(ctx).Where(dao.SysUserRole.Columns().UserId, input.Id).Delete()
-		if err != nil {
-			return gerror.New("删除用户与角色绑定关系失败")
-		}
-
-		err = BindUserAndRole(ctx, int(input.Id), input.RoleIds)
+		//绑定角色
+		err = service.SysUserRole().BindUserAndRole(ctx, int(input.Id), input.RoleIds)
 		return err
 	})
-	return
-}
-
-// BindUserAndPost 添加用户与岗位绑定关系
-func BindUserAndPost(ctx context.Context, userId int, postIds []int) (err error) {
-	if len(postIds) > 0 {
-		var sysUserPosts []*entity.SysUserPost
-		//查询用户与岗位是否存在
-		for _, postId := range postIds {
-			var sysUserPost *entity.SysUserPost
-			err = dao.SysUserPost.Ctx(ctx).Where(g.Map{
-				dao.SysUserPost.Columns().UserId: userId,
-				dao.SysUserPost.Columns().PostId: postId,
-			}).Scan(&sysUserPost)
-
-			if sysUserPost == nil {
-				//添加用户与岗位绑定管理
-				sysUserPost = new(entity.SysUserPost)
-				sysUserPost.UserId = userId
-				sysUserPost.PostId = postId
-				sysUserPosts = append(sysUserPosts, sysUserPost)
-			}
-		}
-		_, err = dao.SysUserPost.Ctx(ctx).Data(sysUserPosts).Insert()
-		if err != nil {
-			return gerror.New("绑定岗位失败")
-		}
-	}
-	return
-}
-
-// BindUserAndRole 添加用户与角色绑定关系
-func BindUserAndRole(ctx context.Context, userId int, roleIds []int) (err error) {
-	if len(roleIds) > 0 {
-		var sysUserRoles []*entity.SysUserRole
-		//查询用户与角色是否存在
-		for _, roleId := range roleIds {
-			var sysUserRole *entity.SysUserRole
-			err = dao.SysUserRole.Ctx(ctx).Where(g.Map{
-				dao.SysUserRole.Columns().UserId: userId,
-				dao.SysUserRole.Columns().RoleId: roleId,
-			}).Scan(&sysUserRole)
-
-			if sysUserRole == nil {
-				//添加用户与角色绑定管理
-				sysUserRole = new(entity.SysUserRole)
-				sysUserRole.UserId = userId
-				sysUserRole.RoleId = roleId
-				sysUserRoles = append(sysUserRoles, sysUserRole)
-			}
-		}
-		_, err = dao.SysUserRole.Ctx(ctx).Data(sysUserRoles).Insert()
-		if err != nil {
-			return gerror.New("绑定角色失败")
-		}
-	}
 	return
 }
 
 // GetUserById 根据ID获取用户信息
 func (s *sSysUser) GetUserById(ctx context.Context, id uint) (out *model.UserInfoOut, err error) {
 	var e *entity.SysUser
-	err = dao.SysUser.Ctx(ctx).Where(g.Map{
+	m := dao.SysUser.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysUser.Columns().Id:        id,
 		dao.SysUser.Columns().IsDeleted: 0,
 	}).Scan(&e)
@@ -401,18 +414,16 @@ func (s *sSysUser) DelInfoById(ctx context.Context, id uint) (err error) {
 	if sysUser.IsDeleted == 1 {
 		return gerror.New("用户已删除,无须重复删除")
 	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 	_, err = dao.SysUser.Ctx(ctx).Data(g.Map{
 		dao.SysUser.Columns().IsDeleted: 1,
 		dao.SysUser.Columns().DeletedBy: loginUserId,
+		dao.SysUser.Columns().DeletedAt: gtime.Now(),
 	}).Where(g.Map{
 		dao.SysUser.Columns().Id: id,
 	}).Update()
-	//删除用户
-	_, err = dao.SysUser.Ctx(ctx).Where(g.Map{
-		dao.SysUser.Columns().Id: id,
-	}).Delete()
 	if err != nil {
 		return gerror.New("删除用户失败")
 	}
@@ -436,6 +447,66 @@ func (s *sSysUser) ResetPassword(ctx context.Context, id uint, userPassword stri
 		return gerror.New("用户已删除,无法重置密码")
 	}
 
+	//判断是否启用了安全控制和启用了RSA
+	configKeys := []string{consts.SysIsSecurityControlEnabled, consts.SysIsRsaEnabled}
+	configDatas, err := service.ConfigData().GetByKeys(ctx, configKeys)
+	if err != nil {
+		return
+	}
+	var isSecurityControlEnabled = "0" //是否启用安装控制
+	var isRsaEnbled = "0"              //是否启用RSA
+	for _, configData := range configDatas {
+		if strings.EqualFold(configData.ConfigKey, consts.SysIsSecurityControlEnabled) {
+			isSecurityControlEnabled = configData.ConfigValue
+		}
+		if strings.EqualFold(configData.ConfigKey, consts.SysIsRsaEnabled) {
+			isRsaEnbled = configData.ConfigValue
+		}
+	}
+
+	if strings.EqualFold(isSecurityControlEnabled, "1") {
+		if strings.EqualFold(isRsaEnbled, "1") {
+			//对用户密码进行解密
+			userPassword, err = utils.Decrypt(consts.RsaPrivateKeyFile, userPassword, consts.RsaOAEP)
+			if err != nil {
+				return
+			}
+		}
+
+		//校验密码
+		err = s.CheckPassword(ctx, userPassword)
+		if err != nil {
+			return
+		}
+
+		//获取用户修改密码的历史记录
+		var history []*entity.SysUserPasswordHistory
+		if err = dao.SysUserPasswordHistory.Ctx(ctx).Where(dao.SysUserPasswordHistory.Columns().UserId, id).OrderDesc(dao.SysUserPasswordHistory.Columns().CreatedAt).Scan(&history); err != nil {
+			return
+		}
+
+		if history != nil {
+			//判断与最近三次是否一样
+			var num int
+			if len(history) > 3 {
+				num = 3
+			} else {
+				num = len(history)
+			}
+			var isExit = false
+			for i := 0; i < num; i++ {
+				if strings.EqualFold(history[i].AfterPassword, utils.EncryptPassword(userPassword, sysUser.UserSalt)) {
+					isExit = true
+					break
+				}
+			}
+			if isExit {
+				err = gerror.New("密码与前三次重复,请重新输入!")
+				return
+			}
+		}
+	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 	//判断当前登录用户是否为超级管理员角色
@@ -453,11 +524,31 @@ func (s *sSysUser) ResetPassword(ctx context.Context, id uint, userPassword stri
 	}
 
 	sysUser.UserSalt = grand.S(10)
-	sysUser.UserPassword = utils.EncryptPassword(userPassword, sysUser.UserSalt)
+
+	beforePassword := sysUser.UserPassword
+	afterPassword := utils.EncryptPassword(userPassword, sysUser.UserSalt)
+	sysUser.UserPassword = afterPassword
 	sysUser.UpdatedBy = uint(loginUserId)
-	_, err = dao.SysUser.Ctx(ctx).Data(sysUser).Where(g.Map{
-		dao.SysUser.Columns().Id: id,
-	}).Update()
+
+	//开启事务管理
+	err = dao.SysUser.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = dao.SysUser.Ctx(ctx).Data(sysUser).Where(g.Map{
+			dao.SysUser.Columns().Id: id,
+		}).Update()
+
+		//添加
+		_, err = dao.SysUserPasswordHistory.Ctx(ctx).Data(&do.SysUserPasswordHistory{
+			UserId:         sysUser.Id,
+			BeforePassword: beforePassword,
+			AfterPassword:  afterPassword,
+			ChangeTime:     gtime.Now(),
+			CreatedAt:      gtime.Now(),
+			CreatedBy:      loginUserId,
+		}).Insert()
+
+		return
+	})
+
 	if err != nil {
 		return gerror.New("重置密码失败")
 	}
@@ -477,6 +568,7 @@ func (s *sSysUser) EditUserStatus(ctx context.Context, id uint, status uint) (er
 	if sysUser.Status == status {
 		return gerror.New("无须重复修改状态")
 	}
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
 	sysUser.Status = status
@@ -493,8 +585,10 @@ func (s *sSysUser) EditUserStatus(ctx context.Context, id uint, status uint) (er
 // 获取搜索的部门ID数组
 func (s *sSysUser) getSearchDeptIds(ctx context.Context, deptId int64) (deptIds []int64, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
-		deptAll, e := sysDeptNew().GetFromCache(ctx)
-		liberr.ErrIsNil(ctx, e)
+		deptAll, err := sysDeptNew().GetFromCache(ctx)
+		if err != nil {
+			return
+		}
 		deptWithChildren := sysDeptNew().FindSonByParentId(deptAll, gconv.Int64(deptId))
 		deptIds = make([]int64, len(deptWithChildren))
 		for k, v := range deptWithChildren {
@@ -517,7 +611,9 @@ func GetDeptNameDict(ctx context.Context, ids g.Slice) (dict map[int64]model.Det
 
 // GetUserByIds 根据ID数据获取用户信息
 func (s *sSysUser) GetUserByIds(ctx context.Context, id []int) (data []*entity.SysUser, err error) {
-	err = dao.SysUser.Ctx(ctx).Where(g.Map{
+	m := dao.SysUser.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysUser.Columns().IsDeleted: 0,
 	}).WhereIn(dao.SysUser.Columns().Id, id).Scan(&data)
 	return
@@ -525,26 +621,28 @@ func (s *sSysUser) GetUserByIds(ctx context.Context, id []int) (data []*entity.S
 
 // GetAll 获取所有用户信息
 func (s *sSysUser) GetAll(ctx context.Context) (data []*entity.SysUser, err error) {
-	err = dao.SysUser.Ctx(ctx).Where(g.Map{
+	m := dao.SysUser.Ctx(ctx)
+
+	err = m.Where(g.Map{
 		dao.SysUser.Columns().IsDeleted: 0,
 	}).Scan(&data)
 	return
 }
 
 func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfoOut, menuTreeOut []*model.UserMenuTreeOut, err error) {
-	cache := common.Cache()
-
 	//获取当前登录用户信息
 	loginUserId := service.Context().GetUserId(ctx)
 	if loginUserId == 0 {
 		err = gerror.New("无登录用户信息,请先登录!")
 		return
 	}
-	tmpUserAuthorize := cache.Get(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId))
-	tmpUserInfo := cache.Get(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId))
+	tmpUserAuthorize, err := cache.Instance().Get(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId))
+	tmpUserInfo, err := cache.Instance().Get(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId))
 	if tmpUserAuthorize.Val() != nil && tmpUserInfo.Val() != nil {
-		json.Unmarshal([]byte(tmpUserAuthorize.Val().(string)), &menuTreeOut)
-		json.Unmarshal([]byte(tmpUserInfo.Val().(string)), &userInfoOut)
+		if err = json.Unmarshal([]byte(tmpUserAuthorize.Val().(string)), &menuTreeOut); err != nil {
+			return
+		}
+		err = json.Unmarshal([]byte(tmpUserInfo.Val().(string)), &userInfoOut)
 		return
 	}
 
@@ -554,7 +652,10 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 		return
 	}
 	if userInfo != nil {
-		cache.Set(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId), userInfo, time.Hour)
+		err := cache.Instance().Set(ctx, consts.CacheUserInfo+"_"+gconv.String(loginUserId), userInfo, time.Hour)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	//根据当前登录用户ID查询用户角色信息
@@ -608,7 +709,10 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 		menuTreeOut = GetUserMenuTree(userMenuTreeOut)
 
 		if menuTreeOut != nil {
-			cache.Set(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId), menuTreeOut, time.Hour)
+			err := cache.Instance().Set(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId), menuTreeOut, 0)
+			if err != nil {
+				return nil, nil, err
+			}
 		}
 		return
 	} else {
@@ -622,25 +726,98 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 			err = gerror.New("无权限配置,请联系管理员")
 			return
 		}
+
+		isSecurityControlEnabled := 0 //是否启用安全控制
+		sysColumnSwitch := 0          //列表开关
+		sysButtonSwitch := 0          //按钮开关
+		sysApiSwitch := 0             //api开关
+		//判断是否启用了安全控制、列表开关、按钮开关、api开关
+		configKeys := []string{consts.SysIsSecurityControlEnabled, consts.SysColumnSwitch, consts.SysButtonSwitch, consts.SysApiSwitch}
+		var configDatas []*entity.SysConfig
+		configDatas, err = service.ConfigData().GetByKeys(ctx, configKeys)
+		if err != nil {
+			return
+		}
+		for _, configData := range configDatas {
+			if strings.EqualFold(configData.ConfigKey, consts.SysIsSecurityControlEnabled) {
+				isSecurityControlEnabled = gconv.Int(configData.ConfigValue)
+			}
+			if strings.EqualFold(configData.ConfigKey, consts.SysColumnSwitch) {
+				sysColumnSwitch = gconv.Int(configData.ConfigValue)
+			}
+			if strings.EqualFold(configData.ConfigKey, consts.SysButtonSwitch) {
+				sysButtonSwitch = gconv.Int(configData.ConfigValue)
+			}
+			if strings.EqualFold(configData.ConfigKey, consts.SysApiSwitch) {
+				sysApiSwitch = gconv.Int(configData.ConfigValue)
+			}
+		}
 		//菜单Ids
 		var menuIds []int
-		//按钮Ids
 		var menuButtonIds []int
 		//列表Ids
 		var menuColumnIds []int
 		//API Ids
 		var menuApiIds []int
+
 		for _, authorize := range authorizeInfo {
 			if strings.EqualFold(authorize.ItemsType, consts.Menu) {
 				menuIds = append(menuIds, authorize.ItemsId)
-			} else if strings.EqualFold(authorize.ItemsType, consts.Button) {
+			} else if strings.EqualFold(authorize.ItemsType, consts.Button) && sysButtonSwitch == 1 {
 				menuButtonIds = append(menuButtonIds, authorize.ItemsId)
-			} else if strings.EqualFold(authorize.ItemsType, consts.Column) {
+			} else if strings.EqualFold(authorize.ItemsType, consts.Column) && sysColumnSwitch == 1 {
 				menuColumnIds = append(menuColumnIds, authorize.ItemsId)
-			} else if strings.EqualFold(authorize.ItemsType, consts.Api) {
+			} else if strings.EqualFold(authorize.ItemsType, consts.Api) && sysApiSwitch == 1 {
 				menuApiIds = append(menuApiIds, authorize.ItemsId)
 			}
 		}
+		//判断按钮、列表、API开关状态，如果关闭则获取菜单对应的所有信息
+		//判断按钮开关
+		if isSecurityControlEnabled == 0 {
+			if sysButtonSwitch == 0 {
+				//获取所有按钮
+				var menuButtons []*entity.SysMenuButton
+				menuButtons, err = service.SysMenuButton().GetInfoByMenuIds(ctx, menuIds)
+				if err != nil {
+					return
+				}
+				if len(menuButtons) > 0 {
+					for _, menuButton := range menuButtons {
+						menuButtonIds = append(menuButtonIds, int(menuButton.Id))
+					}
+				}
+			}
+
+			//判断列表开关
+			if sysColumnSwitch == 0 {
+				//获取所有列表
+				var menuColumns []*entity.SysMenuColumn
+				menuColumns, err = service.SysMenuColumn().GetInfoByMenuIds(ctx, menuIds)
+				if err != nil {
+					return
+				}
+				if len(menuColumns) > 0 {
+					for _, menuColumn := range menuColumns {
+						menuColumnIds = append(menuColumnIds, int(menuColumn.Id))
+					}
+				}
+			}
+			//判断API开关
+			if sysApiSwitch == 0 {
+				//获取所有API
+				var menuApis []*entity.SysMenuApi
+				menuApis, err = service.SysMenuApi().GetInfoByMenuIds(ctx, menuIds)
+				if err != nil {
+					return
+				}
+				if len(menuApis) > 0 {
+					for _, menuApi := range menuApis {
+						menuApiIds = append(menuApiIds, int(menuApi.Id))
+					}
+				}
+			}
+		}
+
 		//获取所有菜单信息
 		var menuInfo []*entity.SysMenu
 		menuInfo, err = service.SysMenu().GetInfoByMenuIds(ctx, menuIds)
@@ -719,7 +896,10 @@ func (s *sSysUser) CurrentUser(ctx context.Context) (userInfoOut *model.UserInfo
 		//对菜单进行树状重组
 		menuTreeOut = GetUserMenuTree(userMenuTreeOut)
 		if menuTreeOut != nil {
-			cache.Set(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId), menuTreeOut, time.Hour)
+			err := cache.Instance().Set(ctx, consts.CacheUserAuthorize+"_"+gconv.String(loginUserId), menuTreeOut, 0)
+			if err != nil {
+				return nil, nil, err
+			}
 		}
 		return
 	}
@@ -736,9 +916,18 @@ func (s *sSysUser) EditUserAvatar(ctx context.Context, id uint, avatar string) (
 		return
 	}
 	sysUser.Avatar = avatar
+
 	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
+
+	//判断是否为当前用户
+	if id != uint(loginUserId) {
+		err = gerror.New("无法修改其他用户头像")
+		return
+	}
+
 	sysUser.UpdatedBy = uint(loginUserId)
+	sysUser.UpdatedAt = gtime.Now()
 	_, err = dao.SysUser.Ctx(ctx).Data(sysUser).Where(g.Map{
 		dao.SysUser.Columns().Id: id,
 	}).Update()
@@ -786,6 +975,96 @@ func (s *sSysUser) EditUserInfo(ctx context.Context, input *model.EditUserInfoIn
 	}).Update()
 	if err != nil {
 		return gerror.New("修改个人资料失败")
+	}
+	return
+}
+
+// CheckPassword 校验用户密码
+func (s *sSysUser) CheckPassword(ctx context.Context, userPassword string) (err error) {
+	keys := []string{consts.SysPasswordMinimumLength, consts.SysRequireComplexity, consts.SysRequireDigit, consts.SysRequireLowercaseLetter, consts.SysRequireUppercaseLetter}
+	var configData []*entity.SysConfig
+	configData, err = service.ConfigData().GetByKeys(ctx, keys)
+	if err != nil {
+		return
+	}
+	if configData == nil || len(configData) == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#sysUserPwCheckConfig}"))
+	}
+	var minimumLength int
+	var complexity int
+	var digit int
+	var lowercaseLetter int
+	var uppercaseLetter int
+	for _, data := range configData {
+		if strings.EqualFold(data.ConfigKey, consts.SysPasswordMinimumLength) {
+			minimumLength, _ = strconv.Atoi(data.ConfigValue)
+		}
+		if strings.EqualFold(data.ConfigKey, consts.SysRequireComplexity) {
+			complexity, _ = strconv.Atoi(data.ConfigValue)
+		}
+		if strings.EqualFold(data.ConfigKey, consts.SysRequireDigit) {
+			digit, _ = strconv.Atoi(data.ConfigValue)
+		}
+		if strings.EqualFold(data.ConfigKey, consts.SysRequireLowercaseLetter) {
+			lowercaseLetter, _ = strconv.Atoi(data.ConfigValue)
+		}
+		if strings.EqualFold(data.ConfigKey, consts.SysRequireUppercaseLetter) {
+			uppercaseLetter, _ = strconv.Atoi(data.ConfigValue)
+		}
+	}
+
+	var flag bool
+	flag, err = utils.ValidatePassword(userPassword, minimumLength, complexity, digit, lowercaseLetter, uppercaseLetter)
+	if err != nil {
+		return
+	}
+	if !flag {
+		err = gerror.New(g.I18n().T(ctx, "{#sysUserPwCheckError}"))
+		return
+	}
+	return
+}
+
+// EditPassword 修改密码
+func (s *sSysUser) EditPassword(ctx context.Context, userName string, oldUserPassword string, userPassword string) (err error) {
+	//判断是否启用了安全控制和启用了RSA
+	configKeys := []string{consts.SysIsSecurityControlEnabled, consts.SysIsRsaEnabled}
+	configDatas, err := service.ConfigData().GetByKeys(ctx, configKeys)
+	if err != nil {
+		return
+	}
+	var isSecurityControlEnabled = "0"
+	var isRSAEnbled = "0"
+	for _, configData := range configDatas {
+		if strings.EqualFold(configData.ConfigKey, consts.SysIsSecurityControlEnabled) {
+			isSecurityControlEnabled = configData.ConfigValue
+		}
+		if strings.EqualFold(configData.ConfigKey, consts.SysIsRsaEnabled) {
+			isRSAEnbled = configData.ConfigValue
+		}
+	}
+	if strings.EqualFold(isSecurityControlEnabled, "1") && strings.EqualFold(isRSAEnbled, "1") {
+		//对账号进行解密
+		oldUserPassword, err = utils.Decrypt(consts.RsaPrivateKeyFile, oldUserPassword, consts.RsaOAEP)
+		if err != nil {
+			return
+		}
+	}
+
+	//获取用户信息
+	userInfo, err := service.SysUser().GetUserByUsername(ctx, userName)
+	if err != nil {
+		return
+	}
+	//判断旧密码是否一致
+	if !strings.EqualFold(userInfo.UserPassword, utils.EncryptPassword(oldUserPassword, userInfo.UserSalt)) {
+		err = gerror.New("原密码输入错误, 请重新输入!")
+		return
+	}
+	//重置密码
+	err = s.ResetPassword(ctx, uint(userInfo.Id), userPassword)
+	if err != nil {
+		return
 	}
 	return
 }

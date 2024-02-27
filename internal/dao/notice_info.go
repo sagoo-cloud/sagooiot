@@ -5,7 +5,7 @@
 package dao
 
 import (
-	"github.com/sagoo-cloud/sagooiot/internal/dao/internal"
+	"sagooiot/internal/dao/internal"
 )
 
 // internalNoticeInfoDao is internal type for wrapping internal DAO implements.

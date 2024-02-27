@@ -3,11 +3,12 @@ package product
 import (
 	"context"
 	"encoding/json"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"math"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"strings"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -27,7 +28,7 @@ func devTSLTagNew() *sDevTSLTag {
 func (s *sDevTSLTag) ListTag(ctx context.Context, in *model.ListTSLTagInput) (out *model.ListTSLTagOutput, err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -70,7 +71,10 @@ func (s *sDevTSLTag) ListTag(ctx context.Context, in *model.ListTSLTagInput) (ou
 func (s *sDevTSLTag) AddTag(ctx context.Context, in *model.TSLTagInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
+	if err != nil {
+		return
+	}
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
@@ -93,10 +97,10 @@ func (s *sDevTSLTag) AddTag(ctx context.Context, in *model.TSLTagInput) (err err
 	tsl.Tags = append(tsl.Tags, in.TSLTag)
 	metaData, _ := json.Marshal(tsl)
 
-	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.DevProduct.Ctx(ctx).
 			Data(dao.DevProduct.Columns().Metadata, metaData).
-			Where(dao.DevProduct.Columns().Id, in.ProductId).
+			Where(dao.DevProduct.Columns().Key, in.ProductKey).
 			Update()
 		if err != nil {
 			return err
@@ -122,7 +126,10 @@ func (s *sDevTSLTag) AddTag(ctx context.Context, in *model.TSLTagInput) (err err
 func (s *sDevTSLTag) EditTag(ctx context.Context, in *model.TSLTagInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
+	if err != nil {
+		return
+	}
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
@@ -140,7 +147,7 @@ func (s *sDevTSLTag) EditTag(ctx context.Context, in *model.TSLTagInput) (err er
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Tags {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -154,10 +161,10 @@ func (s *sDevTSLTag) EditTag(ctx context.Context, in *model.TSLTagInput) (err er
 	tsl.Tags = append(newTags, tsl.Tags[existIndex+1:]...)
 	metaData, _ := json.Marshal(tsl)
 
-	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.DevProduct.Ctx(ctx).
 			Data(dao.DevProduct.Columns().Metadata, metaData).
-			Where(dao.DevProduct.Columns().Id, in.ProductId).
+			Where(dao.DevProduct.Columns().Key, in.ProductKey).
 			Update()
 		if err != nil {
 			return err
@@ -183,7 +190,10 @@ func (s *sDevTSLTag) EditTag(ctx context.Context, in *model.TSLTagInput) (err er
 func (s *sDevTSLTag) DelTag(ctx context.Context, in *model.DelTSLTagInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
+	if err != nil {
+		return
+	}
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
@@ -201,7 +211,7 @@ func (s *sDevTSLTag) DelTag(ctx context.Context, in *model.DelTSLTagInput) (err 
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Tags {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -214,10 +224,10 @@ func (s *sDevTSLTag) DelTag(ctx context.Context, in *model.DelTSLTagInput) (err 
 	tsl.Tags = append(tsl.Tags[:existIndex], tsl.Tags[existIndex+1:]...)
 	metaData, _ := json.Marshal(tsl)
 
-	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.DevProduct.Ctx(ctx).
 			Data(dao.DevProduct.Columns().Metadata, metaData).
-			Where(dao.DevProduct.Columns().Id, in.ProductId).
+			Where(dao.DevProduct.Columns().Key, in.ProductKey).
 			Update()
 		if err != nil {
 			return err

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #应用的名称
-AppName=sagoo-admin
+AppName=sagooiot
 
 BuildVersion=$(git describe --abbrev=0 --tags)
 BuildTime=$(date +%FT%T%z)
@@ -66,8 +66,10 @@ copyFile() {
     mkdir bin
     mkdir bin/resource
     mkdir bin/resource/public
+    mkdir bin/resource/public/rsa
 
     cp -r ./manifest/config/. bin/config/
+    cp -r ./resource/rsa/. bin/resource/rsa/
 
     echo "${BuildVersion} $(date +%T)"
 }

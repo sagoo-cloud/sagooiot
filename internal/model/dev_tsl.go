@@ -48,9 +48,9 @@ type TSLArrayType struct {
 // 扩展类型参数:对象型
 type TSLObjectType struct {
 	Key       string       `json:"key" dc:"参数标识" v:"regex:^[A-Za-z_]+[\\w]*$#标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name      string       `json:"name" dc:"参数名称"`     // 参数名称
-	ValueType TSLValueType `json:"valueType" dc:"参数值"` // 参数值
-	Desc      string       `json:"desc" dc:"描述"`       // 描述
+	Name      string       `json:"name" dc:"参数名称"`
+	ValueType TSLValueType `json:"valueType" dc:"参数值"`
+	Desc      string       `json:"desc" dc:"描述"`
 }
 
 // 类型参数
@@ -62,53 +62,69 @@ type TSLParam struct {
 // 属性
 type TSLProperty struct {
 	Key        string       `json:"key" dc:"属性标识" v:"required|regex:^[A-Za-z_]+[\\w]*$#请输入属性标识|标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name       string       `json:"name" dc:"属性名称" v:"required#请输入属性名称"`                   // 属性名称
-	AccessMode int          `json:"accessMode" dc:"属性访问类型:0=读写,1=只读" v:"required#请选择是否只读"` // 属性访问类型
-	ValueType  TSLValueType `json:"valueType" dc:"属性值"`                                    // 属性值
-	Desc       string       `json:"desc" dc:"描述"`                                          // 描述
+	Name       string       `json:"name" dc:"属性名称" v:"required#请输入属性名称"`
+	AccessMode int          `json:"accessMode" dc:"属性访问类型:0=读写,1=只读" v:"required#请选择是否只读"`
+	ValueType  TSLValueType `json:"valueType" dc:"属性值"`
+	Desc       string       `json:"desc" dc:"描述"`
 }
 
 // 功能
 type TSLFunction struct {
-	Key    string             `json:"key" dc:"功能标识" v:"required|regex:^[A-Za-z_]+[\\w]*$#请输入功能标识|标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name   string             `json:"name" dc:"功能名称" v:"required#请输入功能名称"` // 功能名称
-	Inputs []TSLFunctionInput `json:"inputs" dc:"输入参数"`                    // 输入参数
-	Output TSLValueType       `json:"output" dc:"输出参数"`                    // 输出参数
-	Desc   string             `json:"desc" dc:"描述"`                        // 描述
+	Key     string              `json:"key" dc:"功能标识" v:"required|regex:^[A-Za-z_]+[\\w]*$#请输入功能标识|标识由字母、数字和下划线组成,且不能以数字开头"`
+	Name    string              `json:"name" dc:"功能名称" v:"required#请输入功能名称"`
+	Inputs  []TSLFunctionInput  `json:"inputs" dc:"输入参数"`
+	Outputs []TSLFunctionOutput `json:"outputs" dc:"输出参数"`
+	Desc    string              `json:"desc" dc:"描述"`
 }
 
 // 功能:输入参数
 type TSLFunctionInput struct {
 	Key       string       `json:"key" dc:"参数标识" v:"regex:^[A-Za-z_]+[\\w]*$#标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name      string       `json:"name" dc:"参数名称"`     // 输入参数名称
-	ValueType TSLValueType `json:"valueType" dc:"参数值"` // 参数值
-	Desc      string       `json:"desc" dc:"描述"`       // 描述
+	Name      string       `json:"name" dc:"参数名称"`
+	ValueType TSLValueType `json:"valueType" dc:"参数值"`
+	Desc      string       `json:"desc" dc:"描述"`
+}
+
+// 功能:输出参数
+type TSLFunctionOutput struct {
+	Key       string       `json:"key" dc:"参数标识" v:"regex:^[A-Za-z_]+[\\w]*$#标识由字母、数字和下划线组成,且不能以数字开头"`
+	Name      string       `json:"name" dc:"参数名称"`
+	ValueType TSLValueType `json:"valueType" dc:"参数值"`
+	Desc      string       `json:"desc" dc:"描述"`
 }
 
 // 事件
 type TSLEvent struct {
-	Key       string       `json:"key" dc:"事件标识" v:"required|regex:^[A-Za-z_]+[\\w]*$#请输入事件标识|标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name      string       `json:"name" dc:"事件名称" v:"required#请输入事件名称"`                 // 事件名称
-	Level     int          `json:"level" dc:"事件级别:0=普通,1=警告,2=紧急" v:"required#请选择事件级别"` // 事件级别
-	ValueType TSLValueType `json:"valueType" dc:"事件值"`                                  // 事件值
-	Desc      string       `json:"desc" dc:"描述"`                                        // 描述
+	Key     string           `json:"key" dc:"事件标识" v:"required|regex:^[A-Za-z_]+[\\w]*$#请输入事件标识|标识由字母、数字和下划线组成,且不能以数字开头"`
+	Name    string           `json:"name" dc:"事件名称" v:"required#请输入事件名称"`
+	Level   int              `json:"level" dc:"事件级别:0=普通,1=警告,2=紧急" v:"required#请选择事件级别"`
+	Outputs []TSLEventOutput `json:"outputs" dc:"输出参数"`
+	Desc    string           `json:"desc" dc:"描述"`
+}
+
+// 事件:输入参数
+type TSLEventOutput struct {
+	Key       string       `json:"key" dc:"参数标识" v:"regex:^[A-Za-z_]+[\\w]*$#标识由字母、数字和下划线组成,且不能以数字开头"`
+	Name      string       `json:"name" dc:"参数名称"`
+	ValueType TSLValueType `json:"valueType" dc:"参数值"`
+	Desc      string       `json:"desc" dc:"描述"`
 }
 
 // 标签
 type TSLTag struct {
 	Key        string       `json:"key" dc:"标签标识" v:"required|regex:^[A-Za-z_]+[\\w]*$#请输入标签标识|标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name       string       `json:"name" dc:"标签名称" v:"required#请输入标签名称"`                   // 标签名称
-	AccessMode int          `json:"accessMode" dc:"标签访问类型:0=读写,1=只读" v:"required#请选择是否只读"` // 标签访问类型
-	ValueType  TSLValueType `json:"valueType" dc:"标签值"`                                    // 标签值
-	Desc       string       `json:"desc" dc:"描述"`                                          // 描述
+	Name       string       `json:"name" dc:"标签名称" v:"required#请输入标签名称"`
+	AccessMode int          `json:"accessMode" dc:"标签访问类型:0=读写,1=只读" v:"required#请选择是否只读"`
+	ValueType  TSLValueType `json:"valueType" dc:"标签值"`
+	Desc       string       `json:"desc" dc:"描述"`
 }
 
 // 物模型
 type TSL struct {
-	Key        string        `json:"key" dc:"产品标识" v:"regex:^[A-Za-z_]+[\\w]*$#标识由字母、数字和下划线组成,且不能以数字开头"`
-	Name       string        `json:"name" dc:"产品名称"`     // 产品名称
-	Properties []TSLProperty `json:"properties" dc:"属性"` // 属性
-	Functions  []TSLFunction `json:"functions" dc:"功能"`  // 功能
-	Events     []TSLEvent    `json:"events" dc:"事件"`     // 事件
-	Tags       []TSLTag      `json:"tags" dc:"标签"`       // 标签
+	Key        string        `json:"key" dc:"产品标识"`
+	Name       string        `json:"name" dc:"产品名称"`
+	Properties []TSLProperty `json:"properties" dc:"属性"`
+	Functions  []TSLFunction `json:"functions" dc:"功能"`
+	Events     []TSLEvent    `json:"events" dc:"事件"`
+	Tags       []TSLTag      `json:"tags" dc:"标签"`
 }

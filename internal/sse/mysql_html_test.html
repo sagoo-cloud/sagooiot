@@ -1,0 +1,37 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>IOT Info:</h1>
+<ul id="dataList"></ul>
+
+<script>
+    es = new EventSource("http://localhost:8199/subscribe/mysqlinfo")
+
+    // bind the event listeners
+    es.addEventListener("status", status);
+    function status(event) {
+        var breed = event.data;
+        _appendListItem("Mysql状态："+breed);
+    }
+    es.addEventListener("version", version);
+    function version(event) {
+        var breed = event.data;
+        _appendListItem("Mysql版本："+breed);
+    }
+    es.addEventListener("variables", variables);
+    function variables(event) {
+        var breed = event.data;
+        _appendListItem("Mysql统计："+breed);
+    }
+
+
+    function _appendListItem(msg) {
+        var li = document.createElement("li");
+        li.innerHTML = msg;
+        document.getElementById("dataList").appendChild(li);
+    }
+</script>
+</body>
+</html>

@@ -4,59 +4,66 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/sagoo-cloud/sagooiot/extend"
-	extModel "github.com/sagoo-cloud/sagooiot/extend/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility/notifier"
-	"github.com/sagoo-cloud/sagooiot/utility/utils"
-	"strconv"
-	"time"
-
 	"github.com/Knetic/govaluate"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/text/gstr"
+	"github.com/gogf/gf/v2/util/gconv"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/model"
+	"sagooiot/internal/queues"
+	"sagooiot/pkg/cache"
+	"sagooiot/pkg/dcache"
+	"sagooiot/pkg/iotModel"
+	"strconv"
+	"time"
 )
 
-// 告警匹配检测
-func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey string, triggerType int, data map[string]any) (err error) {
-	list, err := s.Cache(ctx)
-	if err != nil {
-		g.Log().Errorf(ctx, "告警规则缓存获取 - %s - %s：%s", productKey, deviceKey, err)
-		return
+// Check 告警检测
+func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey string, triggerType int, param any, subKey ...string) (err error) {
+	//g.Log().Debugf(ctx, "alarm_rule_check: deviceKey(%s), productKey(%s), triggerType(%d), param(%v)", deviceKey, productKey, triggerType, param)
+
+	// 网关子设备
+	if len(subKey) > 0 {
+		skey := subKey[0]
+		sub, _ := dcache.GetDeviceDetailInfo(skey)
+		productKey = sub.Product.Key
+		deviceKey = sub.Key
 	}
-	if len(list) == 0 {
-		return
-	}
-	pList, ok := list[productKey]
-	if !ok {
+
+	//重组param数据
+	eventKey, data, err := s.getParamData(ctx, param)
+	if data == nil || err != nil {
 		return
 	}
 
-	// 根据触发类型，过滤告警规则
-	var rules []model.AlarmRuleOutput
-	for _, r := range pList {
-		if r.TriggerType == triggerType && r.DeviceKey == deviceKey {
-			rules = append(rules, r)
-		}
-	}
-	if len(rules) == 0 {
+	//获取规则列表
+	rules, err := s.getAlarmRuleList(ctx, productKey, deviceKey, triggerType, eventKey)
+	if len(rules) == 0 || err != nil {
 		return
 	}
 
-	logData, err := json.Marshal(data)
+	logData, err := json.Marshal(param)
 	if err != nil {
 		g.Log().Errorf(ctx, "告警规则数据 - %s - %s：%s", productKey, deviceKey, err)
 		return
 	}
 
 	// 填充告警触发时间
-	if ts, ok := data["ts"]; ok {
-		if t, err := time.Parse("2006-01-02 15:04:05", ts.(string)); err == nil {
-			data["ts"] = t.Unix()
+	if ts, ok := data["CreateTime"]; ok {
+		switch tt := ts.(type) {
+		case string:
+			if t, err := time.Parse("2006-01-02 15:04:05", tt); err == nil {
+				data["CreateTime"] = t.Unix()
+			} else {
+				data["CreateTime"] = time.Now().Unix()
+			}
+		case int, int32, int64, float32, float64:
+			data["CreateTime"] = tt.(int64)
 		}
 	} else {
-		data["ts"] = time.Now().Unix()
+		data["CreateTime"] = time.Now().Unix()
 	}
 
 	for _, r := range rules {
@@ -80,64 +87,33 @@ func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey str
 					return
 				}
 				if y, ok := rs.(bool); ok && y {
-					log := &model.AlarmLogAddInput{
+					// 写告警日志
+					log := model.AlarmLogAddInput{
 						Type:       1,
 						RuleId:     rule.Id,
 						RuleName:   rule.Name,
 						Level:      rule.Level,
 						Data:       string(logData),
+						Expression: exp,
 						ProductKey: productKey,
 						DeviceKey:  deviceKey,
 					}
-					logId, err := service.AlarmLog().Add(ctx, log)
-					if err != nil {
-						g.Log().Errorf(ctx, "告警日志写入 - %s - %s：%s", productKey, deviceKey, err)
+
+					if log.ProductKey == "" {
 						return
 					}
 
-					// 触发告警通知
-					nt := notifier.NewNotifier(3 * time.Second)
-					nt.SetCallbacks(
-						func(state notifier.State) {
-							s.doAction(ctx, rule, exp)
-						},
-						func(state notifier.State) {
-							s.doAction(ctx, rule, exp)
-						},
-						func(state notifier.State) {
-							s.doAction(ctx, rule, exp)
-						})
-					// 频率控制
-					i := 0
-					for {
-						i++
-						if i == 6 || i == 12 {
-							alarmLog, _ := service.AlarmLog().Detail(ctx, logId)
-							if alarmLog == nil {
-								break
-							}
-							// 告警未处理，触发通知
-							if alarmLog.Status == model.AlarmLogStatusUnhandle {
-								nt.Trigger(true)
-							}
-						}
-						if i == 9 || i == 15 {
-							alarmLog, _ := service.AlarmLog().Detail(ctx, logId)
-							if alarmLog == nil {
-								break
-							}
-							// 告警已处理或忽略，停止触发通知
-							if alarmLog.Status == model.AlarmLogStatusHandle ||
-								alarmLog.Status == model.AlarmLogStatusIgnore {
-								nt.Trigger(false)
-							}
-						}
+					// 写入队列
+					logData, _ := json.Marshal(log)
+					err = queues.ScheduledDeviceAlarmLog.Push(ctx, consts.QueueDeviceAlarmLogTopic, logData, 10)
 
-						time.Sleep(1 * time.Second)
-						if i > 20 {
-							break
-						}
+					key := consts.DeviceAlarmLogPrefix + productKey + deviceKey + exp
+					err = cache.Instance().Set(ctx, key, log, 60*time.Second)
+					if err != nil {
+						return
 					}
+					//告警执行动作
+					s.doAction(ctx, rule, exp, deviceKey, param)
 				}
 			}
 		}(r)
@@ -145,94 +121,86 @@ func (s *sAlarmRule) Check(ctx context.Context, productKey string, deviceKey str
 	return
 }
 
-// 告警执行动作
-func (s *sAlarmRule) doAction(ctx context.Context, rule model.AlarmRuleOutput, expression string) {
-	if len(rule.PerformAction.Action) == 0 {
-		return
-	}
-
-	for _, v := range rule.PerformAction.Action {
-		if v.NoticeTemplate == "" {
-			continue
+// getParamData 获取Param数据 eventKey 事件标识
+func (s *sAlarmRule) getParamData(ctx context.Context, param any) (eventKey string, res map[string]any, err error) {
+	var (
+		data = make(map[string]any) // 上传数据
+	)
+	// 上传数据重组
+	switch pd := param.(type) {
+	case iotModel.ReportPropertyData:
+		for k, v := range pd {
+			vv := gconv.String(v.Value)
+			if gstr.IsNumeric(vv) {
+				data[k] = gconv.Float64(v.Value)
+			} else if gt, err := gtime.StrToTime(vv); err == nil {
+				data[k] = gt.Unix()
+			} else {
+				data[k] = v.Value
+			}
+			data[k+"_time"] = v.CreateTime
 		}
-
-		// 获取告警模板
-		tpl, err := service.NoticeTemplate().GetNoticeTemplateById(ctx, v.NoticeTemplate)
-		if err != nil {
-			g.Log().Errorf(ctx, "告警获取通知模板 - %s ：%s", v.NoticeTemplate, err)
-			continue
-		}
-		if tpl == nil {
-			continue
-		}
-
-		// 获取告警级别名称
-		level, err := service.AlarmLevel().Detail(ctx, rule.Level)
-		if err != nil {
-			g.Log().Errorf(ctx, "告警获取级别名称 - %s ：%s", v.NoticeTemplate, err)
-		}
-
-		// 获取设备、产品名称
-		var (
-			pname string
-			dname string
-		)
-		d, err := service.DevDevice().Get(ctx, rule.DeviceKey)
-		if err != nil {
-			g.Log().Errorf(ctx, "告警获取设备信息 - %s ：%s", rule.DeviceKey, err)
-		}
-		if d != nil {
-			pname = d.Product.Name
-			dname = d.Name
-		}
-
-		// 模板解析
-		content, err := utils.ReplaceTemplate(tpl.Content, map[string]any{
-			"Level":   level.Name,
-			"Product": pname,
-			"Device":  dname,
-			"Rule":    rule.Name + " " + expression,
-		})
-		if err != nil {
-			g.Log().Errorf(ctx, "告警模板解析 - %s ：%s", v.NoticeTemplate, err)
-		}
-
-		// 告警消息发送
-		var msg = extModel.NoticeInfoData{}
-		msg.MsgTitle = tpl.Title
-		msg.MsgBody = content
-
-		for _, u := range v.Addressee {
-			if extend.GetNoticePlugin() != nil {
-				msg.Totag = fmt.Sprintf(`[{"name":"%s","value":"%s"}]`, tpl.SendGateway, u)
-				noticeStatus := 1
-				noticeFail := ""
-				_, err = extend.GetNoticePlugin().NoticeSend(tpl.SendGateway, msg)
-				if err != nil {
-					noticeStatus = 0
-					noticeFail = err.Error()
-					g.Log().Errorf(ctx, "告警通知发送 - %s ：%s", tpl.SendGateway, err)
-				}
-
-				// 通知日志记录
-				if err = service.NoticeLog().Add(ctx, &model.NoticeLogAddInput{
-					TemplateId:  tpl.Id,
-					SendGateway: tpl.SendGateway,
-					Addressee:   u,
-					Title:       tpl.Title,
-					Content:     content,
-					Status:      noticeStatus,
-					FailMsg:     noticeFail,
-					SendTime:    gtime.Now().String(),
-				}); err != nil {
-					g.Log().Errorf(ctx, "告警通知日志记录：%v", err)
-				}
+	case iotModel.ReportEventData:
+		for k, v := range pd.Param.Value {
+			vv := gconv.String(v)
+			if gstr.IsNumeric(vv) {
+				data[k] = gconv.Float64(v)
+			} else if gt, err := gtime.StrToTime(vv); err == nil {
+				data[k] = gt.Unix()
+			} else {
+				data[k] = v
 			}
 		}
+		data["CreateTime"] = pd.Param.CreateTime
+		eventKey = pd.Key
+	case iotModel.ReportStatusData:
+		data["Status"] = pd.Status
+		data["CreateTime"] = pd.CreateTime
+	default:
+		return "", nil, gerror.New("数据格式错误")
 	}
+	return eventKey, data, nil
 }
 
-// 告警条件表达式生成
+// 获取告警规则
+func (s *sAlarmRule) getAlarmRuleList(ctx context.Context, productKey, deviceKey string, triggerType int, eventKey string) (res []model.AlarmRuleOutput, err error) {
+	// 获取规则列表
+	AlarmRuleList := dcache.GetDeviceAlarm(ctx, productKey)
+	if AlarmRuleList == nil {
+		return
+	}
+	// 根据触发类型，过滤告警规则
+	for _, r := range AlarmRuleList {
+		if r.Status == 0 {
+			return
+		}
+		if r.TriggerCondition != "" {
+			conditionErr := json.Unmarshal([]byte(r.TriggerCondition), &r.Condition)
+			if conditionErr != nil {
+				return nil, err
+			}
+		}
+		if r.Action != "" {
+			performActionErr := json.Unmarshal([]byte(r.Action), &r.PerformAction)
+			if err != nil {
+				return nil, performActionErr
+			}
+		}
+		if triggerType == consts.AlarmTriggerTypeEvent && eventKey != r.EventKey {
+			continue
+		}
+		if triggerType != r.TriggerType {
+			continue
+		}
+		if r.DeviceKey == deviceKey || r.DeviceKey == "all" || r.DeviceKey == "" {
+			res = append(res, r)
+		}
+	}
+
+	return
+}
+
+// expression 告警条件表达式
 func (s *sAlarmRule) expression(ctx context.Context, rule model.AlarmRuleOutput) string {
 	glen := len(rule.Condition.TriggerCondition)
 	var exp string
@@ -240,14 +208,14 @@ func (s *sAlarmRule) expression(ctx context.Context, rule model.AlarmRuleOutput)
 		flen := len(group.Filters)
 		var gexp string
 		for _, v := range group.Filters {
-			if (v.Operator == model.OperatorBet ||
-				v.Operator == model.OperatorNbet) && len(v.Value) < 2 {
+			if (v.Operator == consts.OperatorBet ||
+				v.Operator == consts.OperatorNbet) && len(v.Value) < 2 {
 				continue
 			}
 
 			// 如果条件参数是上报时间，则将参数值转换成时间戳
 			if v.Key == "sysReportTime" {
-				v.Key = "ts"
+				v.Key = "CreateTime"
 				if v.Value[0] != "" {
 					if t, err := time.Parse("2006-01-02 15:04:05", v.Value[0]); err == nil {
 						v.Value[0] = strconv.FormatInt(t.Unix(), 10)
@@ -263,21 +231,21 @@ func (s *sAlarmRule) expression(ctx context.Context, rule model.AlarmRuleOutput)
 			// 表达式生成
 			var fexp string
 			switch v.Operator {
-			case model.OperatorEq:
+			case consts.OperatorEq:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "==", v.Value[0])
-			case model.OperatorNe:
+			case consts.OperatorNe:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "!=", v.Value[0])
-			case model.OperatorGt:
+			case consts.OperatorGt:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, ">", v.Value[0])
-			case model.OperatorGte:
+			case consts.OperatorGte:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, ">=", v.Value[0])
-			case model.OperatorLt:
+			case consts.OperatorLt:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "<", v.Value[0])
-			case model.OperatorLte:
+			case consts.OperatorLte:
 				fexp = fmt.Sprintf("(%s %s %s)", v.Key, "<=", v.Value[0])
-			case model.OperatorBet:
+			case consts.OperatorBet:
 				fexp = fmt.Sprintf("(%s >= %s && %s <= %s)", v.Key, v.Value[0], v.Key, v.Value[1])
-			case model.OperatorNbet:
+			case consts.OperatorNbet:
 				fexp = fmt.Sprintf("(%s < %s && %s > %s)", v.Key, v.Value[0], v.Key, v.Value[1])
 			}
 			if flen > 1 {

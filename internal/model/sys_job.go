@@ -28,6 +28,10 @@ type SysJobRes struct {
 	UpdatedAt      *gtime.Time `orm:"updated_at"        json:"updatedAt"`      // 更新时间
 	DeletedAt      *gtime.Time `orm:"deleted_at"        json:"deletedAt"`      // 删除时间
 }
+type SysJobFunListOut struct {
+	FunName string `json:"fun_name"`
+	Explain string `json:"explain"`
+}
 
 type SysJobOut struct {
 	JobId          int64       `orm:"job_id,primary"    json:"jobId"`          // 任务ID

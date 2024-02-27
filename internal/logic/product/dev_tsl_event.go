@@ -3,11 +3,12 @@ package product
 import (
 	"context"
 	"encoding/json"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"math"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"strings"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -35,8 +36,7 @@ func (s *sDevTSLEvent) Detail(ctx context.Context, deviceKey string, eventKey st
 
 	for _, v := range dout.TSL.Events {
 		if v.Key == eventKey {
-			event = &v
-			return
+			return &v, nil
 		}
 	}
 
@@ -46,7 +46,7 @@ func (s *sDevTSLEvent) Detail(ctx context.Context, deviceKey string, eventKey st
 func (s *sDevTSLEvent) ListEvent(ctx context.Context, in *model.ListTSLEventInput) (out *model.ListTSLEventOutput, err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -86,10 +86,34 @@ func (s *sDevTSLEvent) ListEvent(ctx context.Context, in *model.ListTSLEventInpu
 	return
 }
 
-func (s *sDevTSLEvent) AddEvent(ctx context.Context, in *model.TSLEventInput) (err error) {
+func (s *sDevTSLEvent) AllEvent(ctx context.Context, key string) (list []model.TSLEvent, err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, key).Scan(&p)
+	if err != nil {
+		return
+	}
+	if p == nil {
+		return nil, gerror.New("产品不存在")
+	}
+
+	j, err := gjson.DecodeToJson(p.Metadata)
+	if err != nil {
+		return
+	}
+	tsl := new(model.TSL)
+	if err = j.Scan(tsl); err != nil {
+		return
+	}
+	list = tsl.Events
+
+	return
+}
+
+func (s *sDevTSLEvent) AddEvent(ctx context.Context, in *model.TSLEventAddInput) (err error) {
+	var p *entity.DevProduct
+
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -117,16 +141,16 @@ func (s *sDevTSLEvent) AddEvent(ctx context.Context, in *model.TSLEventInput) (e
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return
 }
 
-func (s *sDevTSLEvent) EditEvent(ctx context.Context, in *model.TSLEventInput) (err error) {
+func (s *sDevTSLEvent) EditEvent(ctx context.Context, in *model.TSLEventAddInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -147,7 +171,7 @@ func (s *sDevTSLEvent) EditEvent(ctx context.Context, in *model.TSLEventInput) (
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Events {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -163,7 +187,7 @@ func (s *sDevTSLEvent) EditEvent(ctx context.Context, in *model.TSLEventInput) (
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return
@@ -172,7 +196,7 @@ func (s *sDevTSLEvent) EditEvent(ctx context.Context, in *model.TSLEventInput) (
 func (s *sDevTSLEvent) DelEvent(ctx context.Context, in *model.DelTSLEventInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -193,7 +217,7 @@ func (s *sDevTSLEvent) DelEvent(ctx context.Context, in *model.DelTSLEventInput)
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Events {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -208,7 +232,7 @@ func (s *sDevTSLEvent) DelEvent(ctx context.Context, in *model.DelTSLEventInput)
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return

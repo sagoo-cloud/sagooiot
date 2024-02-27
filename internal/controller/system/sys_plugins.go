@@ -3,9 +3,9 @@ package system
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var SysPlugins = cSystemSysPlugins{}
@@ -28,15 +28,51 @@ func (u *cSystemSysPlugins) GetSysPluginsList(ctx context.Context, req *system.G
 
 // GetSysPluginsById 获取指定ID数据
 func (u *cSystemSysPlugins) GetSysPluginsById(ctx context.Context, req *system.GetSysPluginsByIdReq) (res *system.GetSysPluginsByIdRes, err error) {
-	data, err := service.SysPlugins().GetSysPluginsById(ctx, req.Id)
-	res = new(system.GetSysPluginsByIdRes)
-	err = gconv.Scan(data, &res)
+	out, err := service.SysPlugins().GetSysPluginsById(ctx, req.Id)
+	if err != nil {
+		return
+	}
+	if out != nil {
+		res = new(system.GetSysPluginsByIdRes)
+		err = gconv.Scan(out, &res)
+	}
+
+	return
+}
+
+// AddSysPlugins 添加插件
+func (u *cSystemSysPlugins) AddSysPlugins(ctx context.Context, req *system.AddSysPluginsReq) (res *system.AddSysPluginsRes, err error) {
+	err = service.SysPlugins().AddSysPlugins(ctx, req.File)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
 // EditSysPluginsStatus  修改插件的状态
-func (a *cMenu) EditSysPluginsStatus(ctx context.Context, req *system.EditSysPluginsStatusReq) (res *system.EditSysPluginsStatusRes, err error) {
+func (u *cSystemSysPlugins) EditSysPluginsStatus(ctx context.Context, req *system.EditSysPluginsStatusReq) (res *system.EditSysPluginsStatusRes, err error) {
 	err = service.SysPlugins().EditStatus(ctx, req.Id, req.Status)
+	return
+}
+
+// EditSysPlugins 添加插件
+func (u *cSystemSysPlugins) EditSysPlugins(ctx context.Context, req *system.EditSysPluginsReq) (res *system.EditSysPluginsRes, err error) {
+	var input *model.SysPluginsEditInput
+	if err = gconv.Scan(req, &input); err != nil {
+		return
+	}
+	err = service.SysPlugins().EditSysPlugins(ctx, input)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// DelSysPluginsStatus  删除插件
+func (u *cSystemSysPlugins) DelSysPluginsStatus(ctx context.Context, req *system.DelSysPluginsStatusReq) (res *system.DelSysPluginsStatusRes, err error) {
+	err = service.SysPlugins().DeleteSysPlugins(ctx, req.Ids)
 	return
 }
 

@@ -2,10 +2,11 @@ package product
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/do"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -31,15 +32,25 @@ func (s *sDevDeviceTag) Add(ctx context.Context, in *model.AddTagDeviceInput) (e
 	if err != nil {
 		return
 	}
-	param.CreateBy = uint(loginUserId)
+	/*param.CreateBy = uint(loginUserId)*/
 
-	_, err = dao.DevDeviceTag.Ctx(ctx).Data(param).Insert()
+	_, err = dao.DevDeviceTag.Ctx(ctx).Data(do.DevDeviceTag{
+		DeptId:    service.Context().GetUserDeptId(ctx),
+		DeviceId:  param.DeviceId,
+		DeviceKey: param.DeviceKey,
+		Key:       param.Key,
+		Name:      param.Name,
+		Value:     param.Value,
+		CreatedBy: uint(loginUserId),
+		CreatedAt: gtime.Now(),
+	}).Insert()
 	return
 }
 
 func (s *sDevDeviceTag) Edit(ctx context.Context, in *model.EditTagDeviceInput) (err error) {
-	total, _ := dao.DevDeviceTag.Ctx(ctx).Where(dao.DevDeviceTag.Columns().Id, in.Id).Count()
-	if total == 0 {
+	var deviceTag *entity.DevDeviceTag
+	err = dao.DevDeviceTag.Ctx(ctx).Where(dao.DevDeviceTag.Columns().Id, in.Id).Scan(&deviceTag)
+	if deviceTag == nil {
 		return gerror.New("标签不存在")
 	}
 
@@ -51,7 +62,7 @@ func (s *sDevDeviceTag) Edit(ctx context.Context, in *model.EditTagDeviceInput) 
 	if err != nil {
 		return
 	}
-	param.UpdateBy = uint(loginUserId)
+	param.UpdatedBy = uint(loginUserId)
 	param.Id = nil
 
 	_, err = dao.DevDeviceTag.Ctx(ctx).Data(param).Where(dao.DevDeviceTag.Columns().Id, in.Id).Update()
@@ -59,8 +70,9 @@ func (s *sDevDeviceTag) Edit(ctx context.Context, in *model.EditTagDeviceInput) 
 }
 
 func (s *sDevDeviceTag) Del(ctx context.Context, id uint) (err error) {
-	total, _ := dao.DevDeviceTag.Ctx(ctx).Where(dao.DevDeviceTag.Columns().Id, id).Count()
-	if total == 0 {
+	var deviceTag *entity.DevDeviceTag
+	err = dao.DevDeviceTag.Ctx(ctx).Where(dao.DevDeviceTag.Columns().Id, id).Scan(&deviceTag)
+	if deviceTag == nil {
 		return gerror.New("标签不存在")
 	}
 
@@ -75,5 +87,43 @@ func (s *sDevDeviceTag) Del(ctx context.Context, id uint) (err error) {
 		Where(dao.DevDeviceTag.Columns().Id, id).
 		Unscoped().
 		Update()
+	return
+}
+
+func (s *sDevDeviceTag) Update(ctx context.Context, deviceId uint, list []model.AddTagDeviceInput) (err error) {
+	var tagIds []int
+	var add []model.AddTagDeviceInput
+	for _, v := range list {
+		rs, err := dao.DevDeviceTag.Ctx(ctx).
+			Fields(dao.DevDeviceTag.Columns().Id).
+			Where(dao.DevDeviceTag.Columns().DeviceId, deviceId).
+			Where(dao.DevDeviceTag.Columns().Key, v.Key).
+			Where(dao.DevDeviceTag.Columns().Name, v.Name).
+			Where(dao.DevDeviceTag.Columns().Value, v.Value).
+			Value()
+		if err != nil {
+			return err
+		}
+		if rs.Int() > 0 {
+			tagIds = append(tagIds, rs.Int())
+		} else {
+			add = append(add, v)
+		}
+	}
+	if len(tagIds) > 0 {
+		_, err = dao.DevDeviceTag.Ctx(ctx).
+			Where(dao.DevDeviceTag.Columns().DeviceId, deviceId).
+			WhereNotIn(dao.DevDeviceTag.Columns().Id, tagIds).
+			Unscoped().Delete()
+		if err != nil {
+			return
+		}
+	}
+	for _, v := range add {
+		newV := v
+		if err = service.DevDeviceTag().Add(ctx, &newV); err != nil {
+			return
+		}
+	}
 	return
 }

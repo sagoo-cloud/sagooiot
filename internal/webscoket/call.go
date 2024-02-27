@@ -7,8 +7,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/text/gstr"
-	"github.com/sagoo-cloud/sagooiot/internal/webscoket/common"
-	"github.com/sagoo-cloud/sagooiot/internal/webscoket/sys"
+	"sagooiot/internal/webscoket/common"
+	"sagooiot/internal/webscoket/sys"
 )
 
 var (

@@ -5,10 +5,14 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/tiger1103/gfast-token/gftoken"
+	"github.com/gogf/gf/v2/os/glog"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/gftoken"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -44,12 +48,54 @@ func (m *sSysToken) ParseToken(r *ghttp.Request) (*gftoken.CustomClaims, error) 
 
 func GfToken() *gftoken.GfToken {
 	ctx := gctx.New()
-	err := g.Cfg().MustGet(ctx, "gfToken").Struct(&gftService.options)
+
+	//判断控制是否生效
+	configDataByIsSecurityControlEnabled, err := service.ConfigData().GetConfigByKey(ctx, consts.SysIsSecurityControlEnabled)
 	if err != nil {
 		panic(err.Error())
 	}
-	prefix := g.Cfg().MustGet(ctx, "system.cache.prefix").String()
-	m := g.Cfg().MustGet(ctx, "system.cache.model").String()
+	var configDataByTokenExpiryDate *entity.SysConfig
+	var configDataBySingleLogin *entity.SysConfig
+	if configDataByIsSecurityControlEnabled != nil && strings.EqualFold(configDataByIsSecurityControlEnabled.ConfigValue, "1") {
+		//获取token过期时间
+		configDataByTokenExpiryDate, err = service.ConfigData().GetConfigByKey(ctx, consts.SysTokenExpiryDate)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		//获取是否单一登录系统参数
+		configDataBySingleLogin, err = service.ConfigData().GetConfigByKey(ctx, consts.SysIsSingleLogin)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
+	err = g.Cfg().MustGet(ctx, "gfToken").Struct(&gftService.options)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	//设置token过期时间
+	if configDataByTokenExpiryDate != nil {
+		// 将字符串转换为整数
+		var minutes int
+		minutes, err = strconv.Atoi(configDataByTokenExpiryDate.ConfigValue)
+		if err != nil {
+			glog.Debugf(ctx, "无法将字符串转换为整数:%s", err)
+			panic(err.Error())
+		}
+		gftService.options.Timeout = int64(minutes * 60)
+	}
+	//是否开启单一登录
+	if configDataBySingleLogin != nil {
+		if strings.EqualFold(configDataBySingleLogin.ConfigValue, "0") {
+			gftService.options.MultiLogin = true //允许一个账户多设备登录
+		} else if strings.EqualFold(configDataBySingleLogin.ConfigValue, "1") {
+			gftService.options.MultiLogin = false //禁止一个账户多设备登录
+		}
+	}
+	prefix := g.Cfg().MustGet(ctx, "cache.prefix").String()
+	m := g.Cfg().MustGet(ctx, "cache.adapter").String()
 	return GfTokenOption(gftService.options, prefix, m)
 }
 

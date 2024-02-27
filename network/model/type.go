@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/network/codebin"
 	"math"
+	"sagooiot/network/codebin"
 	"strings"
 )
 
-//DataType 数据类型
+// DataType 数据类型
 type DataType int
 
 const (
@@ -27,7 +27,7 @@ const (
 	TypeDOUBLE
 )
 
-//Parse 解析类型
+// Parse 解析类型
 func (dt *DataType) Parse(tp string) error {
 	//var *dt DataType
 	tp = tp[1 : len(tp)-1]
@@ -77,7 +77,7 @@ func (dt *DataType) Parse(tp string) error {
 	return nil
 }
 
-//String 转化成字符串
+// String 转化成字符串
 func (dt *DataType) String() string {
 	var str string
 	switch *dt {
@@ -161,7 +161,7 @@ func (dt *DataType) Normalize(val interface{}) interface{} {
 	}
 }
 
-//Size 宽度
+// Size 宽度
 func (dt *DataType) Size() int {
 	var s int
 	switch *dt {
@@ -191,7 +191,7 @@ func (dt *DataType) Size() int {
 	return s
 }
 
-//Encode 编码
+// Encode 编码
 func (dt *DataType) Encode(value interface{}, le bool, precision int) []byte {
 	buf := make([]byte, 8)
 	switch *dt {
@@ -295,7 +295,7 @@ func (dt *DataType) Encode(value interface{}, le bool, precision int) []byte {
 	return buf[:dt.Size()]
 }
 
-//Decode 解码
+// Decode 解码
 func (dt *DataType) Decode(buf []byte, le bool, precision int) (val interface{}, err error) {
 	//避免越界访问
 	if len(buf) < dt.Size() {
@@ -401,12 +401,12 @@ func (dt *DataType) Decode(buf []byte, le bool, precision int) (val interface{},
 	return
 }
 
-//MarshalJSON 序列化
+// MarshalJSON 序列化
 func (dt *DataType) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + dt.String() + `"`), nil
 }
 
-//UnmarshalJSON 解析
+// UnmarshalJSON 解析
 func (dt *DataType) UnmarshalJSON(buf []byte) error {
 	return dt.Parse(string(buf))
 }

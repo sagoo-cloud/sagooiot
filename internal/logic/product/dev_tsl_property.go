@@ -3,11 +3,13 @@ package product
 import (
 	"context"
 	"encoding/json"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
 	"math"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"strings"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -28,7 +30,7 @@ func devTSLPropertyNew() *sDevTSLProperty {
 func (s *sDevTSLProperty) ListProperty(ctx context.Context, in *model.ListTSLPropertyInput) (out *model.ListTSLPropertyOutput, err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
@@ -117,11 +119,16 @@ func (s *sDevTSLProperty) AllProperty(ctx context.Context, key string) (list []m
 func (s *sDevTSLProperty) AddProperty(ctx context.Context, in *model.TSLPropertyInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
+	if err != nil {
+		return
+	}
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
-
+	if p.Status != 0 {
+		return gerror.New("产品已发布,无法新增!")
+	}
 	tsl := new(model.TSL)
 	j, err := gjson.DecodeToJson(p.Metadata)
 	if err != nil {
@@ -140,10 +147,10 @@ func (s *sDevTSLProperty) AddProperty(ctx context.Context, in *model.TSLProperty
 	tsl.Properties = append(tsl.Properties, in.TSLProperty)
 	metaData, _ := json.Marshal(tsl)
 
-	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.DevProduct.Ctx(ctx).
 			Data(dao.DevProduct.Columns().Metadata, metaData).
-			Where(dao.DevProduct.Columns().Id, in.ProductId).
+			Where(dao.DevProduct.Columns().Key, in.ProductKey).
 			Update()
 		if err != nil {
 			return err
@@ -169,14 +176,16 @@ func (s *sDevTSLProperty) AddProperty(ctx context.Context, in *model.TSLProperty
 func (s *sDevTSLProperty) EditProperty(ctx context.Context, in *model.TSLPropertyInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
 	if err != nil {
 		return
 	}
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
-
+	if p.Status != 0 {
+		return gerror.New("产品已发布,无法修改!")
+	}
 	j, err := gjson.DecodeToJson(p.Metadata)
 	if err != nil {
 		return
@@ -190,7 +199,7 @@ func (s *sDevTSLProperty) EditProperty(ctx context.Context, in *model.TSLPropert
 	existKey := false
 	existIndex := 0
 	for i, v := range tsl.Properties {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -213,7 +222,7 @@ func (s *sDevTSLProperty) EditProperty(ctx context.Context, in *model.TSLPropert
 
 	_, err = dao.DevProduct.Ctx(ctx).
 		Data(dao.DevProduct.Columns().Metadata, metaData).
-		Where(dao.DevProduct.Columns().Id, in.ProductId).
+		Where(dao.DevProduct.Columns().Key, in.ProductKey).
 		Update()
 
 	return
@@ -222,11 +231,16 @@ func (s *sDevTSLProperty) EditProperty(ctx context.Context, in *model.TSLPropert
 func (s *sDevTSLProperty) DelProperty(ctx context.Context, in *model.DelTSLPropertyInput) (err error) {
 	var p *entity.DevProduct
 
-	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Id, in.ProductId).Scan(&p)
+	err = dao.DevProduct.Ctx(ctx).Where(dao.DevProduct.Columns().Key, in.ProductKey).Scan(&p)
+	if err != nil {
+		return
+	}
 	if p == nil {
 		return gerror.New("产品不存在")
 	}
-
+	if p.Status != 0 {
+		return gerror.New("产品已发布,无法删除!")
+	}
 	j, err := gjson.DecodeToJson(p.Metadata)
 	if err != nil {
 		return
@@ -239,8 +253,9 @@ func (s *sDevTSLProperty) DelProperty(ctx context.Context, in *model.DelTSLPrope
 	// 检查属性标识Key是否存在
 	existKey := false
 	existIndex := 0
+	plen := len(tsl.Properties)
 	for i, v := range tsl.Properties {
-		if v.Key == in.Key {
+		if strings.EqualFold(v.Key, in.Key) {
 			existKey = true
 			existIndex = i
 			break
@@ -253,23 +268,59 @@ func (s *sDevTSLProperty) DelProperty(ctx context.Context, in *model.DelTSLPrope
 	tsl.Properties = append(tsl.Properties[:existIndex], tsl.Properties[existIndex+1:]...)
 	metaData, _ := json.Marshal(tsl)
 
-	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
-		_, err = dao.DevProduct.Ctx(ctx).
-			Data(dao.DevProduct.Columns().Metadata, metaData).
-			Where(dao.DevProduct.Columns().Id, in.ProductId).
-			Update()
-		if err != nil {
-			return err
-		}
-
+	err = dao.DevProduct.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		existTable := p.MetadataTable
+		existStatus := p.Status
 		// 删除TD表字段
-		if p.MetadataTable == 1 {
-			err = service.TSLTable().DelDatabaseField(ctx, p.Key, in.Key)
-			if err != nil {
-				return err
+		if existTable == 1 {
+			if plen > 1 {
+				if err = service.TSLTable().DelDatabaseField(ctx, p.Key, in.Key); err != nil {
+					return err
+				}
+			} else {
+				// 删除超级表
+				if err = service.TSLTable().DropStable(ctx, p.Key); err != nil {
+					return err
+				}
+				// 删除子表
+				devList, err := service.DevDevice().GetAllForProduct(ctx, p.Key)
+				if err != nil {
+					return err
+				}
+				for _, v := range devList {
+					if v.MetadataTable == 0 {
+						continue
+					}
+					if err = service.TSLTable().DropTable(ctx, v.Key); err != nil {
+						return err
+					}
+					_, err = dao.DevDevice.Ctx(ctx).
+						Data(do.DevDevice{
+							MetadataTable: 0,
+							Status:        model.DeviceStatusNoEnable,
+						}).
+						Where(dao.DevDevice.Columns().Id, v.Id).
+						Update()
+					if err != nil {
+						return err
+					}
+				}
+
+				existTable = 0
+				existStatus = model.ProductStatusOff
 			}
 		}
-		return nil
+
+		// 更新
+		_, err = dao.DevProduct.Ctx(ctx).
+			Data(do.DevProduct{
+				MetadataTable: existTable,
+				Metadata:      metaData,
+				Status:        existStatus,
+			}).
+			Where(dao.DevProduct.Columns().Key, in.ProductKey).
+			Update()
+		return err
 	})
 
 	return
@@ -278,22 +329,22 @@ func (s *sDevTSLProperty) DelProperty(ctx context.Context, in *model.DelTSLPrope
 // 检查标识Key是否存在，物模型模块下唯一
 func checkExistKey(key string, tsl model.TSL) bool {
 	for _, v := range tsl.Properties {
-		if v.Key == key {
+		if strings.EqualFold(v.Key, key) {
 			return true
 		}
 	}
 	for _, v := range tsl.Functions {
-		if v.Key == key {
+		if strings.EqualFold(v.Key, key) {
 			return true
 		}
 	}
 	for _, v := range tsl.Events {
-		if v.Key == key {
+		if strings.EqualFold(v.Key, key) {
 			return true
 		}
 	}
 	for _, v := range tsl.Tags {
-		if v.Key == key {
+		if strings.EqualFold(v.Key, key) {
 			return true
 		}
 	}

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
+	"sagooiot/internal/model/entity"
 )
 
 const (
@@ -26,6 +26,7 @@ type AlarmLogAddInput struct {
 	RuleName   string `json:"ruleName" dc:"规则名称"`
 	Level      uint   `json:"level" dc:"告警级别"`
 	Data       string `json:"data" dc:"触发告警的数据"`
+	Expression string `json:"expression" dc:"触发告警的表达式"`
 	ProductKey string `json:"productKey" dc:"产品标识"`
 	DeviceKey  string `json:"deviceKey" dc:"设备标识"`
 }
@@ -47,7 +48,11 @@ type AlarmLogLevelTotal struct {
 
 // 日志列表
 type AlarmLogListInput struct {
+	AlarmInput
 	PaginationInput
+}
+type AlarmInput struct {
+	Status string `p:"status"` //告警状态
 }
 type AlarmLogListOutput struct {
 	List []AlarmLogOutput `json:"list" dc:"告警日志"`

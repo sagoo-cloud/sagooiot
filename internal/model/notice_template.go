@@ -12,6 +12,7 @@ type NoticeTemplateListOutput struct {
 }
 type NoticeTemplateOutput struct {
 	Id          string `json:"id"          description:""`
+	DeptId      int    `json:"deptId"      description:"部门ID"`
 	ConfigId    string `json:"configId"          description:""`
 	SendGateway string `json:"sendGateway"          description:""`
 	Code        string `json:"code"          description:""`
@@ -21,6 +22,7 @@ type NoticeTemplateOutput struct {
 }
 type NoticeTemplateAddInput struct {
 	Id          string `json:"id"          description:"ID"`
+	DeptId      int    `json:"deptId"      description:"部门ID"`
 	SendGateway string `json:"sendGateway"          description:""`
 	Code        string `json:"code"          description:""`
 	Title       string `json:"title"          description:""`

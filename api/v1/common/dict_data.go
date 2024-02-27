@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/internal/model"
 )
 
 // GetDictReq 获取字典信息请求参数

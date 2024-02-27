@@ -1,0 +1,28 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>System Info:</h1>
+<ul id="dataList"></ul>
+
+<script>
+    es = new EventSource("http://localhost:8199/subscribe/sysMessage")
+
+    // bind the event listeners
+    es.addEventListener("lastUnRead", displayLastUnRead);
+
+
+    function displayLastUnRead(event) {
+        var breed = event.data;
+        _appendListItem("主机信息："+breed);
+    }
+
+    function _appendListItem(msg) {
+        var li = document.createElement("li");
+        li.innerHTML = msg;
+        document.getElementById("dataList").appendChild(li);
+    }
+</script>
+</body>
+</html>

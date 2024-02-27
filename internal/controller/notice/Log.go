@@ -2,8 +2,8 @@ package notice
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/notice"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/notice"
+	"sagooiot/internal/service"
 )
 
 var NoticeLog = cNoticeNoticeLog{}

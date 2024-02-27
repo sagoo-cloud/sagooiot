@@ -3,283 +3,105 @@ package tdengine
 import (
 	"context"
 	"database/sql"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/service"
+	"sync"
 	"time"
 
 	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
-	_ "github.com/taosdata/driver-go/v3/taosRestful"
-	//_ "github.com/taosdata/driver-go/v3/taosSql" //原生驱动
 )
 
-type sTdEngine struct {
-}
+type sTdEngine struct{}
 
+var _instance *sTdEngine
+var once sync.Once
+
+// 使用单例模式创建sTdEngine实例
 func tdEngineNew() *sTdEngine {
-	return &sTdEngine{}
+	once.Do(func() {
+		_instance = &sTdEngine{}
+	})
+	return _instance
 }
 
-func init() {
-	service.RegisterTdEngine(tdEngineNew())
-
-	name, _ := g.Cfg().Get(context.TODO(), "tdengine.dbName")
-	if name.String() != "" {
-		dbName = name.String()
-	}
-}
-
-// 数据库名
 var dbName = "sagoo_iot"
 
-// GetConn 获取链接
-func (s *sTdEngine) GetConn(ctx context.Context, dbName string) (db *sql.DB, err error) {
-	driver, err := g.Cfg().Get(ctx, "tdengine.type")
-	if err != nil {
-		err = gerror.New("请检查TDengine配置")
-		return
-	}
-	dsn, err := g.Cfg().Get(ctx, "tdengine.dsn")
-	if err != nil {
-		err = gerror.New("请检查TDengine配置")
-		return
-	}
-
-	link := dsn.String()
-	if dbName != "" {
-		link += dbName
-	}
-
-	taos, err := sql.Open(driver.String(), link)
-	if err != nil {
-		g.Log().Error(ctx, err)
-		err = gerror.New("TDengine连接失败")
-		return
-	}
-	return taos, nil
+// 初始化函数
+func init() {
+	service.RegisterTdEngine(tdEngineNew())
+	// 简化配置获取过程
+	dbName = g.Cfg().MustGet(context.Background(), "tdengine.dbName", "sagoo_iot").String()
 }
 
-// GetTdEngineAllDb 获取所有数据库
-func (s *sTdEngine) GetTdEngineAllDb(ctx context.Context) (data []string, err error) {
-	taos, err := s.GetConn(ctx, "")
-	if err != nil {
-		err = gerror.New("获取链接失败")
-		return
-	}
-
-	defer taos.Close()
-
-	rows, err := taos.Query("show databases;")
-	if err != nil {
-		err = gerror.New(err.Error())
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var name string
-
-		err = rows.Scan(&name)
-		data = append(data, name)
-	}
-	return
+type connections struct {
+	tdEngineType  string
+	tdDsn         string
+	ConnectionMap map[string]*sql.DB
+	sync.RWMutex
 }
 
-// GetListTableByDatabases 获取指定数据库下所有的表列表
-func (s *sTdEngine) GetListTableByDatabases(ctx context.Context, dbName string) (data []*model.TDEngineTablesList, err error) {
-	taos, err := s.GetConn(ctx, dbName)
-	if err != nil {
-		err = gerror.New("获取链接失败")
-		return
-	}
+var connectionMap *connections
 
-	defer taos.Close()
-
-	rows, err := taos.Query("SELECT table_name AS tableName, db_name AS dbName, create_time AS createTime, stable_name AS stableName FROM information_schema.ins_tables WHERE db_name = '" + dbName + "'")
-	if err != nil {
-		err = gerror.New(err.Error())
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var tableName, db, stableName string
-		var createTime *gtime.Time
-		err = rows.Scan(&tableName, &db, &createTime, &stableName)
-		if err != nil {
-			err = gerror.New("获取失败")
-			return
+// GetConn 获取数据库连接
+func (s *sTdEngine) GetConn(ctx context.Context, dbName string) (*sql.DB, error) {
+	if connectionMap == nil {
+		// 一次性初始化connectionMap
+		connectionMap = initConnectionMap(ctx)
+		if connectionMap == nil {
+			return nil, gerror.New("TDengine配置初始化失败")
 		}
-		var tDEngineTablesList = new(model.TDEngineTablesList)
-		tDEngineTablesList.TableName = tableName
-		tDEngineTablesList.DbName = db
-		tDEngineTablesList.StableName = stableName
-		tDEngineTablesList.CreateTime = createTime
-		data = append(data, tDEngineTablesList)
 	}
-	return
+
+	connectionMap.RLock()
+	connection, exists := connectionMap.ConnectionMap[dbName]
+	connectionMap.RUnlock()
+
+	if !exists {
+		return createNewConnection(ctx, dbName)
+	}
+
+	return connection, nil
 }
 
-// GetTdEngineTableInfoByTable 获取指定数据表结构信息
-func (s *sTdEngine) GetTdEngineTableInfoByTable(ctx context.Context, dbName string, tableName string) (data []*model.TDEngineTableInfo, err error) {
-	taos, err := s.GetConn(ctx, dbName)
-	if err != nil {
-		err = gerror.New("获取链接失败")
-		return
+// 初始化连接映射
+func initConnectionMap(ctx context.Context) *connections {
+	driver := g.Cfg().MustGet(ctx, "tsd.tdengine.type")
+	dsn := g.Cfg().MustGet(ctx, "tsd.tdengine.dsn")
+	return &connections{
+		tdEngineType:  driver.String(),
+		tdDsn:         dsn.String(),
+		ConnectionMap: make(map[string]*sql.DB),
 	}
-
-	defer taos.Close()
-
-	rows, err := taos.Query("DESCRIBE " + dbName + "." + tableName + ";")
-	if err != nil {
-		err = gerror.New(err.Error())
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var tDEngineTableInfo = new(model.TDEngineTableInfo)
-		err = rows.Scan(&tDEngineTableInfo.Field, &tDEngineTableInfo.Type, &tDEngineTableInfo.Length, &tDEngineTableInfo.Note)
-		if err != nil {
-			err = gerror.New("获取失败")
-			return
-		}
-		data = append(data, tDEngineTableInfo)
-	}
-	return
 }
 
-// GetTdEngineTableDataByTable 获取指定数据表数据信息
-func (s *sTdEngine) GetTdEngineTableDataByTable(ctx context.Context, dbName string, tableName string) (data *model.TableDataInfo, err error) {
-	data = new(model.TableDataInfo)
-	taos, err := s.GetConn(ctx, dbName)
+// 创建新连接
+func createNewConnection(ctx context.Context, dbName string) (*sql.DB, error) {
+	connectionMap.Lock()
+	defer connectionMap.Unlock()
+
+	// 再次检查以防止竞态条件
+	if conn, exists := connectionMap.ConnectionMap[dbName]; exists {
+		return conn, nil
+	}
+
+	connection, err := sql.Open(connectionMap.tdEngineType, connectionMap.tdDsn+dbName)
 	if err != nil {
-		err = gerror.New("获取链接失败")
-		return
+		return nil, gerror.Wrap(err, "TDengine连接失败")
 	}
 
-	defer taos.Close()
+	// 配置连接池设置
+	connection.SetMaxIdleConns(g.Cfg().MustGet(ctx, "tdengine.maxIdleConns").Int())
+	connection.SetMaxOpenConns(g.Cfg().MustGet(ctx, "tdengine.maxOpenConns").Int())
 
-	rows, err := taos.Query("SELECT * FROM " + tableName)
-	if err != nil {
-		err = gerror.New(err.Error())
-		return
-	}
-	defer rows.Close()
-
-	//获取查询结果字段
-	columns, _ := rows.Columns()
-	//字段数组
-	var filed []string
-	//封装scanArg
-	scanArgs := make([]any, len(columns))
-	for i := range columns {
-		filed = append(filed, columns[i])
-		scanArgs[i] = &columns[i]
-	}
-	data.Filed = append(data.Filed, filed...)
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
-		if err != nil {
-			err = gerror.New("获取失败")
-			return
-		}
-		//封装返回结果
-		var resultMap = make(map[string]interface{})
-		for i := range columns {
-			resultMap[filed[i]] = columns[i]
-		}
-		data.Info = append(data.Info, resultMap)
-	}
-
-	return
+	connectionMap.ConnectionMap[dbName] = connection
+	return connection, nil
 }
 
-// 超级表查询，单条数据
-func (s *sTdEngine) GetOne(ctx context.Context, sql string, args ...any) (rs gdb.Record, err error) {
-	taos, err := service.TdEngine().GetConn(ctx, dbName)
-	if err != nil {
-		err = gerror.New("获取链接失败")
-		return
-	}
-	defer taos.Close()
-
-	rows, err := taos.Query(sql, args...)
-	if err != nil {
-		g.Log().Error(ctx, err, sql, args)
-		return nil, err
-	}
-	defer rows.Close()
-
-	columns, _ := rows.Columns()
-	values := make([]any, len(columns))
-	rs = make(gdb.Record, len(columns))
-	for i := range values {
-		values[i] = new(any)
-	}
-
-	for rows.Next() {
-		err = rows.Scan(values...)
-		if err != nil {
-			return nil, err
-		}
-
-		for i, c := range columns {
-			rs[c] = s.Time(gvar.New(values[i]))
-		}
-
-		rows.Close()
-	}
-
-	return
-}
-
-// 超级表查询，多条数据
-func (s *sTdEngine) GetAll(ctx context.Context, sql string, args ...any) (rs gdb.Result, err error) {
-	taos, err := service.TdEngine().GetConn(ctx, dbName)
-	if err != nil {
-		err = gerror.New("获取链接失败")
-		return
-	}
-	defer taos.Close()
-
-	rows, err := taos.Query(sql, args...)
-	if err != nil {
-		g.Log().Error(ctx, err, sql)
-		return nil, err
-	}
-	defer rows.Close()
-
-	columns, _ := rows.Columns()
-
-	for rows.Next() {
-		values := make([]any, len(columns))
-		for i := range values {
-			values[i] = new(any)
-		}
-
-		err = rows.Scan(values...)
-		if err != nil {
-			return nil, err
-		}
-
-		m := make(gdb.Record, len(columns))
-		for i, c := range columns {
-			m[c] = s.Time(gvar.New(values[i]))
-		}
-		rs = append(rs, m)
-	}
-
-	return
-}
-
-// REST连接时区处理
+// Time REST连接时区处理
 func (s *sTdEngine) Time(v *g.Var) (rs *g.Var) {
-	driver, _ := g.Cfg().Get(context.TODO(), "tdengine.type")
-
+	driver := g.Cfg().MustGet(context.TODO(), "tdengine.type")
 	if driver.String() == "taosRestful" {
 		if t, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", v.String()); err == nil {
 			rs = gvar.New(t.Local().Format("2006-01-02 15:04:05"))
@@ -288,5 +110,37 @@ func (s *sTdEngine) Time(v *g.Var) (rs *g.Var) {
 	}
 
 	rs = v
+	return
+}
+
+func Close() {
+	if connectionMap == nil {
+		return
+	}
+	connectionMap.Lock()
+	for _, node := range connectionMap.ConnectionMap {
+		if err := node.Close(); err != nil {
+			return
+		}
+	}
+	connectionMap.Unlock()
+}
+
+// ClearLogByDays 删除指定天数的设备日志数据
+func (s *sTdEngine) ClearLogByDays(ctx context.Context, days int) (err error) {
+	db, err := s.GetConn(ctx, dbName)
+	if err != nil {
+		return
+	}
+
+	//
+	brforeTime := gtime.Now().AddDate(0, 0, -days).Format("Y-m-d H:i:s.u")
+	sqlStr := "delete from device_log  where ts < ?"
+	rows, err := db.Query(sqlStr, brforeTime)
+	if err != nil {
+		g.Log().Error(ctx, err, sqlStr)
+		return
+	}
+	defer rows.Close()
 	return
 }

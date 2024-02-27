@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/internal/model"
 )
 
 type DictTypeSearchReq struct {
@@ -10,7 +10,7 @@ type DictTypeSearchReq struct {
 	DictName       string `p:"dictName"`       //字典名称
 	DictType       string `p:"dictType"`       //字典类型
 	Status         string `p:"status"`         //字典状态
-	ModuleClassify string `p:"moduleClassify"` //字典模块分类
+	ModuleClassify string `p:"moduleClassify"` //模块分类
 	*PaginationReq
 }
 
@@ -25,7 +25,7 @@ type DictTypeAddReq struct {
 	DictName       string `p:"dictName"  v:"required#字典名称不能为空"`
 	DictType       string `p:"dictType"  v:"required#字典类型不能为空"`
 	Status         uint   `p:"status"  v:"required|in:0,1#状态不能为空|状态只能为0或1"`
-	ModuleClassify string `p:"moduleClassify"`
+	ModuleClassify string `p:"moduleClassify"` //模块分类
 	Remark         string `p:"remark"`
 }
 
@@ -48,7 +48,7 @@ type DictTypeEditReq struct {
 	DictName       string `p:"dictName"  v:"required#字典名称不能为空"`
 	DictType       string `p:"dictType"  v:"required#字典类型不能为空"`
 	Status         uint   `p:"status"  v:"required|in:0,1#状态不能为空|状态只能为0或1"`
-	ModuleClassify string `p:"moduleClassify"`
+	ModuleClassify string `p:"moduleClassify"` //模块分类
 	Remark         string `p:"remark"`
 }
 

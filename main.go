@@ -2,15 +2,16 @@ package main
 
 import (
 	_ "github.com/gogf/gf/contrib/drivers/mysql/v2"
-	"github.com/sagoo-cloud/sagooiot/utility/version"
-
-	_ "github.com/sagoo-cloud/sagooiot/internal/packed"
-
-	_ "github.com/sagoo-cloud/sagooiot/internal/logic"
-	_ "github.com/sagoo-cloud/sagooiot/internal/task"
+	_ "github.com/gogf/gf/contrib/nosql/redis/v2"
+	_ "github.com/taosdata/driver-go/v3/taosRestful"
+	_ "github.com/taosdata/driver-go/v3/taosWS"
+	_ "sagooiot/internal/logic"
+	_ "sagooiot/internal/packed"
+	_ "sagooiot/network/core/logic/model"
 
 	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/sagoo-cloud/sagooiot/internal/cmd"
+	"sagooiot/internal/cmd"
+	"sagooiot/pkg/utility/version"
 )
 
 var (
@@ -21,5 +22,7 @@ var (
 
 func main() {
 	version.ShowLogo(BuildVersion, BuildTime, CommitID)
-	cmd.Main.Run(gctx.New())
+	ctx := gctx.GetInitCtx()
+	cmd.AllSystemInit(ctx)
+	cmd.Main.Run(ctx)
 }

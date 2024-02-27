@@ -2,9 +2,9 @@ package system
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/service"
 
-	systemV1 "github.com/sagoo-cloud/sagooiot/api/v1/system"
+	systemV1 "sagooiot/api/v1/system"
 )
 
 // 图形验证码

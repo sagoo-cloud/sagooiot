@@ -2,8 +2,10 @@ package alarm
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/alarm"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/gogf/gf/v2/util/gconv"
+	"sagooiot/api/v1/alarm"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var AlarmLog = cAlarmLog{}
@@ -21,7 +23,9 @@ func (c *cAlarmLog) Detail(ctx context.Context, req *alarm.AlarmLogDetailReq) (r
 }
 
 func (c *cAlarmLog) List(ctx context.Context, req *alarm.AlarmLogListReq) (res *alarm.AlarmLogListRes, err error) {
-	out, err := service.AlarmLog().List(ctx, req.AlarmLogListInput)
+	var reqData = new(model.AlarmLogListInput)
+	err = gconv.Scan(req, &reqData)
+	out, err := service.AlarmLog().List(ctx, reqData)
 	res = &alarm.AlarmLogListRes{
 		AlarmLogListOutput: out,
 	}
@@ -29,6 +33,8 @@ func (c *cAlarmLog) List(ctx context.Context, req *alarm.AlarmLogListReq) (res *
 }
 
 func (c *cAlarmLog) Handle(ctx context.Context, req *alarm.AlarmLogHandleReq) (res *alarm.AlarmLogHandleRes, err error) {
-	err = service.AlarmLog().Handle(ctx, &req.AlarmLogHandleInput)
+	var reqData = new(model.AlarmLogHandleInput)
+	err = gconv.Scan(req, &reqData)
+	err = service.AlarmLog().Handle(ctx, reqData)
 	return
 }

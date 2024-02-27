@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/gogf/gf/v2/os/gtime"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -28,14 +30,49 @@ func init() {
 }
 
 // GetList 获取全部菜单列表数据
-func (s *sSysMenuColumn) GetList(ctx context.Context, input *model.MenuColumnDoInput) (data []model.UserMenuColumnRes, err error) {
-	var menuColumn []model.UserMenuColumnRes
-	menuColumn, err = s.GetData(ctx, input, menuColumn)
-	return menuColumn, err
+func (s *sSysMenuColumn) GetList(ctx context.Context, input *model.MenuColumnDoInput) (data []*model.UserMenuColumnOut, err error) {
+	menuColumnOut, err := s.GetData(ctx, input)
+	if err != nil {
+		return
+	}
+	var parentNodeOut []*model.UserMenuColumnOut
+	if menuColumnOut != nil {
+		//获取所有的根节点
+		for _, v := range menuColumnOut {
+			var parentNode *model.UserMenuColumnOut
+			if v.ParentId == -1 {
+				if err = gconv.Scan(v, &parentNode); err != nil {
+					return
+				}
+				parentNodeOut = append(parentNodeOut, parentNode)
+			}
+		}
+		data = ColumnTree(parentNodeOut, menuColumnOut)
+	}
+	return
+}
+
+// ColumnTree MenuColumnTree 生成菜单列表树结构
+func ColumnTree(parentNodeOut []*model.UserMenuColumnOut, data []model.UserMenuColumnOut) (dataTree []*model.UserMenuColumnOut) {
+	//循环所有一级菜单
+	for k, v := range parentNodeOut {
+		//查询所有该菜单下的所有子菜单
+		for _, j := range data {
+			var node *model.UserMenuColumnOut
+			if j.ParentId == v.Id {
+				if err := gconv.Scan(j, &node); err != nil {
+					return
+				}
+				parentNodeOut[k].Children = append(parentNodeOut[k].Children, node)
+			}
+		}
+		ColumnTree(v.Children, data)
+	}
+	return parentNodeOut
 }
 
 // GetData 执行获取数据操作
-func (s *sSysMenuColumn) GetData(ctx context.Context, input *model.MenuColumnDoInput, menuColumn []model.UserMenuColumnRes) (data []model.UserMenuColumnRes, err error) {
+func (s *sSysMenuColumn) GetData(ctx context.Context, input *model.MenuColumnDoInput) (data []model.UserMenuColumnOut, err error) {
 	m := dao.SysMenuColumn.Ctx(ctx)
 	//模糊查询菜单列表名称
 	if input.Name != "" {
@@ -56,9 +93,8 @@ func (s *sSysMenuColumn) GetData(ctx context.Context, input *model.MenuColumnDoI
 	err = m.Where(g.Map{
 		dao.SysMenuColumn.Columns().MenuId:    input.MenuId,
 		dao.SysMenuColumn.Columns().IsDeleted: 0,
-	}).
-		Scan(&menuColumn)
-	return menuColumn, err
+	}).Scan(&data)
+	return
 }
 
 // Add 添加菜单列表
@@ -82,7 +118,17 @@ func (s *sSysMenuColumn) Add(ctx context.Context, input *model.AddMenuColumnInpu
 	}
 	menuColumn.IsDeleted = 0
 	menuColumn.CreatedBy = uint(loginUserId)
-	_, err = dao.SysMenuColumn.Ctx(ctx).Data(menuColumn).Insert()
+	_, err = dao.SysMenuColumn.Ctx(ctx).Data(do.SysMenuColumn{
+		ParentId:    menuColumn.ParentId,
+		MenuId:      menuColumn.MenuId,
+		Name:        menuColumn.Name,
+		Code:        menuColumn.Code,
+		Description: menuColumn.Description,
+		Status:      menuColumn.Status,
+		IsDeleted:   menuColumn.IsDeleted,
+		CreatedBy:   menuColumn.CreatedBy,
+		CreatedAt:   gtime.Now(),
+	}).Insert()
 	if err != nil {
 		return err
 	}
@@ -177,11 +223,10 @@ func (s *sSysMenuColumn) Del(ctx context.Context, Id int64) (err error) {
 	_, err = dao.SysMenuColumn.Ctx(ctx).
 		Data(g.Map{
 			dao.SysMenuColumn.Columns().DeletedBy: uint(loginUserId),
+			dao.SysMenuColumn.Columns().DeletedAt: gtime.Now(),
 			dao.SysMenuColumn.Columns().IsDeleted: 1,
 		}).Where(dao.SysMenuColumn.Columns().Id, Id).
 		Update()
-	//删除菜单列表信息
-	_, err = dao.SysMenuColumn.Ctx(ctx).Where(dao.SysMenuColumn.Columns().Id, Id).Delete()
 
 	//获取该菜单下所有的菜单按钮
 	_, err = s.GetInfoByMenuId(ctx, menuColumn.MenuId)
@@ -267,9 +312,8 @@ func checkMenuColumnCode(ctx context.Context, menu int, code string, menuColumn 
 
 // GetInfoByColumnIds 根据列表ID数组获取菜单信息
 func (s *sSysMenuColumn) GetInfoByColumnIds(ctx context.Context, ids []int) (data []*entity.SysMenuColumn, err error) {
-	cache := common.Cache()
 	var tmpData *gvar.Var
-	tmpData = cache.Get(ctx, consts.CacheSysMenuColumn)
+	tmpData, err = cache.Instance().Get(ctx, consts.CacheSysMenuColumn)
 	if err != nil {
 		return
 	}
@@ -279,7 +323,9 @@ func (s *sSysMenuColumn) GetInfoByColumnIds(ctx context.Context, ids []int) (dat
 	var menuColumnInfo []*entity.SysMenuColumn
 	//根据菜单ID数组获取菜单列表信息
 	if tmpData.Val() != nil {
-		json.Unmarshal([]byte(tmpData.Val().(string)), &tmpSysMenuColumn)
+		if err = json.Unmarshal([]byte(tmpData.Val().(string)), &tmpSysMenuColumn); err != nil {
+			return
+		}
 		for _, id := range ids {
 			for _, tmp := range tmpSysMenuColumn {
 				if id == int(tmp.Id) {
@@ -303,17 +349,16 @@ func (s *sSysMenuColumn) GetInfoByColumnIds(ctx context.Context, ids []int) (dat
 
 // GetInfoByMenuIds 根据菜单ID数组获取菜单信息
 func (s *sSysMenuColumn) GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenuColumn, err error) {
-	cache := common.Cache()
 	//获取缓存菜单按钮信息
 	for _, v := range menuIds {
 		var tmpData *gvar.Var
-		tmpData = cache.Get(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(v))
+		tmpData, err = cache.Instance().Get(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(v))
 		if err != nil {
 			return
 		}
 		if tmpData.Val() != nil {
 			var sysMenuColumn []*entity.SysMenuColumn
-			json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuColumn)
+			err = json.Unmarshal([]byte(tmpData.Val().(string)), &sysMenuColumn)
 			data = append(data, sysMenuColumn...)
 		}
 	}
@@ -328,7 +373,6 @@ func (s *sSysMenuColumn) GetInfoByMenuIds(ctx context.Context, menuIds []int) (d
 
 // GetInfoByMenuId 根据菜单ID获取菜单信息
 func (s *sSysMenuColumn) GetInfoByMenuId(ctx context.Context, menuId int) (data []*entity.SysMenuColumn, err error) {
-	cache := common.Cache()
 	err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
 		dao.SysMenuColumn.Columns().IsDeleted: 0,
 		dao.SysMenuColumn.Columns().Status:    1,
@@ -338,16 +382,18 @@ func (s *sSysMenuColumn) GetInfoByMenuId(ctx context.Context, menuId int) (data 
 		return
 	}
 	if data != nil && len(data) > 0 {
-		cache.Set(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId), data, 0)
+		err = cache.Instance().Set(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId), data, 0)
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		cache.Remove(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId))
+		_, err = cache.Instance().Remove(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId))
 	}
 	return
 }
 
 // GetAll 获取所有的列表信息
 func (s *sSysMenuColumn) GetAll(ctx context.Context) (data []*entity.SysMenuColumn, err error) {
-	cache := common.Cache()
 	err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
 		dao.SysMenuColumn.Columns().IsDeleted: 0,
 		dao.SysMenuColumn.Columns().Status:    1,
@@ -356,9 +402,12 @@ func (s *sSysMenuColumn) GetAll(ctx context.Context) (data []*entity.SysMenuColu
 		return
 	}
 	if data != nil && len(data) > 0 {
-		cache.Set(ctx, consts.CacheSysMenuColumn, data, 0)
+		err = cache.Instance().Set(ctx, consts.CacheSysMenuColumn, data, 0)
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		cache.Remove(ctx, consts.CacheSysMenuColumn)
+		_, err = cache.Instance().Remove(ctx, consts.CacheSysMenuColumn)
 	}
 	return
 }

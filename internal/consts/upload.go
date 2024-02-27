@@ -15,4 +15,5 @@ const (
 	SourceTencent        //  上传至腾讯云
 	SourceAli            //  上传到阿里云
 	SourceQiniu          //  上传到七牛云
+	SourceMinio          //  上传至MinIO
 )

@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var SysJob = cSysJob{}
@@ -36,6 +36,15 @@ func (a *cSysJob) List(ctx context.Context, req *system.GetJobListReq) (res *sys
 		}
 	}
 
+	return
+}
+
+// FunList 获取任务可用方法名列表
+func (a *cSysJob) FunList(ctx context.Context, req *system.GetJobFunListReq) (res *system.GetJobFunListRes, err error) {
+	resData, err := service.SysJob().GetJobFuns(ctx)
+	res = &system.GetJobFunListRes{
+		Data: resData,
+	}
 	return
 }
 

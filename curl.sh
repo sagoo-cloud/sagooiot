@@ -1,103 +1,96 @@
 #!/bin/bash
- 
-WORKSPACE=$(cd $(dirname $0)/ || exit; pwd)
+
+WORKSPACE=$(cd "$(dirname "$0")" || exit; pwd)
 cd "$WORKSPACE" || exit
+
+readonly app='sagooiot'
+readonly pidfile="var/$app.pid"
+readonly logfile="var/$app.log"
 
 mkdir -p var
 
-app=sagoo-admin
-pidfile=var/$app.pid
-logfile=var/$app.log
-
-function check_pid() {
-    if [ -f $pidfile ];then
-        pid=$(cat $pidfile)
+check_pid() {
+    if [[ -f $pidfile ]]; then
+        local pid=$(cat "$pidfile")
         if [[ -n $pid ]]; then
-            running=$(ps -p "$pid"|grep -c -v "PID TTY")
+            local running=$(ps -p "$pid" | grep -c -v "PID TTY")
             return "$running"
         fi
     fi
     return 0
 }
 
-
- function start(){
- 	check_pid
- 	running=$?
- 	if [ $running -gt 0 ]; then
- 		echo -n "$app now is running already,pid="
- 		cat $pidfile
- 		return
- 	fi
-
-    nohup ./$app &>> $logfile &
-    sleep 1
-    running=$(ps -p $! | grep -c -v "PID TTY")
-    if [ "$running" -gt 0 ];then
-        echo $! > $pidfile
-        echo "$app started..., pid=$!"
-    else
-        echo "$app failed to start"
+start() {
+    check_pid
+    local running=$?
+    if [[ $running -gt 0 ]]; then
+        printf "%s now is running already, pid: %s\n" "$app" "$(cat "$pidfile")"
         return 1
     fi
 
- }
-
-function stop() {
-    check_pid
-    running=$?
-    if [ $running -gt 0 ];then
-        pid=$(cat $pidfile)
-        kill "$pid"
-        rm -f $pidfile
-        echo "$app stoped"
+    nohup "./$app" >> "$logfile" 2>&1 &
+    sleep 1
+    running=$(ps -p $! | grep -c -v "PID TTY")
+    if [[ $running -gt 0 ]]; then
+        echo $! > "$pidfile"
+        printf "%s started... pid: %s\n" "$app" "$!"
     else
-        echo "$app already stoped"
+        printf "%s failed to start.\n" "$app"
+        return 1
     fi
 }
 
-function restart() {
+stop() {
+    check_pid
+    local running=$?
+    if [[ $running -gt 0 ]]; then
+        local pid=$(cat "$pidfile")
+        kill "$pid"
+        rm -f "$pidfile"
+        printf "%s stopped.\n" "$app"
+    else
+        printf "%s is not running.\n" "$app"
+    fi
+}
+
+restart() {
     stop
     sleep 1
     start
 }
 
-function status() {
+status() {
     check_pid
-    running=$?
-    if [ $running -gt 0 ];then
-        echo "started"
+    local running=$?
+    if [[ $running -gt 0 ]]; then
+        printf "%s is started.\n" "$app"
     else
-        echo "stoped"
+        printf "%s is stopped.\n" "$app"
     fi
 }
 
-function tailf() {
+tailf() {
     tail -f var/*
 }
 
-function help() {
-    echo "$0 pid|start|stop|restart|status|tail"
+print_help() {
+    printf "Usage: %s {start|stop|restart|status|tail|pid}.\n" "$0"
 }
 
-function pid() {
-    cat $pidfile
+print_pid() {
+    cat "$pidfile"
 }
 
-if [ "$1" == "" ]; then
-    help
-elif [ "$1" == "stop" ];then
-    stop
-elif [ "$1" == "start" ];then
-    start
-elif [ "$1" == "restart" ];then
-    restart
-elif [ "$1" == "status" ];then
-    status
-elif [ "$1" == "tail" ];then
-    tailf
-elif [ "$1" == "pid" ];then
-	pid
-else
-    help
-fi
+main() {
+    case "$1" in
+        "start") start ;;
+        "stop") stop ;;
+        "restart") restart ;;
+        "status") status ;;
+        "tail") tailf ;;
+        "pid") print_pid ;;
+        *) print_help ;;
+    esac
+}
+
+main "$@"

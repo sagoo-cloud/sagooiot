@@ -15,7 +15,7 @@ type Context struct {
 // ContextUser 请求上下文中的用户信息
 type ContextUser struct {
 	Id             int    // 用户ID
-	Passport       string // 用户账号
+	UserName       string // 用户账号
 	Nickname       string // 用户名称
 	Avatar         string // 用户
 	IsAdmin        bool   // 是否是管理员

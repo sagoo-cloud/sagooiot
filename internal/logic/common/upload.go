@@ -13,15 +13,18 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/grand"
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/tencentyun/cos-go-sdk-v5/debug"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
 	"strconv"
 	"strings"
 	"time"
@@ -38,7 +41,7 @@ func init() {
 	service.RegisterUpload(upload())
 }
 
-//UploadFiles 上传多文件
+// UploadFiles 上传多文件
 func (s *sUpload) UploadFiles(ctx context.Context, files []*ghttp.UploadFile, checkFileType string, source int) (result common.UploadMultipleRes, err error) {
 	for _, item := range files {
 		f, e := s.UploadFile(ctx, item, checkFileType, source)
@@ -50,7 +53,7 @@ func (s *sUpload) UploadFiles(ctx context.Context, files []*ghttp.UploadFile, ch
 	return
 }
 
-//UploadFile 上传单文件
+// UploadFile 上传单文件
 func (s *sUpload) UploadFile(ctx context.Context, file *ghttp.UploadFile, checkFileType string, source int) (result common.UploadResponse, err error) {
 
 	// 检查文件类型
@@ -66,9 +69,9 @@ func (s *sUpload) UploadFile(ctx context.Context, file *ghttp.UploadFile, checkF
 	}
 
 	// 非图片文件只能上传至本地
-	if checkFileType == consts.CheckFileTypeFile {
+	/*if checkFileType == consts.CheckFileTypeFile {
 		source = consts.SourceLocal
-	}
+	}*/
 
 	switch source {
 	// 上传至本地
@@ -77,6 +80,9 @@ func (s *sUpload) UploadFile(ctx context.Context, file *ghttp.UploadFile, checkF
 	// 上传至腾讯云
 	case consts.SourceTencent:
 		result, err = s.UploadTencent(ctx, file)
+	//上传MinIO
+	case consts.SourceMinio:
+		result, err = s.UploadMinIO(ctx, file)
 	default:
 		err = errors.New("source参数错误")
 	}
@@ -87,7 +93,7 @@ func (s *sUpload) UploadFile(ctx context.Context, file *ghttp.UploadFile, checkF
 	return
 }
 
-//UploadTencent 上传至腾讯云
+// UploadTencent 上传至腾讯云
 func (s *sUpload) UploadTencent(ctx context.Context, file *ghttp.UploadFile) (result common.UploadResponse, err error) {
 	v, err := g.Cfg().Get(ctx, "upload.tencentCOS")
 	if err != nil {
@@ -130,7 +136,11 @@ func (s *sUpload) UploadTencent(ctx context.Context, file *ghttp.UploadFile) (re
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func(f io.ReadCloser) {
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}(f)
 	_, err = client.Object.Put(context.Background(), path, f, opt)
 	result = common.UploadResponse{
 		Size:     file.Size,
@@ -142,14 +152,34 @@ func (s *sUpload) UploadTencent(ctx context.Context, file *ghttp.UploadFile) (re
 	return
 }
 
-//UploadLocal 上传本地
+// UploadLocal 上传本地
 func (s *sUpload) UploadLocal(ctx context.Context, file *ghttp.UploadFile) (result common.UploadResponse, err error) {
 	if file == nil {
 		err = errors.New("文件必须")
 		return
 	}
-	r := g.RequestFromCtx(ctx)
-	urlPerfix := fmt.Sprintf("http://%s/", r.Host)
+
+	/*r := g.RequestFromCtx(ctx)
+
+	proto := "http"
+	if strings.Contains(r.Proto, "https") {
+		proto = "https"
+	}
+	host := r.Host
+
+	urlPerfix := fmt.Sprintf("%s://%s/", proto, host)*/
+	//获取本地上传域名
+	configDataInfo, err := service.ConfigData().GetByKey(ctx, consts.SysUploadFileDomain)
+	if err != nil {
+		return
+	}
+	if configDataInfo == nil {
+		err = gerror.New("未配置本地上传域名，无法上传,请联系管理员")
+		return
+	}
+
+	urlPerfix := configDataInfo.ConfigValue
+
 	p := strings.Trim(consts.UploadPath, "/")
 	sp := s.getStaticPath(ctx)
 	if sp != "" {
@@ -168,14 +198,14 @@ func (s *sUpload) UploadLocal(ctx context.Context, file *ghttp.UploadFile) (resu
 	result = common.UploadResponse{
 		Size:     file.Size,
 		Path:     fullPath,
-		FullPath: urlPerfix + fullPath,
+		FullPath: urlPerfix + "/" + fullPath,
 		Name:     file.Filename,
 		Type:     file.Header.Get("Content-type"),
 	}
 	return
 }
 
-//CheckSize 检查上传文件大小
+// CheckSize 检查上传文件大小
 func (s *sUpload) CheckSize(ctx context.Context, checkFileType string, file *ghttp.UploadFile) (err error) {
 
 	var (
@@ -212,7 +242,7 @@ func (s *sUpload) CheckSize(ctx context.Context, checkFileType string, file *ght
 	return
 }
 
-//CheckType 检查上传文件类型
+// CheckType 检查上传文件类型
 func (s *sUpload) CheckType(ctx context.Context, checkFileType string, file *ghttp.UploadFile) (err error) {
 
 	var (
@@ -244,7 +274,7 @@ func (s *sUpload) CheckType(ctx context.Context, checkFileType string, file *ght
 	return
 }
 
-//getUpConfig 获取上传配置
+// getUpConfig 获取上传配置
 func (s *sUpload) getUpConfig(ctx context.Context, key string) (config *entity.SysConfig, err error) {
 	config, err = sysConfigDataNew().GetConfigByKey(ctx, key)
 	if err != nil {
@@ -257,7 +287,7 @@ func (s *sUpload) getUpConfig(ctx context.Context, key string) (config *entity.S
 	return
 }
 
-//checkFileType 判断上传文件类型是否合法
+// checkFileType 判断上传文件类型是否合法
 func (s *sUpload) checkFileType(fileName, typeString string) bool {
 	suffix := gstr.SubStrRune(fileName, gstr.PosRRune(fileName, ".")+1, gstr.LenRune(fileName)-1)
 	imageType := gstr.Split(typeString, ",")
@@ -271,7 +301,7 @@ func (s *sUpload) checkFileType(fileName, typeString string) bool {
 	return rightType
 }
 
-//checkSize 检查文件大小是否合法
+// checkSize 检查文件大小是否合法
 func (s *sUpload) checkSize(configSize string, fileSize int64) (bool, error) {
 	match, err := gregex.MatchString(`^([0-9]+)(?i:([a-z]*))$`, configSize)
 	if err != nil {
@@ -297,11 +327,116 @@ func (s *sUpload) checkSize(configSize string, fileSize int64) (bool, error) {
 	return cfSize >= fileSize, nil
 }
 
-//getStaticPath 静态文件夹目录
+// getStaticPath 静态文件夹目录
 func (s *sUpload) getStaticPath(ctx context.Context) string {
 	value, _ := g.Cfg().Get(ctx, "server.serverRoot")
 	if !value.IsEmpty() {
 		return value.String()
 	}
 	return ""
+}
+
+// UploadMinIO 上传至MinIO
+func (s *sUpload) UploadMinIO(ctx context.Context, file *ghttp.UploadFile) (result common.UploadResponse, err error) {
+	//获取minio系统参数配置
+	var keys = []string{consts.MinioDomain, consts.MinioAccessKeyId, consts.MinioSecretAccessKey,
+		consts.MinioUseSsl, consts.MinioBucketName, consts.MinioLocation, consts.MinioApiDomain}
+	configDataInfos, err := service.ConfigData().GetByKeys(ctx, keys)
+	if err != nil {
+		return
+	}
+	if configDataInfos == nil || len(configDataInfos) == 0 {
+		err = gerror.New("无MinIO配置,请联系管理员")
+		return
+	}
+	var endpoint string
+	var accessKeyID string
+	var secretAccessKey string
+	var useSSL bool
+	var bucketName string
+	var location string
+	var apiDomain string
+	for _, info := range configDataInfos {
+		if strings.EqualFold(info.ConfigKey, consts.MinioDomain) {
+			endpoint = info.ConfigValue
+		}
+		if strings.EqualFold(info.ConfigKey, consts.MinioApiDomain) {
+			apiDomain = info.ConfigValue
+		}
+		if strings.EqualFold(info.ConfigKey, consts.MinioAccessKeyId) {
+			accessKeyID = info.ConfigValue
+		}
+		if strings.EqualFold(info.ConfigKey, consts.MinioSecretAccessKey) {
+			secretAccessKey = info.ConfigValue
+		}
+		if strings.EqualFold(info.ConfigKey, consts.MinioUseSsl) {
+			useSSL = gconv.Bool(info.ConfigValue)
+		}
+		if strings.EqualFold(info.ConfigKey, consts.MinioBucketName) {
+			bucketName = info.ConfigValue
+		}
+		if strings.EqualFold(info.ConfigKey, consts.MinioLocation) {
+			location = info.ConfigValue
+		}
+	}
+	// Initialize minio client object.
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		return
+	}
+
+	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+	if err != nil {
+		// Check to see if we already own this bucket (which happens if you run this twice)
+		var exists bool
+		exists, err = minioClient.BucketExists(ctx, bucketName)
+		if err != nil {
+			return
+		}
+		if !exists {
+			err = gerror.Newf("MinIO不存在%s,请联系管理员", bucketName)
+			return
+		}
+	}
+
+	nowData := time.Now().Format("2006-01-02")
+
+	suffix := gstr.SubStrRune(file.Filename, gstr.PosRRune(file.Filename, ".")+1, gstr.LenRune(file.Filename)-1)
+
+	fileName := grand.S(32) + "." + suffix
+	// Upload the zip file
+	objectName := nowData + "/" + fileName
+
+	contentType := file.FileHeader.Header.Get("Content-Type")
+
+	var f io.ReadCloser
+	f, err = file.Open()
+	if err != nil {
+		return
+	}
+	defer func(f io.ReadCloser) {
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}(f)
+
+	// Upload the zip file with FPutObject
+	info, err := minioClient.PutObject(ctx, bucketName, objectName, f, file.Size, minio.PutObjectOptions{ContentType: contentType})
+	if err != nil {
+		return
+	}
+
+	log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
+
+	result = common.UploadResponse{
+		Size:     info.Size,
+		Path:     bucketName + "/" + info.Key,
+		FullPath: apiDomain + "/" + bucketName + "/" + info.Key,
+		Name:     fileName,
+		Type:     file.Header.Get("Content-type"),
+	}
+	return
 }

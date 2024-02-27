@@ -2,8 +2,10 @@ package product
 
 import (
 	"context"
-	"github.com/sagoo-cloud/sagooiot/api/v1/product"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"github.com/gogf/gf/v2/util/gconv"
+	"sagooiot/api/v1/product"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var TSLFunction = cTSLFunction{}
@@ -11,7 +13,12 @@ var TSLFunction = cTSLFunction{}
 type cTSLFunction struct{}
 
 func (c *cTSLFunction) ListFunction(ctx context.Context, req *product.ListTSLFunctionReq) (res *product.ListTSLFunctionRes, err error) {
-	out, err := service.DevTSLFunction().ListFunction(ctx, req.ListTSLFunctionInput)
+	var reqData = new(model.ListTSLFunctionInput)
+	err = gconv.Scan(req, &reqData)
+	if err != nil {
+		return nil, err
+	}
+	out, err := service.DevTSLFunction().ListFunction(ctx, reqData)
 	res = &product.ListTSLFunctionRes{
 		ListTSLFunctionOutput: out,
 	}
@@ -19,7 +26,7 @@ func (c *cTSLFunction) ListFunction(ctx context.Context, req *product.ListTSLFun
 }
 
 func (c *cTSLFunction) AllFunction(ctx context.Context, req *product.AllTSLFunctionReq) (res *product.AllTSLFunctionRes, err error) {
-	list, err := service.DevTSLFunction().AllFunction(ctx, req.Key, req.InputsValueTypes)
+	list, err := service.DevTSLFunction().AllFunction(ctx, req.ProductKey, req.InputsValueTypes)
 	res = &product.AllTSLFunctionRes{
 		Data: list,
 	}

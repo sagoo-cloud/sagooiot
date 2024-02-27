@@ -1,8 +1,32 @@
-# 配置文件的键名命名方式统一使用小驼峰。
-# HTTP Server.
+# 系统配置
+system:
+  name: "sagooiot"
+  version: "2.0"
+  description: "SagooIoT Server"
+  enablePProf: true # 是否开启pprof
+  #  pprofPort:  "58088" # pprof端口
+  ipMethod: "whois"   # IP归属地解析方法，可选：cz88|whois，默认为whois
+  isDemo: false   # 是否为演示系统
+  isCluster: false   # 是否为集群部署，默认为false。开启集群必须配置redis
+  deviceCacheData:
+    poolSize: 300 #设备数据缓存池连接数
+    recordDuration: "20m"  #设备数据缓存时长，超过时长的数据将被清除。默认为10分钟
+    recordLimit: 1000 #设备数据缓存条数限制，超过条数的数据将被清除。默认为1000条
+  pluginsPath: "./plugins/built"
+  # 文件上传设置
+  upload:
+    path: "upload"
+
+#缓存
+cache:
+  prefix: "SagooIot_Sys:" #缓存前缀
+  adapter: "redis"                    # 缓存驱动方式，支持：memory|redis|file，不填默认memory
+  fileDir: "./storage/cache"         # 文件缓存路径，adapter=file时必填
+
+# http服务配置
 server:
-  address: ":8200"
-  serverRoot: "resource/public"
+  serverAgent: "SagooIOT Server"        # 服务端Agent信息。
+  address: ":8199"
   dumpRouterMap: false
   routeOverWrite: true
   openapiPath: "/api.json"
@@ -12,7 +36,7 @@ server:
   clientMaxBodySize: "50MB"
   # Logging配置
   logPath: "resource/log/server"                 # 日志文件存储目录路径，建议使用绝对路径。默认为空，表示关闭
-  logStdout: true               # 日志是否输出到终端。默认为true
+  logStdout: false               # 日志是否输出到终端。默认为true
   errorStack: true               # 当Server捕获到异常时是否记录堆栈信息到日志中。默认为true
   errorLogEnabled: true               # 是否记录异常日志信息到日志中。默认为true
   errorLogPattern: "error-{Ymd}.log"  # 异常错误日志文件格式。默认为"error-{Ymd}.log"
@@ -21,42 +45,20 @@ server:
   https: false
   httpsCertFile: ""
   httpsKeyFile: ""
+  # 静态服务配置
+  indexFiles: [ "index.html"]   # 自动首页静态文件检索。默认为["index.html", "index.htm"]
+  indexFolder: false                        # 当访问静态文件目录时，是否展示目录下的文件列表。默认关闭，那么请求将返回403
+  serverRoot: "resource/public" # 静态文件服务的目录根路径，配置时自动开启静态文件服务。默认关闭
+  searchPaths: [ "/resource/public/"] # 提供静态文件服务时额外的文件搜索路径，当根路径找不到时则按照顺序在搜索目录查找。默认关闭
+  fileServerEnabled: true # 是否开启静态文件服务。默认为false
+  adminPprofPort: "58089" # web-admin pprof端口
+#  allowedDomains: #允许跨域访问的域名列表
+#    - https://example.com
+#    - https://www.example.com
 
-# 数据库连接配置
-database:
-  logger:
-  path: "resource/log/sql"
-  level: "all"
-  stdout: true
-  ctxKeys: [ "RequestId" ]
-  default:
-      link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3306)/sagoo_iot_open?loc=Local&parseTime=true"
-      debug: false #开启调试模式
-      charset: "utf8mb4" #数据库编码(如: utf8/gbk/gb2312)，一般设置为utf8
-      dryRun: false #ORM空跑(只读不写)
-      maxIdle: 10 #连接池最大闲置的连接数
-      maxOpen: 10 #连接池最大打开的连接数
-      maxLifetime: 30 #(单位秒)连接对象可重复使用的时间长度
-
-#TDengine配置
-tdengine:
-  type: "taosRestful" #http连接方式，端口是6041
-  dsn: "root:taosdata@http(127.0.0.1:6041)/"
-  dbName: "sagoo_iot"
-  maxOpenConns: 10
-  maxIdleConns: 5
-
-# 文件上传设置
-upload:
-  path: "upload"
-
-#日志文件
 logger:
-  path: "resource/log/run"
-  file: "{Y-m-d}.log"
-  level: "all"
+  level : "all"
   stdout: true
-  ctxKeys: [ "RequestId" ]
 
 #GFToken
 gfToken:
@@ -65,30 +67,69 @@ gfToken:
   multiLogin: true       #是否允许一个账号多人同时登录
   encryptKey: "49c54195e750b04e74a8429b17896586"    #加密key (32位)
   excludePaths: #排除不做登录验证的路由地址
-        - "/api/v1/login"
+    - "/api/v1/login"
+    - "/api/v1/sysinfo"
+
+# 数据库连接配置
+database:
+  logger:
+    path: "resource/log/sql"
+    level: "all"
+    stdout: false
+    ctxKeys: [ "RequestId" ]
+  default:
+    #    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3307)/zhgy_sagoo_cn?loc=Local&parseTime=true"
+    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3307)/sagooiot2024?loc=Local&parseTime=true"
+    debug: true #开启调试模式
+    charset: "utf8mb4" #数据库编码(如: utf8/gbk/gb2312)，一般设置为utf8
+    dryRun: false #ORM空跑(只读不写)
+    maxIdle: 50 #连接池最大闲置的连接数
+    maxOpen: 100 #连接池最大打开的连接数
+    maxLifetime: 60 #(单位秒)连接对象可重复使用的时间长度
+
+# 这个mqtt客户端主要是服务端内部处理消息使用的通道
+mqtt:
+  addr: 127.0.0.1:1883
+  # 最好带上服务名称，变成唯一id
+  clientId: sagooiot20230916
+  deviceLiveDuration: 60
+  qos: 1
+  auth:
+    userName: xinjy
+    userPassWorld: 123456
+
+# 时序数据库配置
+tsd:
+  database: "TdEngine"
+  tdengine:
+    #  type: "taosRestful" #http连接方式，端口是6041
+    #  dsn: "root:taosdata@http(127.0.0.1:6041)/"
+    type: "taosWS" #http连接方式，端口是6041
+    dsn: "root:taosdata@ws(127.0.0.1:6041)/"
+    dbName: "sagoo_iot"
+    maxOpenConns: 1000
+    maxIdleConns: 50
 
 # Redis 配置示例
 redis:
   # 单实例配置
   default:
-     address: 127.0.0.1:6379
-     db: 0
-     pass: FDXLK3LdGYYk9mut
-     idleTimeout: 600
-     maxActive: 100
+    address: 127.0.0.1:6379
+    db: 0
+    pass:
+    minIdle: 50 #最小空闲连接数
+    maxIdle: 100 #允许闲置的最大连接数
+    maxActive: 16 #最大活跃连接数
+    idleTimeout: "30m" #连接最大空闲时间，使用时间字符串例如30s/2m/2d
 
-#这个mqtt客户端主要是服务端内部处理消息使用的通道
-mqtt:
-  addr: 127.0.0.1:1883
-  # 最好带上服务名称，变成唯一id
-  clientId: sagoo-iot-open-001
-  deviceLiveDuration: 30
-#  auth:
-#    userName: admin
-#    userPassWorld: 123456
-
-system:
-  pluginsPath: "./plugins/built"
-  cache:
-    prefix: "SagooIOT_" #缓存前缀
-    model: "redis"  #存储引擎 （memory使用内存|redis使用redis）
+#消息队列
+queue:
+  switch: true                                        # 队列开关，可选：true|false，默认为true
+  driver: "redis"                                      # 队列驱动，可选：redis|rocketmq|kafka，默认为disk
+  retry: 2                                            # 重试次数，仅rocketmq|redis支持
+  groupName: "sagooiot"                                  # mq群组名称
+  redis:
+    address: "127.0.0.1:6379"                         # redis服务地址，默认为127.0.0.1:6379
+    db: 0                                            # 指定redis库
+    pass: ""                                          # redis密码
+    timeout: 60

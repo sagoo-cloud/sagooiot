@@ -2,8 +2,8 @@ package system
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
+	"sagooiot/api/v1/common"
+	"sagooiot/internal/model"
 )
 
 type UserOnlineListReq struct {

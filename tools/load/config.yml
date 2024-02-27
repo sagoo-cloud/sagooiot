@@ -1,0 +1,10 @@
+# 这个mqtt客户端主要是服务端内部处理消息使用的通道
+mqtt:
+  addr: 127.0.0.1:1883
+  # 最好带上服务名称，变成唯一id
+  clientId: sagooiot20230916
+  deviceLiveDuration: 60
+  qos: 1
+  auth:
+    userName: xinjy
+    userPassWorld: 123456

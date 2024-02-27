@@ -6,15 +6,18 @@ import (
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/grpool"
 	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
-	"github.com/sagoo-cloud/sagooiot/utility/utils"
+	"github.com/gogf/gf/v2/util/gconv"
 	"net/url"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/do"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/utility/utils"
 	"strings"
 )
 
@@ -75,7 +78,7 @@ func (s *sSysOperLog) GetList(ctx context.Context, input *model.SysOperLogDoInpu
 		input.PageNum = 1
 	}
 	if input.PageSize == 0 {
-		input.PageSize = consts.DefaultPageSize
+		input.PageSize = consts.PageSize
 	}
 	//获取操作日志列表信息
 	err = m.Page(input.PageNum, input.PageSize).OrderDesc(dao.SysOperLog.Columns().OperId).Scan(&out)
@@ -193,7 +196,130 @@ func (s *sSysOperLog) Add(ctx context.Context, userId int, url *url.URL, param g
 			operLogInfo.JsonResult = string(b)
 		}
 	}
-	_, err = dao.SysOperLog.Ctx(ctx).Data(operLogInfo).Insert()
+	_, err = dao.SysOperLog.Ctx(ctx).Data(do.SysOperLog{
+		Title:         operLogInfo.Title,
+		BusinessType:  operLogInfo.BusinessType,
+		Method:        operLogInfo.Method,
+		RequestMethod: operLogInfo.RequestMethod,
+		OperatorType:  operLogInfo.OperatorType,
+		OperName:      operLogInfo.OperName,
+		DeptName:      operLogInfo.DeptName,
+		OperUrl:       operLogInfo.OperUrl,
+		OperIp:        operLogInfo.OperIp,
+		OperLocation:  operLogInfo.OperLocation,
+		OperParam:     operLogInfo.OperParam,
+		JsonResult:    operLogInfo.JsonResult,
+		Status:        operLogInfo.Status,
+		ErrorMsg:      operLogInfo.ErrorMsg,
+		OperTime:      operLogInfo.OperTime,
+	}).Insert()
+	return
+}
+
+func (s *sSysOperLog) AnalysisLog(ctx context.Context) (data entity.SysOperLog) {
+	// 获取当前请求的上下文对象
+	mctx := service.Context().Get(ctx)
+	request := ghttp.RequestFromCtx(ctx)
+	handlerResponse := request.GetHandlerResponse() // 响应结果
+	param := request.GetMap()                       // 请求参数
+
+	res := gconv.Map(handlerResponse)
+
+	//takeUpTime, ok := mctx.Data["request.takeUpTime"].(int64)
+	//if !ok {
+	//	takeUpTime = 0 // 或适当的默认值
+	//}
+	//g.Log().Debug(ctx, "request.takeUpTime: ", takeUpTime)
+
+	operLogInfo := entity.SysOperLog{}
+
+	if user := mctx.User; user != nil {
+		operLogInfo.OperName = user.UserName
+
+		var deptInfo *entity.SysDept
+		err := dao.SysDept.Ctx(ctx).Where(g.Map{
+			dao.SysDept.Columns().DeptId:    user.DeptId,
+			dao.SysDept.Columns().IsDeleted: 0,
+			dao.SysDept.Columns().Status:    1,
+		}).Scan(&deptInfo)
+		if err == nil && deptInfo != nil {
+			operLogInfo.DeptName = deptInfo.DeptName
+		}
+	}
+
+	operLogInfo.Method = request.URL.Path
+	apiInfo, _ := service.SysApi().GetInfoByAddress(ctx, request.URL.Path)
+	if apiInfo != nil {
+		operLogInfo.Title = apiInfo.Name
+	}
+
+	operLogInfo.RequestMethod = request.Method
+	operLogInfo.OperatorType = 1
+
+	// 业务类型
+	switch request.Method {
+	case "POST":
+		operLogInfo.BusinessType = 1
+	case "PUT":
+		operLogInfo.BusinessType = 2
+	case "DELETE":
+		operLogInfo.BusinessType = 3
+	default:
+		operLogInfo.BusinessType = 0
+	}
+
+	rawQuery := ""
+	if rq := request.URL.RawQuery; rq != "" {
+		rawQuery = "?" + rq
+	}
+	operLogInfo.OperUrl = request.URL.Path + rawQuery
+
+	operLogInfo.OperIp = utils.GetClientIp(request.GetCtx())
+	operLogInfo.OperLocation = utils.GetCityByIp(operLogInfo.OperIp)
+
+	operTime, err := gtime.StrToTimeFormat(gtime.Datetime(), "2006-01-02 15:04:05")
+	if err != nil {
+		g.Log().Error(ctx, "Failed to parse time: ", err)
+		return
+	}
+	operLogInfo.OperTime = operTime
+
+	if param != nil {
+		if b, err := gjson.Encode(param); err == nil {
+			operLogInfo.OperParam = string(b)
+		}
+	}
+
+	var code gcode.Code = gcode.CodeOK
+	if erro := request.GetError(); erro != nil {
+		code = gerror.Code(erro)
+		if code == gcode.CodeNil {
+			code = gcode.CodeInternalError
+		}
+		operLogInfo.Status = 0
+		errorMsgMap := map[string]interface{}{
+			"code":    code.Code(),
+			"message": erro.Error(),
+		}
+		if errorMsg, err := gjson.Encode(errorMsgMap); err == nil {
+			operLogInfo.ErrorMsg = string(errorMsg)
+		}
+	} else {
+		operLogInfo.Status = 1
+		if b, err := gjson.Encode(res); err == nil {
+			operLogInfo.JsonResult = string(b)
+			if len(operLogInfo.JsonResult) > 65535 {
+				operLogInfo.JsonResult = "数据过大，未记录"
+			}
+		}
+	}
+
+	return operLogInfo
+}
+
+// RealWrite 真实写入
+func (s *sSysOperLog) RealWrite(ctx context.Context, log entity.SysOperLog) (err error) {
+	_, err = dao.SysOperLog.Ctx(ctx).FieldsEx(dao.SysOperLog.Columns().OperId).Data(log).Insert()
 	return
 }
 
@@ -211,7 +337,7 @@ func (s *sSysOperLog) Detail(ctx context.Context, operId int) (entity *entity.Sy
 // Del 根据ID删除操作日志
 func (s *sSysOperLog) Del(ctx context.Context, operIds []int) (err error) {
 	for _, operId := range operIds {
-		var sysOperLog *entity.BaseDbLink
+		var sysOperLog *entity.SysOperLog
 		_ = dao.SysOperLog.Ctx(ctx).Where(g.Map{
 			dao.SysOperLog.Columns().OperId: operId,
 		}).Scan(&sysOperLog)

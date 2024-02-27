@@ -2,10 +2,10 @@ package notice
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/sagoo-cloud/sagooiot/api/v1/common"
+	"sagooiot/api/v1/common"
 )
 
-//GetNoticeInfoListReq 获取数据列表
+// GetNoticeInfoListReq 获取数据列表
 type GetNoticeInfoListReq struct {
 	g.Meta   `path:"/info/list" method:"get" summary:"获取通知信息列表" tags:"通知服务管理"`
 	ConfigId string `json:"configId"   description:""`
@@ -19,7 +19,7 @@ type GetNoticeInfoListRes struct {
 	common.PaginationRes
 }
 
-//GetNoticeInfoByIdReq 获取指定ID的数据
+// GetNoticeInfoByIdReq 获取指定ID的数据
 type GetNoticeInfoByIdReq struct {
 	g.Meta `path:"/info/get" method:"get" summary:"获取通知信息" tags:"通知服务管理"`
 	Id     int `json:"id"        description:"id" v:"required#id不能为空"`
@@ -41,7 +41,7 @@ type GetNoticeInfoByIdRes struct {
 	UserIds    string `json:"userIds"          description:""`
 }
 
-//AddNoticeInfoReq 添加数据
+// AddNoticeInfoReq 添加数据
 type AddNoticeInfoReq struct {
 	g.Meta     `path:"/info/add" method:"post" summary:"添加通知信息" tags:"通知服务管理"`
 	Totag      string `json:"totag"          description:""`
@@ -60,7 +60,7 @@ type AddNoticeInfoReq struct {
 }
 type AddNoticeInfoRes struct{}
 
-//EditNoticeInfoReq 编辑数据api
+// EditNoticeInfoReq 编辑数据api
 type EditNoticeInfoReq struct {
 	g.Meta     `path:"/info/edit" method:"put" summary:"编辑通知信息" tags:"通知服务管理"`
 	UserIds    string `json:"userIds"          description:""`
@@ -80,7 +80,7 @@ type EditNoticeInfoReq struct {
 }
 type EditNoticeInfoRes struct{}
 
-//DeleteNoticeInfoReq 删除数据
+// DeleteNoticeInfoReq 删除数据
 type DeleteNoticeInfoReq struct {
 	g.Meta `path:"/info/delete" method:"delete" summary:"删除通知信息" tags:"通知服务管理"`
 	Ids    []int `json:"ids"        description:"ids" v:"required#ids不能为空"`

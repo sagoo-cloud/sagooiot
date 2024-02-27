@@ -3,9 +3,9 @@ package system
 import (
 	"context"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/api/v1/system"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/api/v1/system"
+	"sagooiot/internal/model"
+	"sagooiot/internal/service"
 )
 
 var SysApi = cApi{}
@@ -14,13 +14,13 @@ type cApi struct{}
 
 // GetApiAll 获取所有接口
 func (a *cApi) GetApiAll(ctx context.Context, req *system.GetApiAllReq) (res *system.GetApiAllRes, err error) {
-	apiInfo, err := service.SysApi().GetApiAll(ctx)
+	out, err := service.SysApi().GetApiAll(ctx, req.Method)
 	if err != nil {
 		return
 	}
 	var apiInfoRes []*model.SysApiAllRes
-	if apiInfo != nil {
-		if err = gconv.Scan(apiInfo, &apiInfoRes); err != nil {
+	if out != nil {
+		if err = gconv.Scan(out, &apiInfoRes); err != nil {
 			return
 		}
 	}
@@ -95,5 +95,19 @@ func (a *cApi) DelApi(ctx context.Context, req *system.DelApiReq) (res *system.D
 // EditApiStatus  编辑API状态
 func (a *cApi) EditApiStatus(ctx context.Context, req *system.EditApiStatusReq) (res *system.EditApiStatusRes, err error) {
 	err = service.SysApi().EditStatus(ctx, req.Id, req.Status)
+	return
+}
+
+// ImportApiFile 导入API文件
+func (a *cApi) ImportApiFile(ctx context.Context, req *system.ImportApiFileReq) (res *system.ImportApiFileRes, err error) {
+	err = service.SysApi().ImportApiFile(ctx)
+	return
+}
+
+// BindApiMenus 批量绑定菜单
+func (a *cApi) BindApiMenus(ctx context.Context, req *system.BindApiMenusReq) (res *system.BindApiMenusRes, err error) {
+	for _, bindMenu := range req.BindMenus {
+		err = service.SysApi().AddMenuApi(ctx, "api", []int{bindMenu.Id}, bindMenu.MenuIds)
+	}
 	return
 }

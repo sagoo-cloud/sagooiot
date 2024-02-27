@@ -1,0 +1,83 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>IOT Info:</h1>
+<ul id="dataList"></ul>
+
+<script>
+    es = new EventSource("http://localhost:8199/subscribe/redisinfo")
+
+    // cpu
+    es.addEventListener("cpu", cpuInfoMsg);
+    function cpuInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("CPU信息："+breed);
+    }
+
+    //Server
+    es.addEventListener("server", serverInfoMsg);
+    function serverInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Server信息："+breed);
+    }
+
+    //Clients
+    es.addEventListener("clients", clientsInfoMsg);
+    function clientsInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Clients信息："+breed);
+    }
+
+    //Errorstats
+    es.addEventListener("errorstats", errorstatsInfoMsg);
+    function errorstatsInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Errorstats信息："+breed);
+    }
+
+    //Keyspace
+    es.addEventListener("keyspace", keyspaceInfoMsg);
+    function keyspaceInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Keyspace信息："+breed);
+    }
+
+
+    //Cluster
+    es.addEventListener("cluster", clusterInfoMsg);
+    function clusterInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Cluster信息："+breed);
+    }
+
+    //Memory
+    es.addEventListener("memory", memoryInfoMsg);
+    function memoryInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Memory信息："+breed);
+    }
+
+    //Stats
+    es.addEventListener("stats", statsInfoMsg);
+    function statsInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Stats信息："+breed);
+    }
+
+    //Replication
+    es.addEventListener("replication", replicationInfoMsg);
+    function replicationInfoMsg(event) {
+        var breed = event.data;
+        _appendListItem("Replication信息："+breed);
+    }
+
+    function _appendListItem(msg) {
+        var li = document.createElement("li");
+        li.innerHTML = msg;
+        document.getElementById("dataList").appendChild(li);
+    }
+</script>
+</body>
+</html>

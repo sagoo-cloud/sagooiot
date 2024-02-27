@@ -3,19 +3,16 @@ package system
 import (
 	"context"
 	"encoding/json"
-	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/sagoo-cloud/sagooiot/internal/consts"
-	"github.com/sagoo-cloud/sagooiot/internal/dao"
-	"github.com/sagoo-cloud/sagooiot/internal/logic/common"
-	"github.com/sagoo-cloud/sagooiot/internal/model"
-	"github.com/sagoo-cloud/sagooiot/internal/model/entity"
-	"github.com/sagoo-cloud/sagooiot/internal/service"
+	"sagooiot/internal/consts"
+	"sagooiot/internal/dao"
+	"sagooiot/internal/model"
+	"sagooiot/internal/model/entity"
+	"sagooiot/internal/service"
+	"sagooiot/pkg/cache"
 	"strings"
 )
 
@@ -167,19 +164,17 @@ func (s *sSysAuthorize) GetInfoByRoleId(ctx context.Context, roleId int) (data [
 
 // GetInfoByRoleIds 根据角色ID数组获取权限信息
 func (s *sSysAuthorize) GetInfoByRoleIds(ctx context.Context, roleIds []int) (data []*entity.SysAuthorize, err error) {
-	cache := common.Cache()
 	//获取缓存菜单按钮信息
 	for _, v := range roleIds {
 		var tmpData *gvar.Var
-		tmpData = cache.Get(ctx, consts.CacheSysAuthorize+"_"+gconv.String(v))
+		tmpData, err = cache.Instance().Get(ctx, consts.CacheSysAuthorize+"_"+gconv.String(v))
 		if err != nil {
 			return
 		}
-		if tmpData != nil {
+		if tmpData.Val() != nil {
 			var sysAuthorizeInfo []*entity.SysAuthorize
-			json.Unmarshal([]byte(tmpData.Val().(string)), &sysAuthorizeInfo)
+			err = json.Unmarshal([]byte(tmpData.Val().(string)), &sysAuthorizeInfo)
 			data = append(data, sysAuthorizeInfo...)
-			return
 		}
 	}
 	if data == nil && len(data) == 0 {
@@ -210,11 +205,47 @@ func (s *sSysAuthorize) DelByRoleId(ctx context.Context, roleId int) (err error)
 }
 
 func (s *sSysAuthorize) Add(ctx context.Context, authorize []*entity.SysAuthorize) (err error) {
-	_, err = dao.SysAuthorize.Ctx(ctx).Data(authorize).Insert()
+	var input []*model.SysAuthorizeInput
+	if err = gconv.Scan(authorize, &input); err != nil {
+		return
+	}
+	_, err = dao.SysAuthorize.Ctx(ctx).Data(input).Insert()
 	return
 }
 
 func (s *sSysAuthorize) AddAuthorize(ctx context.Context, roleId int, menuIds []string, buttonIds []string, columnIds []string, apiIds []string) (err error) {
+	//判断是否启用安全控制
+	var configDataByIsSecurityControlEnabled *entity.SysConfig
+	configDataByIsSecurityControlEnabled, err = service.ConfigData().GetConfigByKey(ctx, consts.SysIsSecurityControlEnabled)
+	if err != nil {
+		return
+	}
+	sysColumnSwitch := 0
+	sysButtonSwitch := 0
+	sysApiSwitch := 0
+
+	if configDataByIsSecurityControlEnabled != nil && strings.EqualFold(configDataByIsSecurityControlEnabled.ConfigValue, "1") {
+		//获取系统列表开关参数
+		var sysColumnSwitchConfig *entity.SysConfig
+		sysColumnSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, consts.SysColumnSwitch)
+		if sysColumnSwitchConfig != nil {
+			sysColumnSwitch = gconv.Int(sysColumnSwitchConfig.ConfigValue)
+		}
+		//获取系统按钮开关参数
+		var sysButtonSwitchConfig *entity.SysConfig
+		sysButtonSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, consts.SysButtonSwitch)
+		if sysButtonSwitchConfig != nil {
+			sysButtonSwitch = gconv.Int(sysButtonSwitchConfig.ConfigValue)
+		}
+
+		//获取系统API开关参数
+		var sysApiSwitchConfig *entity.SysConfig
+		sysApiSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, consts.SysApiSwitch)
+		if sysApiSwitchConfig != nil {
+			sysApiSwitch = gconv.Int(sysApiSwitchConfig.ConfigValue)
+		}
+	}
+
 	err = g.Try(ctx, func(ctx context.Context) {
 		//删除原有权限
 		err = service.SysAuthorize().DelByRoleId(ctx, roleId)
@@ -240,69 +271,81 @@ func (s *sSysAuthorize) AddAuthorize(ctx context.Context, roleId int, menuIds []
 			return
 		}
 		//封装按钮权限
-		for _, id := range buttonIds {
-			var authorize = new(entity.SysAuthorize)
-			split := strings.Split(id, "_")
-			if len(split) < 2 {
-				isTrue = false
-				break
+		if sysButtonSwitch == 1 {
+			for _, id := range buttonIds {
+				var authorize = new(entity.SysAuthorize)
+				split := strings.Split(id, "_")
+				if len(split) < 2 {
+					isTrue = false
+					break
+				}
+				authorize.ItemsId = gconv.Int(split[0])
+				authorize.ItemsType = consts.Button
+				authorize.RoleId = roleId
+				authorize.IsCheckAll = gconv.Int(split[1])
+				authorize.IsDeleted = 0
+				authorizeInfo = append(authorizeInfo, authorize)
 			}
-			authorize.ItemsId = gconv.Int(split[0])
-			authorize.ItemsType = consts.Button
-			authorize.RoleId = roleId
-			authorize.IsCheckAll = gconv.Int(split[1])
-			authorize.IsDeleted = 0
-			authorizeInfo = append(authorizeInfo, authorize)
+			if !isTrue {
+				err = gerror.New("按钮权限参数错误")
+				return
+			}
 		}
-		if !isTrue {
-			err = gerror.New("按钮权限参数错误")
-			return
-		}
+
 		//封装列表权限
-		for _, id := range columnIds {
-			var authorize = new(entity.SysAuthorize)
-			split := strings.Split(id, "_")
-			if len(split) < 2 {
-				isTrue = false
-				break
+		if sysColumnSwitch == 1 {
+			for _, id := range columnIds {
+				var authorize = new(entity.SysAuthorize)
+				split := strings.Split(id, "_")
+				if len(split) < 2 {
+					isTrue = false
+					break
+				}
+				authorize.ItemsId = gconv.Int(split[0])
+				authorize.ItemsType = consts.Column
+				authorize.RoleId = roleId
+				authorize.IsCheckAll = gconv.Int(split[1])
+				authorize.IsDeleted = 0
+				authorizeInfo = append(authorizeInfo, authorize)
 			}
-			authorize.ItemsId = gconv.Int(split[0])
-			authorize.ItemsType = consts.Column
-			authorize.RoleId = roleId
-			authorize.IsCheckAll = gconv.Int(split[1])
-			authorize.IsDeleted = 0
-			authorizeInfo = append(authorizeInfo, authorize)
+			if !isTrue {
+				err = gerror.New("列表权限参数错误")
+				return
+			}
 		}
-		if !isTrue {
-			err = gerror.New("列表权限参数错误")
-			return
-		}
+
 		//封装接口权限
-		for _, id := range apiIds {
-			var authorize = new(entity.SysAuthorize)
-			split := strings.Split(id, "_")
-			if len(split) < 2 {
-				isTrue = false
-				break
+		if sysApiSwitch == 1 {
+			for _, id := range apiIds {
+				var authorize = new(entity.SysAuthorize)
+				split := strings.Split(id, "_")
+				if len(split) < 2 {
+					isTrue = false
+					break
+				}
+				authorize.ItemsId = gconv.Int(split[0])
+				authorize.ItemsType = consts.Api
+				authorize.RoleId = roleId
+				authorize.IsCheckAll = gconv.Int(split[1])
+				authorize.IsDeleted = 0
+				authorizeInfo = append(authorizeInfo, authorize)
 			}
-			authorize.ItemsId = gconv.Int(split[0])
-			authorize.ItemsType = consts.Api
-			authorize.RoleId = roleId
-			authorize.IsCheckAll = gconv.Int(split[1])
-			authorize.IsDeleted = 0
-			authorizeInfo = append(authorizeInfo, authorize)
+			if !isTrue {
+				err = gerror.New("接口权限参数错误")
+				return
+			}
 		}
-		if !isTrue {
-			err = gerror.New("接口权限参数错误")
-			return
-		}
+
 		err = s.Add(ctx, authorizeInfo)
 		if err != nil {
 			err = gerror.New("添加权限失败")
 			return
 		}
 		//添加缓存信息
-		_, err = gcache.SetIfNotExist(ctx, consts.CacheSysAuthorize+"_"+gconv.String(roleId), authorizeInfo, 0)
+		err := cache.Instance().Set(ctx, consts.CacheSysAuthorize+"_"+gconv.String(roleId), authorizeInfo, 0)
+		if err != nil {
+			return
+		}
 	})
 	return
 }
@@ -373,6 +416,30 @@ func (s *sSysAuthorize) IsAllowAuthorize(ctx context.Context, roleId int) (isAll
 			if nowUserAuthorizeErr != nil {
 				return
 			}
+
+			//获取系统列表开关参数
+			var sysColumnSwitchConfig *entity.SysConfig
+			sysColumnSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, "sys.column.switch")
+			sysColumnSwitch := 0
+			if sysColumnSwitchConfig != nil {
+				sysColumnSwitch = gconv.Int(sysColumnSwitchConfig.ConfigValue)
+			}
+			//获取系统按钮开关参数
+			var sysButtonSwitchConfig *entity.SysConfig
+			sysButtonSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, "sys.button.switch")
+			sysButtonSwitch := 0
+			if sysButtonSwitchConfig != nil {
+				sysButtonSwitch = gconv.Int(sysButtonSwitchConfig.ConfigValue)
+			}
+
+			//获取系统API开关参数
+			var sysApiSwitchConfig *entity.SysConfig
+			sysApiSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, "sys.api.switch")
+			sysApiSwitch := 0
+			if sysApiSwitchConfig != nil {
+				sysApiSwitch = gconv.Int(sysApiSwitchConfig.ConfigValue)
+			}
+
 			//菜单Ids
 			var nowUserMenuIds []int
 			//按钮Ids
@@ -384,14 +451,61 @@ func (s *sSysAuthorize) IsAllowAuthorize(ctx context.Context, roleId int) (isAll
 			for _, authorize := range nowUserAuthorizeInfo {
 				if strings.EqualFold(authorize.ItemsType, consts.Menu) {
 					nowUserMenuIds = append(nowUserMenuIds, authorize.ItemsId)
-				} else if strings.EqualFold(authorize.ItemsType, consts.Button) {
+				} else if strings.EqualFold(authorize.ItemsType, consts.Button) && sysButtonSwitch == 1 {
 					nowUserMenuButtonIds = append(nowUserMenuButtonIds, authorize.ItemsId)
-				} else if strings.EqualFold(authorize.ItemsType, consts.Column) {
+				} else if strings.EqualFold(authorize.ItemsType, consts.Column) && sysColumnSwitch == 1 {
 					nowUserMenuColumnIds = append(nowUserMenuColumnIds, authorize.ItemsId)
-				} else if strings.EqualFold(authorize.ItemsType, consts.Api) {
+				} else if strings.EqualFold(authorize.ItemsType, consts.Api) && sysApiSwitch == 1 {
 					nowUserMenuApiIds = append(nowUserMenuApiIds, authorize.ItemsId)
 				}
 			}
+
+			//判断按钮、列表、API开关状态，如果关闭则获取菜单对应的所有信息
+			//判断按钮开关
+			if sysButtonSwitch == 0 {
+				//获取所有按钮
+				var menuButtons []*entity.SysMenuButton
+				menuButtons, err = service.SysMenuButton().GetInfoByMenuIds(ctx, menuIds)
+				if err != nil {
+					return
+				}
+				if len(menuButtons) > 0 {
+					for _, menuButton := range menuButtons {
+						nowUserMenuButtonIds = append(nowUserMenuButtonIds, int(menuButton.Id))
+					}
+				}
+			}
+
+			//判断列表开关
+			if sysColumnSwitch == 0 {
+				//获取所有列表
+				var menuColumns []*entity.SysMenuColumn
+				menuColumns, err = service.SysMenuColumn().GetInfoByMenuIds(ctx, menuIds)
+				if err != nil {
+					return
+				}
+				if len(menuColumns) > 0 {
+					for _, menuColumn := range menuColumns {
+						nowUserMenuColumnIds = append(nowUserMenuColumnIds, int(menuColumn.Id))
+					}
+				}
+			}
+
+			//判断API开关
+			if sysApiSwitch == 0 {
+				//获取所有API
+				var menuApis []*entity.SysMenuApi
+				menuApis, err = service.SysMenuApi().GetInfoByMenuIds(ctx, menuIds)
+				if err != nil {
+					return
+				}
+				if len(menuApis) > 0 {
+					for _, menuApi := range menuApis {
+						nowUserMenuApiIds = append(nowUserMenuApiIds, int(menuApi.Id))
+					}
+				}
+			}
+
 			//判断当前登录用户是否大于授权角色的权限
 			//获取当前登录用户的菜单信息
 			nowUserMenuInfo, _ := service.SysMenu().GetInfoByMenuIds(ctx, nowUserMenuIds)
@@ -482,8 +596,6 @@ func (s *sSysAuthorize) IsAllowAuthorize(ctx context.Context, roleId int) (isAll
 
 // InitAuthorize 初始化系统权限
 func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
-	cache := common.Cache()
-
 	//获取所有菜单信息
 	menuInfos, err := service.SysMenu().GetAll(ctx)
 	if err != nil {
@@ -495,19 +607,23 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 		for _, menuInfo := range menuInfos {
 			menuIds = append(menuIds, menuInfo.Id)
 		}
-		//根据菜单ID所有按钮信息
+		//获取所有的按钮列表
 		var menuButtonInfos []*entity.SysMenuButton
 		err = dao.SysMenuButton.Ctx(ctx).Where(g.Map{
 			dao.SysMenuButton.Columns().IsDeleted: 0,
 			dao.SysMenuButton.Columns().Status:    1,
 		}).Scan(&menuButtonInfos)
 		if err != nil {
+			g.Log().Debug(ctx, "获取菜单按钮信息失败", err.Error())
 			return
 		}
 		if menuButtonInfos != nil && len(menuButtonInfos) > 0 {
-			cache.Set(ctx, consts.CacheSysMenuButton, menuButtonInfos, 0)
+			err = cache.Instance().Set(ctx, consts.CacheSysMenuButton, menuButtonInfos, 0)
+			if err != nil {
+				return
+			}
 		}
-		//根据菜单ID获取所有列表信息
+		//获取所有的菜单列表
 		var menuColumnInfos []*entity.SysMenuColumn
 		err = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
 			dao.SysMenuColumn.Columns().IsDeleted: 0,
@@ -517,9 +633,12 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			return
 		}
 		if menuColumnInfos != nil && len(menuColumnInfos) > 0 {
-			cache.Set(ctx, consts.CacheSysMenuColumn, menuColumnInfos, 0)
+			err = cache.Instance().Set(ctx, consts.CacheSysMenuColumn, menuColumnInfos, 0)
+			if err != nil {
+				return
+			}
 		}
-		//根据菜单ID获取绑定的所有接口ID
+		//获取所有的菜单接口
 		var menuApiInfos []*entity.SysMenuApi
 		err = dao.SysMenuApi.Ctx(ctx).Where(g.Map{
 			dao.SysMenuApi.Columns().IsDeleted: 0,
@@ -528,7 +647,10 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			return
 		}
 		if menuApiInfos != nil && len(menuApiInfos) > 0 {
-			cache.Set(ctx, consts.CacheSysMenuApi, menuApiInfos, 0)
+			err = cache.Instance().Set(ctx, consts.CacheSysMenuApi, menuApiInfos, 0)
+			if err != nil {
+				return
+			}
 		}
 		//添加缓存信息
 		for _, menuId := range menuIds {
@@ -540,7 +662,10 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			}
 			//添加按钮缓存
 			if tmpMenuButton != nil && len(tmpMenuButton) > 0 {
-				cache.Set(ctx, consts.CacheSysMenuButton+"_"+gconv.String(menuId), tmpMenuButton, 0)
+				err = cache.Instance().Set(ctx, consts.CacheSysMenuButton+"_"+gconv.String(menuId), tmpMenuButton, 0)
+				if err != nil {
+					return
+				}
 			}
 
 			var tmpMenuColumn []*entity.SysMenuColumn
@@ -551,7 +676,10 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			}
 			//添加列表缓存
 			if tmpMenuColumn != nil && len(tmpMenuColumn) > 0 {
-				cache.Set(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId), tmpMenuColumn, 0)
+				err = cache.Instance().Set(ctx, consts.CacheSysMenuColumn+"_"+gconv.String(menuId), tmpMenuColumn, 0)
+				if err != nil {
+					return
+				}
 			}
 
 			var tmpMenuApi []*entity.SysMenuApi
@@ -562,7 +690,10 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			}
 			//添加菜单与接口绑定关系缓存
 			if tmpMenuApi != nil && len(tmpMenuApi) > 0 {
-				cache.Set(ctx, consts.CacheSysMenuApi+"_"+gconv.String(menuId), tmpMenuApi, 0)
+				err = cache.Instance().Set(ctx, consts.CacheSysMenuApi+"_"+gconv.String(menuId), tmpMenuApi, 0)
+				if err != nil {
+					return
+				}
 			}
 		}
 		//获取所有的接口信息
@@ -575,19 +706,22 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 			return
 		}
 		if sysApiInfos != nil && len(sysApiInfos) > 0 {
-			cache.Set(ctx, consts.CacheSysApi, sysApiInfos, 0)
+			err = cache.Instance().Set(ctx, consts.CacheSysApi, sysApiInfos, 0)
+			if err != nil {
+				return
+			}
 		}
 
 		//获取所有的角色ID
 		var roleInfos []*entity.SysRole
-		dao.SysRole.Ctx(ctx).Where(g.Map{
+		err = dao.SysRole.Ctx(ctx).Where(g.Map{
 			dao.SysRole.Columns().IsDeleted: 0,
 			dao.SysRole.Columns().Status:    1,
 		}).Scan(&roleInfos)
 		if roleInfos != nil && len(roleInfos) > 0 {
 			//获取所有的权限配置
 			var authorizeInfos []*entity.SysAuthorize
-			dao.SysAuthorize.Ctx(ctx).Where(g.Map{
+			err = dao.SysAuthorize.Ctx(ctx).Where(g.Map{
 				dao.SysAuthorize.Columns().IsDeleted: 0,
 			}).Scan(&authorizeInfos)
 
@@ -599,156 +733,13 @@ func (s *sSysAuthorize) InitAuthorize(ctx context.Context) (err error) {
 					}
 				}
 				if tmpAuthorizeInfos != nil && len(tmpAuthorizeInfos) > 0 {
-					cache.Set(ctx, consts.CacheSysAuthorize+"_"+gconv.String(roleInfo.Id), tmpAuthorizeInfos, 0)
-				}
-			}
-		}
-	}
-	return
-}
-
-// FilterDataByPermissions 根据数据权限过滤数据
-func (s *sSysAuthorize) FilterDataByPermissions(ctx context.Context, model *gdb.Model) (*gdb.Model, error) {
-	where, err := service.SysAuthorize().GetDataWhere(ctx)
-	if err != nil {
-		return model, err
-	}
-	if where != nil && len(where) > 0 {
-		return model.Where(where), err
-	}
-	return model, err
-}
-
-// GetDataWhere 获取数据权限条件查询
-func (s *sSysAuthorize) GetDataWhere(ctx context.Context) (where g.Map, err error) {
-	//判断请求方式
-	requestWay := service.Context().GetRequestWay(ctx)
-	if strings.EqualFold(requestWay, consts.TokenAuth) {
-		loginUserId := service.Context().GetUserId(ctx)
-		loginUserDeptId := service.Context().GetUserDeptId(ctx)
-		//1、获取当前用户所属角色
-		userRoleInfo, userRoleErr := service.SysUserRole().GetInfoByUserId(ctx, loginUserId)
-		if userRoleErr != nil {
-			err = gerror.New("获取用户角色失败")
-			return
-		}
-		if userRoleInfo == nil {
-			err = gerror.New("用户无权限访问")
-			return
-		}
-		//判断用户是否为超级管理员
-		var isSuperAdmin = false
-		var roleIds []int
-		for _, userRole := range userRoleInfo {
-			if userRole.RoleId == 1 {
-				isSuperAdmin = true
-			}
-			roleIds = append(roleIds, userRole.RoleId)
-		}
-		if isSuperAdmin {
-			//超级管理员可以访问所有的数据
-			return
-		}
-		//不是超级管理员则获取所有角色信息
-		var roleInfo []*entity.SysRole
-		err = dao.SysRole.Ctx(ctx).WhereIn(dao.SysRole.Columns().Id, roleIds).Where(g.Map{
-			dao.SysRole.Columns().Status:    1,
-			dao.SysRole.Columns().IsDeleted: 0,
-		}).Scan(&roleInfo)
-		if err != nil {
-			err = gerror.New("获取用户角色失败")
-			return
-		}
-		//2获取角色对应数据权限
-		deptIdArr := gset.New()
-		for _, role := range roleInfo {
-			switch role.DataScope {
-			case 1: //全部数据权限
-				return
-			case 2: //自定数据权限
-				//获取角色所有的部门信息
-				roleDeptInfo, _ := service.SysRoleDept().GetInfoByRoleId(ctx, int(role.Id))
-				if roleDeptInfo == nil {
-					err = gerror.New(role.Name + "自定义数据范围,请先配置部门!")
-					return
-				}
-				var deptIds []int64
-				for _, roleDept := range roleDeptInfo {
-					deptIds = append(deptIds, roleDept.DeptId)
-				}
-				deptIdArr.Add(gconv.Interfaces(deptIds)...)
-			case 3: //本部门数据权限
-				deptIdArr.Add(gconv.Int64(loginUserDeptId))
-			case 4: //本部门及以下数据权限
-				deptIdArr.Add(gconv.Int64(loginUserDeptId))
-				//获取所有部门
-				var deptInfo []*entity.SysDept
-				m := dao.SysDept.Ctx(ctx)
-				_ = m.Where(g.Map{
-					dao.SysDept.Columns().Status:    1,
-					dao.SysDept.Columns().IsDeleted: 0,
-				}).Scan(&deptInfo)
-
-				if deptInfo != nil {
-					//获取当前部门所有的下级部门信息
-					childrenDeptInfo := GetNextDeptInfoByNowDeptId(int64(loginUserDeptId), deptInfo)
-					if childrenDeptInfo != nil {
-						allChildrenDeptInfo := GetAllNextDeptInfoByChildrenDept(childrenDeptInfo, deptInfo, childrenDeptInfo)
-						if allChildrenDeptInfo != nil {
-							for _, allChildrenDept := range allChildrenDeptInfo {
-								deptIdArr.Add(gconv.Int64(allChildrenDept.DeptId))
-							}
-						}
-					}
-				}
-			case 5: //仅限于自己的数据
-				where = g.Map{"created_by": loginUserId}
-				return
-			}
-		}
-		//此添加是为了兼容以前的数据
-		deptIdArr.Add(0)
-		if deptIdArr.Size() > 0 {
-			where = g.Map{"dept_id": deptIdArr.Slice()}
-		}
-	} else if strings.EqualFold(requestWay, consts.AKSK) {
-		//判断是父级部门还是子部门
-		deptIdArr := gset.New()
-		parentDeptId := service.Context().GetUserDeptId(ctx)
-		if parentDeptId != 0 {
-			deptIdArr.Add(gconv.Int64(parentDeptId))
-			//获取所有部门
-			var deptInfo []*entity.SysDept
-			m := dao.SysDept.Ctx(ctx)
-			_ = m.Where(g.Map{
-				dao.SysDept.Columns().Status:    1,
-				dao.SysDept.Columns().IsDeleted: 0,
-			}).Scan(&deptInfo)
-			if deptInfo != nil {
-				//获取当前部门所有的下级部门信息
-				childrenDeptInfo := GetNextDeptInfoByNowDeptId(int64(parentDeptId), deptInfo)
-				if childrenDeptInfo != nil {
-					allChildrenDeptInfo := GetAllNextDeptInfoByChildrenDept(childrenDeptInfo, deptInfo, childrenDeptInfo)
-					if allChildrenDeptInfo != nil {
-						for _, allChildrenDept := range allChildrenDeptInfo {
-							deptIdArr.Add(gconv.Int64(allChildrenDept.DeptId))
-						}
+					err = cache.Instance().Set(ctx, consts.CacheSysAuthorize+"_"+gconv.String(roleInfo.Id), tmpAuthorizeInfos, 0)
+					if err != nil {
+						return
 					}
 				}
 			}
-		} else {
-			//获取传过来的子部门ID
-			childrenDeptIds := service.Context().GetChildrenDeptId(ctx)
-			for _, childrenDeptId := range childrenDeptIds {
-				deptIdArr.Add(gconv.Int64(childrenDeptId))
-			}
-		}
-		//此添加是为了兼容以前的数据
-		deptIdArr.Add(0)
-		if deptIdArr.Size() > 0 {
-			where = g.Map{"dept_id": deptIdArr.Slice()}
 		}
 	}
-
 	return
 }
