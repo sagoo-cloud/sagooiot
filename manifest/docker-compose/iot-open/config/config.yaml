@@ -93,9 +93,6 @@ mqtt:
   clientId: sagooiot20230916
   deviceLiveDuration: 60
   qos: 1
-  auth:
-    userName: xinjy
-    userPassWorld: 123456
 
 # 时序数据库配置
 tsd:
