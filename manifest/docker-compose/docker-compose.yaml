@@ -1,0 +1,65 @@
+services:
+  redis:
+    image: redis:7.0.11
+    container_name: redis-server
+    restart: always
+    volumes:
+      - "./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./redis/data:/data"
+      - "./redis/logs:/logs"
+    command: ["redis-server","/usr/local/etc/redis/redis.conf"]
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 6379:6379
+  tdengine:
+    image: tdengine/tdengine:3.2.1.0
+    container_name: tdengine-server
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - "./taos/dnode/data:/var/lib/taos"
+      - "./taos/dnode/log:/var/log/taos"
+    ports:
+      - 6030:6030
+      - 6041:6041
+  emqx:
+    image: emqx/emqx:5.0.26
+    restart: always
+    container_name: emqx-server
+    environment:
+      - TZ=Asia/Shanghai
+    # volumes:
+    #  - ./emqx/data:/opt/emqx/data
+    #  - ./emqx/log:/opt/emqx/log
+    ports:
+      - 1883:1883
+      - 8083:8083
+      - 8084:8084
+      - 8883:8883
+      - 18083:18083
+  mysql:
+    image: mysql:8.0.25
+    container_name: mysql-server
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=DbyTYGu3s4WuAF4TTq7
+      - MYSQL_DATABASE=sagoo_iot_open
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/logs:/var/log
+    ports:
+      - "3306:3306"
+  nginx:
+    extends: 
+       file: ./nginx/nginx.yaml
+       service: nginx
+
+  sagoo-iot-open:
+    extends: 
+       file: ./iot-open/iot-open.yaml
+       service: sagoo-iot-open
+      
