@@ -32,7 +32,7 @@ var dbName = "sagoo_iot"
 func init() {
 	service.RegisterTdEngine(tdEngineNew())
 	// 简化配置获取过程
-	dbName = g.Cfg().MustGet(context.Background(), "tdengine.dbName", "sagoo_iot").String()
+	dbName = g.Cfg().MustGet(context.Background(), "tsd.tdengine.dbName", "sagoo_iot").String()
 }
 
 type connections struct {

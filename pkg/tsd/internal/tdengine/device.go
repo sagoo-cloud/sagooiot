@@ -158,7 +158,7 @@ func (m *TdEngine) BatchInsertMultiDeviceData(multiDeviceDataList map[string][]i
 		if sqlBuilder.Len() > 15*1024 || i == len(multiDeviceDataList)-1 {
 			trimmedSQL := strings.TrimRight(sqlBuilder.String(), " ")
 			start := time.Now() // 开始时间
-			//g.Log().Debug(context.Background(), "====06====BatchInsertDeviceData SQL:", trimmedSQL)
+			g.Log().Debug(context.Background(), "====06====BatchInsertDeviceData SQL:", trimmedSQL)
 			_, err := m.db.Exec(trimmedSQL)
 			if err != nil {
 				g.Log().Error(context.Background(), err.Error(), trimmedSQL)
