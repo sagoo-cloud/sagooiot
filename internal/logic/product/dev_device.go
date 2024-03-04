@@ -834,8 +834,8 @@ func (s *sDevDevice) RunStatus(ctx context.Context, deviceKey string) (out *mode
 	out = new(model.DeviceRunStatusOutput)
 	out.Status = dcache.GetDeviceStatus(ctx, deviceKey)
 
-	//获取数据示例
-	deviceValueList := dcache.GetDeviceDetailData(context.Background(), deviceKey)
+	//获取数据
+	deviceValueList := dcache.GetDeviceDetailData(context.Background(), deviceKey, consts.MsgTypePropertyReport, consts.MsgTypeGatewayBatch)
 	if len(deviceValueList) == 0 {
 		return
 	}
@@ -973,7 +973,7 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 
 // GetPropertyList 设备属性详情列表
 func (s *sDevDevice) GetPropertyList(ctx context.Context, in *model.DeviceGetPropertyListInput) (out *model.DeviceGetPropertyListOutput, err error) {
-	resultList, total, currentPage := dcache.GetDeviceDetailDataByPage(ctx, in.DeviceKey, in.PageNum, in.PageSize)
+	resultList, total, currentPage := dcache.GetDeviceDetailDataByPage(ctx, in.DeviceKey, in.PageNum, in.PageSize, consts.MsgTypePropertyReport, consts.MsgTypeGatewayBatch)
 	if err != nil {
 		return
 	}
