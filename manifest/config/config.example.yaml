@@ -9,7 +9,7 @@ system:
   isDemo: false   # 是否为演示系统
   isCluster: false   # 是否为集群部署，默认为false。开启集群必须配置redis
   deviceCacheData:
-    poolSize: 300 #设备数据缓存池连接数
+    poolSize: 50 #设备数据缓存池连接数
     recordDuration: "20m"  #设备数据缓存时长，超过时长的数据将被清除。默认为10分钟
     recordLimit: 1000 #设备数据缓存条数限制，超过条数的数据将被清除。默认为1000条
   pluginsPath: "./plugins/built"
@@ -78,14 +78,13 @@ database:
     stdout: false
     ctxKeys: [ "RequestId" ]
   default:
-    #    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3307)/zhgy_sagoo_cn?loc=Local&parseTime=true"
-    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3307)/sagooiot2024?loc=Local&parseTime=true"
+    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3307)/sagooiot-community?loc=Local&parseTime=true"
     debug: true #开启调试模式
     charset: "utf8mb4" #数据库编码(如: utf8/gbk/gb2312)，一般设置为utf8
     dryRun: false #ORM空跑(只读不写)
-    maxIdle: 50 #连接池最大闲置的连接数
+    maxIdle: 30 #连接池最大闲置的连接数
     maxOpen: 100 #连接池最大打开的连接数
-    maxLifetime: 60 #(单位秒)连接对象可重复使用的时间长度
+    maxLifetime: 120 #(单位秒)连接对象可重复使用的时间长度
 
 # 这个mqtt客户端主要是服务端内部处理消息使用的通道
 mqtt:
@@ -100,15 +99,27 @@ mqtt:
 
 # 时序数据库配置
 tsd:
-  database: "TdEngine"
+  database: "Influxdb" #可选择 TdEngine、Influxdb
   tdengine:
     #  type: "taosRestful" #http连接方式，端口是6041
     #  dsn: "root:taosdata@http(127.0.0.1:6041)/"
     type: "taosWS" #http连接方式，端口是6041
     dsn: "root:taosdata@ws(127.0.0.1:6041)/"
     dbName: "sagoo_iot"
-    maxOpenConns: 1000
-    maxIdleConns: 50
+    maxOpenConns: 2000
+    maxIdleConns: 80
+  influxdb:
+    addr: "http://localhost:8086"
+    org: "sagoo"
+    dbName: "sagoo_iot"
+    token: "ez4BQ5QQCUpcAp1FDhhdY9jfcvxq2Z9OLkQSuQG_IPOzE9GvGRHfRm_YYwfuHtCaS7TVefxhEnzCOHi_nGtsCw=="
+    userName:
+    passWord:
+  aggregator: #聚合器配置，用来配置批量写入时的聚合器
+    batchSize: 1000 #批处理数
+    workers: 100 #工作线程数
+    channelBufferSize: 50000  #通道缓冲数
+    lingerTime: 100 # 防止数据积压时间，单位毫秒
 
 # Redis 配置示例
 redis:
@@ -118,9 +129,10 @@ redis:
     db: 0
     pass:
     minIdle: 50 #最小空闲连接数
-    maxIdle: 100 #允许闲置的最大连接数
+    maxIdle: 20 #允许闲置的最大连接数
     maxActive: 16 #最大活跃连接数
-    idleTimeout: "30m" #连接最大空闲时间，使用时间字符串例如30s/2m/2d
+    idleTimeout: "30s" #连接最大空闲时间，使用时间字符串例如30s/2m/2d
+    ClientName: "SystemCache"
 
 #消息队列
 queue:

@@ -5,11 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/guid"
 	"sagooiot/internal/consts"
+	"sagooiot/internal/model"
 	"sagooiot/internal/mqtt"
 	"sagooiot/internal/service"
 	"sagooiot/network/core"
+	"sagooiot/network/core/logic/baseLogic"
 	"sagooiot/network/core/tunnel/base"
+	"sagooiot/pkg/dcache"
 	"sagooiot/pkg/iotModel"
 	"sagooiot/pkg/iotModel/sagooProtocol"
 	"sagooiot/pkg/iotModel/sagooProtocol/north"
@@ -38,29 +42,22 @@ func GatewayBatchReportProperty(ctx context.Context, data topicModel.TopicHandle
 		return logError(ctx, "parse data error", err, data)
 	}
 
-	//网关属性处理
-	if len(gatewayBatchReport.Params.Properties) > 0 {
-		if err := handleProperties(ctx, data, gatewayBatchReport.Params.Properties); err != nil {
-			return err
-		}
-	}
-
-	//网关事件处理
-	if len(gatewayBatchReport.Params.Events) > 0 {
-		if err := handleEvents(ctx, data, gatewayBatchReport.Params.Events, ""); err != nil {
-			return err
-		}
-	}
-
 	//网关子设备处理
 	for _, sub := range gatewayBatchReport.Params.SubDevices {
+
+		subDevice, err := dcache.GetDeviceDetailInfo(sub.Identity.DeviceKey)
+		if err != nil {
+			continue
+		}
+		dcache.UpdateStatus(ctx, subDevice) //更新子设备状态
+
 		if len(sub.Properties) > 0 {
-			if err := handleProperties(ctx, data, sub.Properties); err != nil {
+			if err := handleProperties(ctx, data, subDevice, sub.Properties); err != nil {
 				return err
 			}
 		}
 		if len(sub.Events) > 0 {
-			if err := handleEvents(ctx, data, sub.Events, sub.Identity.DeviceKey); err != nil {
+			if err := handleEvents(ctx, data, subDevice, sub.Events); err != nil {
 				return err
 			}
 		}
@@ -77,24 +74,33 @@ func logError(ctx context.Context, message string, err error, data topicModel.To
 }
 
 // handleProperties 处理属性上报
-func handleProperties(ctx context.Context, data topicModel.TopicHandlerData, properties map[string]interface{}) error {
-	reportDataInfo, err := service.DevTSLParse().HandleProperties(ctx, data.DeviceDetail, properties)
+func handleProperties(ctx context.Context, data topicModel.TopicHandlerData, subDevice *model.DeviceOutput, properties map[string]interface{}) error {
+	reportDataInfo, err := service.DevTSLParse().HandleProperties(ctx, subDevice, properties)
 	if err != nil {
 		return logError(ctx, "parse property error", err, data)
 	}
 
 	// 上报处理结果
 	if len(reportDataInfo) > 0 {
-		//if err := service.DevDataReport().Property(ctx, data.DeviceKey, reportDataInfo, subDeviceKey); err != nil {
-		//	return logError(ctx, "report property error", err, data)
-		//}
-		north.WriteMessage(ctx, north.PropertyReportMessageTopic, nil, data.ProductKey, data.DeviceKey, iotModel.PropertyReportMessage{
+
+		var reportData = new(sagooProtocol.ReportPropertyReq)
+		reportData.Id = guid.S()
+		reportData.Version = "1.0"
+		reportData.Sys = sagooProtocol.SysInfo{
+			Ack: 0,
+		}
+		reportData.Params = properties
+		reportData.Method = "thing.event.property.post"
+		// 上报数据存入日志库
+		go baseLogic.InertTdLog(ctx, consts.MsgTypePropertyReport, subDevice.Key, reportData)
+
+		north.WriteMessage(ctx, north.PropertyReportMessageTopic, nil, subDevice.ProductKey, subDevice.Key, iotModel.PropertyReportMessage{
 			Properties: reportDataInfo,
 		})
 
 		// 检查报警规则
-		if err := service.AlarmRule().Check(ctx, data.DeviceKey, data.DeviceKey, consts.AlarmTriggerTypeProperty, reportDataInfo); err != nil {
-			return logError(ctx, "alarm check error", err, data)
+		if err := service.AlarmRule().Check(ctx, subDevice.ProductKey, subDevice.Key, consts.AlarmTriggerTypeProperty, reportDataInfo); err != nil {
+			return logError(ctx, "handleProperties alarm check error", err, data)
 		}
 	}
 
@@ -102,30 +108,26 @@ func handleProperties(ctx context.Context, data topicModel.TopicHandlerData, pro
 }
 
 // handleEvents 处理事件上报
-func handleEvents(ctx context.Context, data topicModel.TopicHandlerData, events map[string]sagooProtocol.EventNode, subDeviceKey string) error {
-	resList, err := service.DevTSLParse().HandleEvents(ctx, data.DeviceDetail, events)
-	if err != nil {
-		return logError(ctx, "parse event error", err, data)
-	}
-
-	for _, e := range resList {
-		// 上报事件
-		if len(e.Param.Value) > 0 {
-			//if err := service.DevDataReport().Event(ctx, data.DeviceKey, reportEventData, subDeviceKey); err != nil {
-			//	return logError(ctx, "report event error", err, data)
-			//}
-
-			north.WriteMessage(ctx, north.EventReportMessageTopic, nil, data.ProductKey, data.DeviceDetail.Key, iotModel.EventReportMessage{
-				EventId:   e.Key,
-				Events:    e.Param.Value,
-				Timestamp: time.Now().UnixMilli(),
-			})
-
-			// 检查报警规则
-			if err := service.AlarmRule().Check(ctx, data.DeviceKey, data.ProductKey, consts.AlarmTriggerTypeProperty, e); err != nil {
-				return logError(ctx, "alarm check error", err, data)
-			}
+func handleEvents(ctx context.Context, data topicModel.TopicHandlerData, subDevice *model.DeviceOutput, events map[string]sagooProtocol.EventNode) error {
+	for eventName, eventData := range events {
+		var reportData = new(sagooProtocol.ReportPropertyReq)
+		reportData.Id = guid.S()
+		reportData.Version = "1.0"
+		reportData.Sys = sagooProtocol.SysInfo{
+			Ack: 0,
 		}
+		reportData.Params = eventData.Value
+		reportData.Method = "thing.event." + eventName + ".post"
+
+		// 上报数据存入日志库
+		go baseLogic.InertTdLog(ctx, consts.MsgTypeEvent, subDevice.Key, reportData)
+
+		north.WriteMessage(ctx, north.EventReportMessageTopic, nil, subDevice.ProductKey, subDevice.Key, iotModel.EventReportMessage{
+			EventId:   eventName,
+			Events:    eventData.Value,
+			Timestamp: time.Now().UnixMilli(),
+		})
+
 	}
 	return nil
 }

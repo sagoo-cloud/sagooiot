@@ -6,10 +6,10 @@ require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/arl/statsviz v0.6.0
 	github.com/eclipse/paho.mqtt.golang v1.4.3
-	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.6.1
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.6.1
-	github.com/gogf/gf/contrib/trace/jaeger/v2 v2.6.1
-	github.com/gogf/gf/v2 v2.6.1
+	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.6.2
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.6.2
+	github.com/gogf/gf/contrib/trace/jaeger/v2 v2.6.2
+	github.com/gogf/gf/v2 v2.6.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/golang-module/carbon/v2 v2.2.8
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
