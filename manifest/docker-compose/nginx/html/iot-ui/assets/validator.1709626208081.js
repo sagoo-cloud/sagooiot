@@ -1,0 +1,1 @@
+const r=/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/,e=(e,s,t)=>s?(r.test(s)||t(new Error("请填写正确手机号")),t()):t(),s=(r="不能为空",e="change")=>({required:!0,message:r,trigger:e}),t=(r,e,s)=>{/\s/.test(e)?s(new Error("名称不能包含空格")):s()};export{e as p,s as r,t as v};

@@ -1,0 +1,1 @@
+import{a1 as a,h as t}from"./vue.1709626208081.js";function e(e,l,o){const s=a({page:1,size:10,total:0,...o}),u=t(!1),i=t([]);return{params:s,tableData:i,getList:async a=>{a&&(s.page=a),i.value=[],u.value=!0,s.total=0;let t=await e(s)["finally"]((()=>u.value=!1));i.value=(l?t[l]:t)||[],s.total=t.Total},loading:u}}export{e as u};
