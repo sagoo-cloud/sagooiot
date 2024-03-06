@@ -1,6 +1,6 @@
 services:
   sagoo-iot-open:
-    image: sagoo-iot-open:1.0.3
+    image: sagoo-iot-open:1.0.4
     restart: always
     container_name: sagoo-iot-open
     build: 

@@ -66,7 +66,7 @@ func RunServer(ctx context.Context, stopSignal chan os.Signal) {
 			service.Middleware().MiddlewareCORS,
 			service.Middleware().I18n,
 		)
-
+		service.SysToken().GfToken().Middleware(group)
 		router.System(ctx, group)   //系统默认功能的路由
 		router.Iot(ctx, group)      //Iot功能的路由
 		router.Analysis(ctx, group) //分析统计功能的路由

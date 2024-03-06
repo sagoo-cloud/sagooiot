@@ -69,6 +69,7 @@ gfToken:
   excludePaths: #排除不做登录验证的路由地址
     - "/api/v1/login"
     - "/api/v1/sysinfo"
+    - "/api/v1/captcha"
 
 # 数据库连接配置
 database:
