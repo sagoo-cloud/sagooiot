@@ -74,25 +74,23 @@ func (s *sMiddleware) Ctx(r *ghttp.Request) {
 	ctx := r.GetCtx()
 	r.SetCtx(r.GetNeverDoneCtx())
 
-	if r.GetHeader("Authorization") != "" {
-		// 初始化登录用户信息
-		data, err := service.SysToken().ParseToken(r)
+	// 初始化登录用户信息
+	data, err := service.SysToken().ParseToken(r)
+	if err != nil {
+		// 执行下一步请求逻辑
+		r.Middleware.Next()
+	}
+	if data != nil {
+		contextModel := new(model.Context)
+		err = gconv.Struct(data.Data, &contextModel.User)
+		//请求方式
+		contextModel.User.RequestWay = consts.TokenAuth
 		if err != nil {
+			g.Log().Error(ctx, err)
 			// 执行下一步请求逻辑
 			r.Middleware.Next()
 		}
-		if data != nil {
-			contextModel := new(model.Context)
-			err = gconv.Struct(data.Data, &contextModel.User)
-			//请求方式
-			contextModel.User.RequestWay = consts.TokenAuth
-			if err != nil {
-				g.Log().Error(ctx, err)
-				// 执行下一步请求逻辑
-				r.Middleware.Next()
-			}
-			service.Context().Init(r, contextModel)
-		}
+		service.Context().Init(r, contextModel)
 	}
 
 	// 执行下一步请求逻辑

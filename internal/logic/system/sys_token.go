@@ -37,16 +37,16 @@ var gftService = &gft{
 	lock:    &sync.Mutex{},
 }
 
-func (m *sSysToken) GenerateToken(ctx context.Context, key string, data interface{}) (keys string, err error) {
-	keys, err = GfToken().GenerateToken(ctx, key, data)
+func (s *sSysToken) GenerateToken(ctx context.Context, key string, data interface{}) (keys string, err error) {
+	keys, err = s.GfToken().GenerateToken(ctx, key, data)
 	return keys, err
 }
 
-func (m *sSysToken) ParseToken(r *ghttp.Request) (*gftoken.CustomClaims, error) {
-	return GfToken().ParseToken(r)
+func (s *sSysToken) ParseToken(r *ghttp.Request) (*gftoken.CustomClaims, error) {
+	return s.GfToken().ParseToken(r)
 }
 
-func GfToken() *gftoken.GfToken {
+func (s *sSysToken) GfToken() *gftoken.GfToken {
 	ctx := gctx.New()
 
 	//判断控制是否生效

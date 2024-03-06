@@ -18,67 +18,6 @@ import (
 )
 
 type (
-	ISysLoginLog interface {
-		Invoke(ctx context.Context, data *model.LoginLogParams)
-		// Add 记录登录日志
-		Add(ctx context.Context, params *model.LoginLogParams)
-		// GetList 获取登录日志数据列表
-		GetList(ctx context.Context, req *model.SysLoginLogInput) (total, page int, list []*model.SysLoginLogOut, err error)
-		// Detail 登录日志详情
-		Detail(ctx context.Context, infoId int) (entity *entity.SysLoginLog, err error)
-		// Del 根据ID删除登录日志
-		Del(ctx context.Context, infoIds []int) (err error)
-		// Export 导出登录日志列表
-		Export(ctx context.Context, req *model.SysLoginLogInput) (err error)
-	}
-	ISysOperLog interface {
-		// GetList 获取操作日志数据列表
-		GetList(ctx context.Context, input *model.SysOperLogDoInput) (total int, out []*model.SysOperLogOut, err error)
-		Invoke(ctx context.Context, userId int, url *url.URL, param g.Map, method string, clientIp string, res map[string]interface{}, err error)
-		// Add 添加操作日志
-		Add(ctx context.Context, userId int, url *url.URL, param g.Map, method string, clientIp string, res map[string]interface{}, erro error) (err error)
-		AnalysisLog(ctx context.Context) (data entity.SysOperLog)
-		// RealWrite 真实写入
-		RealWrite(ctx context.Context, log entity.SysOperLog) (err error)
-		// Detail 操作日志详情
-		Detail(ctx context.Context, operId int) (entity *entity.SysOperLog, err error)
-		// Del 根据ID删除操作日志
-		Del(ctx context.Context, operIds []int) (err error)
-		ClearOperationLogByDays(ctx context.Context, days int) (err error)
-	}
-	ISysToken interface {
-		GenerateToken(ctx context.Context, key string, data interface{}) (keys string, err error)
-		ParseToken(r *ghttp.Request) (*gftoken.CustomClaims, error)
-	}
-	ISysApi interface {
-		// GetInfoByIds 根据接口APIID数组获取接口信息
-		GetInfoByIds(ctx context.Context, ids []int) (data []*entity.SysApi, err error)
-		// GetApiByMenuId 根据ApiID获取接口信息
-		GetApiByMenuId(ctx context.Context, apiId int) (data []*entity.SysApi, err error)
-		// GetInfoById 根据ID获取API
-		GetInfoById(ctx context.Context, id int) (entity *entity.SysApi, err error)
-		// GetApiAll 获取所有接口
-		GetApiAll(ctx context.Context, method string) (data []*entity.SysApi, err error)
-		// GetApiTree 获取Api数结构数据
-		GetApiTree(ctx context.Context, name string, address string, status int, types int) (out []*model.SysApiTreeOut, err error)
-		// Add 添加Api列表
-		Add(ctx context.Context, input *model.AddApiInput) (err error)
-		// Detail Api列表详情
-		Detail(ctx context.Context, id int) (out *model.SysApiOut, err error)
-		AddMenuApi(ctx context.Context, addPageSource string, apiIds []int, menuIds []int) (err error)
-		// Edit 修改Api列表
-		Edit(ctx context.Context, input *model.EditApiInput) (err error)
-		// Del 根据ID删除Api列表信息
-		Del(ctx context.Context, Id int) (err error)
-		// EditStatus 修改状态
-		EditStatus(ctx context.Context, id int, status int) (err error)
-		// GetInfoByAddress 根据Address获取API
-		GetInfoByAddress(ctx context.Context, address string) (entity *entity.SysApi, err error)
-		// GetInfoByNameAndTypes 根据名字和类型获取API
-		GetInfoByNameAndTypes(ctx context.Context, name string, types int) (entity *entity.SysApi, err error)
-		// ImportApiFile 导入API文件
-		ImportApiFile(ctx context.Context) (err error)
-	}
 	ISysJob interface {
 		// JobList 获取任务列表
 		JobList(ctx context.Context, input *model.GetJobListInput) (total int, out []*model.SysJobOut, err error)
@@ -102,6 +41,19 @@ type (
 		WithValue(ctx context.Context, value string) context.Context
 		Value(ctx context.Context) uint64
 	}
+	ISysLoginLog interface {
+		Invoke(ctx context.Context, data *model.LoginLogParams)
+		// Add 记录登录日志
+		Add(ctx context.Context, params *model.LoginLogParams)
+		// GetList 获取登录日志数据列表
+		GetList(ctx context.Context, req *model.SysLoginLogInput) (total, page int, list []*model.SysLoginLogOut, err error)
+		// Detail 登录日志详情
+		Detail(ctx context.Context, infoId int) (entity *entity.SysLoginLog, err error)
+		// Del 根据ID删除登录日志
+		Del(ctx context.Context, infoIds []int) (err error)
+		// Export 导出登录日志列表
+		Export(ctx context.Context, req *model.SysLoginLogInput) (err error)
+	}
 	ISysMenuApi interface {
 		// MenuApiList 根据菜单ID获取API列表
 		MenuApiList(ctx context.Context, menuId int) (out []*model.SysApiAllOut, err error)
@@ -115,179 +67,6 @@ type (
 		GetAll(ctx context.Context) (data []*entity.SysMenuApi, err error)
 		// GetInfoByMenuId 根据菜单ID获取菜单信息
 		GetInfoByMenuId(ctx context.Context, menuId int) (data []*entity.SysMenuApi, err error)
-	}
-	ISysMenuColumn interface {
-		// GetList 获取全部菜单列表数据
-		GetList(ctx context.Context, input *model.MenuColumnDoInput) (data []*model.UserMenuColumnOut, err error)
-		// GetData 执行获取数据操作
-		GetData(ctx context.Context, input *model.MenuColumnDoInput) (data []model.UserMenuColumnOut, err error)
-		// Add 添加菜单列表
-		Add(ctx context.Context, input *model.AddMenuColumnInput) (err error)
-		// Detail 菜单列表详情
-		Detail(ctx context.Context, Id int64) (entity *entity.SysMenuColumn, err error)
-		// Edit 修改菜单列表
-		Edit(ctx context.Context, input *model.EditMenuColumnInput) (err error)
-		// Del 根据ID删除菜单列表信息
-		Del(ctx context.Context, Id int64) (err error)
-		// EditStatus 修改状态
-		EditStatus(ctx context.Context, id int, menuId int, status int) (err error)
-		// GetInfoByColumnIds 根据列表ID数组获取菜单信息
-		GetInfoByColumnIds(ctx context.Context, ids []int) (data []*entity.SysMenuColumn, err error)
-		// GetInfoByMenuIds 根据菜单ID数组获取菜单信息
-		GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenuColumn, err error)
-		// GetInfoByMenuId 根据菜单ID获取菜单信息
-		GetInfoByMenuId(ctx context.Context, menuId int) (data []*entity.SysMenuColumn, err error)
-		// GetAll 获取所有的列表信息
-		GetAll(ctx context.Context) (data []*entity.SysMenuColumn, err error)
-	}
-	ISysOrganization interface {
-		// GetTree 获取组织数据
-		GetTree(ctx context.Context, name string, status int) (data []*model.OrganizationOut, err error)
-		// GetData 执行获取数据操作
-		GetData(ctx context.Context, name string, status int) (data []*model.OrganizationOut, err error)
-		// Add 添加
-		Add(ctx context.Context, input *model.AddOrganizationInput) (err error)
-		// Edit 修改组织
-		Edit(ctx context.Context, input *model.EditOrganizationInput) (err error)
-		// Detail 组织详情
-		Detail(ctx context.Context, id int64) (entity *entity.SysOrganization, err error)
-		// Del 根据ID删除组织信息
-		Del(ctx context.Context, id int64) (err error)
-		// GetAll 获取全部组织数据
-		GetAll(ctx context.Context) (data []*entity.SysOrganization, err error)
-		// Count 获取组织数量
-		Count(ctx context.Context) (count int, err error)
-	}
-	ISystemPluginsConfig interface {
-		// GetPluginsConfigList 获取列表数据
-		GetPluginsConfigList(ctx context.Context, in *model.GetPluginsConfigListInput) (total, page int, list []*model.PluginsConfigOutput, err error)
-		// GetPluginsConfigById 获取指定ID数据
-		GetPluginsConfigById(ctx context.Context, id int) (out *model.PluginsConfigOutput, err error)
-		// GetPluginsConfigByName 获取指定ID数据
-		GetPluginsConfigByName(ctx context.Context, types, name string) (out *model.PluginsConfigOutput, err error)
-		// AddPluginsConfig 添加数据
-		AddPluginsConfig(ctx context.Context, in model.PluginsConfigAddInput) (err error)
-		// EditPluginsConfig 修改数据
-		EditPluginsConfig(ctx context.Context, in model.PluginsConfigEditInput) (err error)
-		// SavePluginsConfig 更新数据，有数据就修改，没有数据就添加
-		SavePluginsConfig(ctx context.Context, in model.PluginsConfigAddInput) (err error)
-		// DeletePluginsConfig 删除数据
-		DeletePluginsConfig(ctx context.Context, Ids []int) (err error)
-		// UpdateAllPluginsConfigCache 将插件数据更新到缓存
-		UpdateAllPluginsConfigCache(ctx context.Context) (err error)
-		// GetPluginsConfigData 获取列表数据
-		GetPluginsConfigData(pluginType, pluginName string) (res map[interface{}]interface{}, err error)
-	}
-	ISysPost interface {
-		// GetTree 获取全部岗位数据
-		GetTree(ctx context.Context, postName string, postCode string, status int) (data []*model.PostOut, err error)
-		// Add 添加岗位
-		Add(ctx context.Context, input *model.AddPostInput) (err error)
-		// Edit 修改岗位
-		Edit(ctx context.Context, input *model.EditPostInput) (err error)
-		// Detail 岗位详情
-		Detail(ctx context.Context, postId int64) (entity *entity.SysPost, err error)
-		// GetData 执行获取数据操作
-		GetData(ctx context.Context, postName string, postCode string, status int) (data []*model.PostOut, err error)
-		// Del 根据ID删除岗位信息
-		Del(ctx context.Context, postId int64) (err error)
-		// GetUsedPost 获取正常状态的岗位
-		GetUsedPost(ctx context.Context) (list []*model.DetailPostOut, err error)
-	}
-	ISysRole interface {
-		// GetAll 获取所有的角色
-		GetAll(ctx context.Context) (entity []*entity.SysRole, err error)
-		GetTree(ctx context.Context, name string, status int) (out []*model.RoleTreeOut, err error)
-		// Add 添加
-		Add(ctx context.Context, input *model.AddRoleInput) (err error)
-		// Edit 编辑
-		Edit(ctx context.Context, input *model.EditRoleInput) (err error)
-		// GetInfoById 根据ID获取角色信息
-		GetInfoById(ctx context.Context, id uint) (entity *entity.SysRole, err error)
-		// DelInfoById 根据ID删除角色信息
-		DelInfoById(ctx context.Context, id uint) (err error)
-		// GetRoleList 获取角色列表
-		GetRoleList(ctx context.Context) (list []*model.RoleInfoOut, err error)
-		// GetInfoByIds 根据ID数组获取角色信息
-		GetInfoByIds(ctx context.Context, id []int) (entity []*entity.SysRole, err error)
-		// DataScope 角色数据授权
-		DataScope(ctx context.Context, id int, dataScope uint, deptIds []int64) (err error)
-		GetAuthorizeById(ctx context.Context, id int) (menuIds []string, menuButtonIds []string, menuColumnIds []string, menuApiIds []string, err error)
-	}
-	ILogin interface {
-		// Login 登录
-		Login(ctx context.Context, verifyKey string, captcha string, userName string, password string) (loginUserOut *model.LoginUserOut, token string, isChangePassword int, err error)
-		// CheckPwdErrorNum 验证密码错误次数
-		CheckPwdErrorNum(ctx context.Context, userName string) (err error)
-		IsChangePwd(ctx context.Context, userName string) (isChangePwd int)
-		// GenUserToken 生成用户TOKEN
-		GenUserToken(ctx context.Context, isSecurityControlEnabled string, ip string, userAgent string, userInfo *entity.SysUser, logMoudel string) (loginUserOut *model.LoginUserOut, token string, err error)
-		LoginOut(ctx context.Context) (err error)
-	}
-	ISysUserOnline interface {
-		Invoke(ctx context.Context, data *entity.SysUserOnline)
-		// Add 记录用户在线
-		Add(ctx context.Context, data *entity.SysUserOnline)
-		// DelByToken 根据token删除信息
-		DelByToken(ctx context.Context, token string) (err error)
-		// GetInfoByToken 根据token获取
-		GetInfoByToken(ctx context.Context, token string) (data *entity.SysUserOnline, err error)
-		// DelByIds 根据IDS删除信息
-		DelByIds(ctx context.Context, ids []int) (err error)
-		GetAll(ctx context.Context) (data []*entity.SysUserOnline, err error)
-		// UserOnlineList 在线用户列表
-		UserOnlineList(ctx context.Context, input *model.UserOnlineDoListInput) (total int, out []*model.UserOnlineListOut, err error)
-		UserOnlineStrongBack(ctx context.Context, id int) (err error)
-	}
-	ISysAuthorize interface {
-		AuthorizeQuery(ctx context.Context, itemsType string, menuIds []int) (out []*model.AuthorizeQueryTreeOut, err error)
-		// GetInfoByRoleId 根据角色ID获取权限信息
-		GetInfoByRoleId(ctx context.Context, roleId int) (data []*entity.SysAuthorize, err error)
-		// GetInfoByRoleIds 根据角色ID数组获取权限信息
-		GetInfoByRoleIds(ctx context.Context, roleIds []int) (data []*entity.SysAuthorize, err error)
-		// GetInfoByRoleIdsAndItemsType 根据角色ID和项目类型获取权限信息
-		GetInfoByRoleIdsAndItemsType(ctx context.Context, roleIds []int, itemsType string) (data []*entity.SysAuthorize, err error)
-		DelByRoleId(ctx context.Context, roleId int) (err error)
-		Add(ctx context.Context, authorize []*entity.SysAuthorize) (err error)
-		AddAuthorize(ctx context.Context, roleId int, menuIds []string, buttonIds []string, columnIds []string, apiIds []string) (err error)
-		IsAllowAuthorize(ctx context.Context, roleId int) (isAllow bool, err error)
-		// InitAuthorize 初始化系统权限
-		InitAuthorize(ctx context.Context) (err error)
-	}
-	ISysCertificate interface {
-		// GetList 获取列表数据
-		GetList(ctx context.Context, input *model.SysCertificateListInput) (total, page int, out []*model.SysCertificateListOut, err error)
-		// GetInfoById 获取指定ID数据
-		GetInfoById(ctx context.Context, id int) (out *model.SysCertificateListOut, err error)
-		// Add 添加数据
-		Add(ctx context.Context, input *model.AddSysCertificateListInput) (err error)
-		// Edit 修改数据
-		Edit(ctx context.Context, input *model.EditSysCertificateListInput) (err error)
-		// Delete 删除数据
-		Delete(ctx context.Context, id int) (err error)
-		// EditStatus 更新状态
-		EditStatus(ctx context.Context, id int, status int) (err error)
-		// GetAll 获取所有证书
-		GetAll(ctx context.Context) (out []*entity.SysCertificate, err error)
-	}
-	ISysMenu interface {
-		// GetAll 获取全部菜单数据
-		GetAll(ctx context.Context) (data []*entity.SysMenu, err error)
-		// GetTree 获取菜单数据
-		GetTree(ctx context.Context, title string, status int) (data []*model.SysMenuOut, err error)
-		// Add 添加菜单
-		Add(ctx context.Context, input *model.AddMenuInput) (err error)
-		// Detail 菜单详情
-		Detail(ctx context.Context, menuId int64) (entity *entity.SysMenu, err error)
-		// Edit 修改菜单
-		Edit(ctx context.Context, input *model.EditMenuInput) (err error)
-		// Del 根据ID删除菜单信息
-		Del(ctx context.Context, menuId int64) (err error)
-		// GetData 执行获取数据操作
-		GetData(ctx context.Context, title string, status int) (data []*model.SysMenuOut, err error)
-		// GetInfoByMenuIds 根据菜单ID数组获取菜单信息
-		GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenu, err error)
-		GetInfoById(ctx context.Context, id int) (data *entity.SysMenu, err error)
 	}
 	ISysMenuButton interface {
 		// GetList 获取全部菜单按钮数据
@@ -312,6 +91,66 @@ type (
 		GetAll(ctx context.Context) (data []*entity.SysMenuButton, err error)
 		// EditStatus 修改状态
 		EditStatus(ctx context.Context, id int, menuId int, status int) (err error)
+	}
+	ISysMessage interface {
+		// GetList 获取列表数据
+		GetList(ctx context.Context, input *model.MessageListDoInput) (total int, out []*model.MessageListOut, err error)
+		// Add 新增
+		Add(ctx context.Context, messageInfo *model.AddMessageInput) (err error)
+		// GetUnReadMessageAll 获取所有未读消息
+		GetUnReadMessageAll(ctx context.Context, input *model.MessageListDoInput) (total int, out []*model.MessageListOut, err error)
+		// GetUnReadMessageCount 获取所有未读消息数量
+		GetUnReadMessageCount(ctx context.Context) (out int, err error)
+		// DelMessage 删除消息
+		DelMessage(ctx context.Context, ids []int) (err error)
+		// ClearMessage 一键清空消息
+		ClearMessage(ctx context.Context) (err error)
+		// ReadMessage 阅读消息
+		ReadMessage(ctx context.Context, id int) (err error)
+		// ReadMessageAll 全部阅读消息
+		ReadMessageAll(ctx context.Context) (err error)
+		// GetUnReadMessageLast 获取用户最后一条未读消息
+		GetUnReadMessageLast(ctx context.Context, userId int) (out []*model.MessageListOut, err error)
+	}
+	ISysOperLog interface {
+		// GetList 获取操作日志数据列表
+		GetList(ctx context.Context, input *model.SysOperLogDoInput) (total int, out []*model.SysOperLogOut, err error)
+		Invoke(ctx context.Context, userId int, url *url.URL, param g.Map, method string, clientIp string, res map[string]interface{}, err error)
+		// Add 添加操作日志
+		Add(ctx context.Context, userId int, url *url.URL, param g.Map, method string, clientIp string, res map[string]interface{}, erro error) (err error)
+		AnalysisLog(ctx context.Context) (data entity.SysOperLog)
+		// RealWrite 真实写入
+		RealWrite(ctx context.Context, log entity.SysOperLog) (err error)
+		// Detail 操作日志详情
+		Detail(ctx context.Context, operId int) (entity *entity.SysOperLog, err error)
+		// Del 根据ID删除操作日志
+		Del(ctx context.Context, operIds []int) (err error)
+		ClearOperationLogByDays(ctx context.Context, days int) (err error)
+	}
+	ILogin interface {
+		// Login 登录
+		Login(ctx context.Context, verifyKey string, captcha string, userName string, password string) (loginUserOut *model.LoginUserOut, token string, isChangePassword int, err error)
+		// CheckPwdErrorNum 验证密码错误次数
+		CheckPwdErrorNum(ctx context.Context, userName string) (err error)
+		IsChangePwd(ctx context.Context, userName string) (isChangePwd int)
+		// GenUserToken 生成用户TOKEN
+		GenUserToken(ctx context.Context, isSecurityControlEnabled string, ip string, userAgent string, userInfo *entity.SysUser, logMoudel string) (loginUserOut *model.LoginUserOut, token string, err error)
+		LoginOut(ctx context.Context) (err error)
+	}
+	ISysAuthorize interface {
+		AuthorizeQuery(ctx context.Context, itemsType string, menuIds []int) (out []*model.AuthorizeQueryTreeOut, err error)
+		// GetInfoByRoleId 根据角色ID获取权限信息
+		GetInfoByRoleId(ctx context.Context, roleId int) (data []*entity.SysAuthorize, err error)
+		// GetInfoByRoleIds 根据角色ID数组获取权限信息
+		GetInfoByRoleIds(ctx context.Context, roleIds []int) (data []*entity.SysAuthorize, err error)
+		// GetInfoByRoleIdsAndItemsType 根据角色ID和项目类型获取权限信息
+		GetInfoByRoleIdsAndItemsType(ctx context.Context, roleIds []int, itemsType string) (data []*entity.SysAuthorize, err error)
+		DelByRoleId(ctx context.Context, roleId int) (err error)
+		Add(ctx context.Context, authorize []*entity.SysAuthorize) (err error)
+		AddAuthorize(ctx context.Context, roleId int, menuIds []string, buttonIds []string, columnIds []string, apiIds []string) (err error)
+		IsAllowAuthorize(ctx context.Context, roleId int) (isAllow bool, err error)
+		// InitAuthorize 初始化系统权限
+		InitAuthorize(ctx context.Context) (err error)
 	}
 	ISysRoleDept interface {
 		// GetInfoByRoleId 根据角色ID获取信息
@@ -351,37 +190,84 @@ type (
 		// EditPassword 修改密码
 		EditPassword(ctx context.Context, userName string, oldUserPassword string, userPassword string) (err error)
 	}
+	ISysUserOnline interface {
+		Invoke(ctx context.Context, data *entity.SysUserOnline)
+		// Add 记录用户在线
+		Add(ctx context.Context, data *entity.SysUserOnline)
+		// DelByToken 根据token删除信息
+		DelByToken(ctx context.Context, token string) (err error)
+		// GetInfoByToken 根据token获取
+		GetInfoByToken(ctx context.Context, token string) (data *entity.SysUserOnline, err error)
+		// DelByIds 根据IDS删除信息
+		DelByIds(ctx context.Context, ids []int) (err error)
+		GetAll(ctx context.Context) (data []*entity.SysUserOnline, err error)
+		// UserOnlineList 在线用户列表
+		UserOnlineList(ctx context.Context, input *model.UserOnlineDoListInput) (total int, out []*model.UserOnlineListOut, err error)
+		UserOnlineStrongBack(ctx context.Context, id int) (err error)
+	}
 	ISysUserRole interface {
 		// GetInfoByUserId 根据用户ID获取信息
 		GetInfoByUserId(ctx context.Context, userId int) (data []*entity.SysUserRole, err error)
 		// BindUserAndRole 添加用户与角色绑定关系
 		BindUserAndRole(ctx context.Context, userId int, roleIds []int) (err error)
 	}
-	ICaptcha interface {
-		// GetVerifyImgString 获取字母数字混合验证码
-		GetVerifyImgString(ctx context.Context) (idKeyC string, base64stringC string, err error)
-		// VerifyString 验证输入的验证码是否正确
-		VerifyString(id, answer string) bool
+	ISysOrganization interface {
+		// GetTree 获取组织数据
+		GetTree(ctx context.Context, name string, status int) (data []*model.OrganizationOut, err error)
+		// GetData 执行获取数据操作
+		GetData(ctx context.Context, name string, status int) (data []*model.OrganizationOut, err error)
+		// Add 添加
+		Add(ctx context.Context, input *model.AddOrganizationInput) (err error)
+		// Edit 修改组织
+		Edit(ctx context.Context, input *model.EditOrganizationInput) (err error)
+		// Detail 组织详情
+		Detail(ctx context.Context, id int64) (entity *entity.SysOrganization, err error)
+		// Del 根据ID删除组织信息
+		Del(ctx context.Context, id int64) (err error)
+		// GetAll 获取全部组织数据
+		GetAll(ctx context.Context) (data []*entity.SysOrganization, err error)
+		// Count 获取组织数量
+		Count(ctx context.Context) (count int, err error)
 	}
-	ISysMessage interface {
-		// GetList 获取列表数据
-		GetList(ctx context.Context, input *model.MessageListDoInput) (total int, out []*model.MessageListOut, err error)
-		// Add 新增
-		Add(ctx context.Context, messageInfo *model.AddMessageInput) (err error)
-		// GetUnReadMessageAll 获取所有未读消息
-		GetUnReadMessageAll(ctx context.Context, input *model.MessageListDoInput) (total int, out []*model.MessageListOut, err error)
-		// GetUnReadMessageCount 获取所有未读消息数量
-		GetUnReadMessageCount(ctx context.Context) (out int, err error)
-		// DelMessage 删除消息
-		DelMessage(ctx context.Context, ids []int) (err error)
-		// ClearMessage 一键清空消息
-		ClearMessage(ctx context.Context) (err error)
-		// ReadMessage 阅读消息
-		ReadMessage(ctx context.Context, id int) (err error)
-		// ReadMessageAll 全部阅读消息
-		ReadMessageAll(ctx context.Context) (err error)
-		// GetUnReadMessageLast 获取用户最后一条未读消息
-		GetUnReadMessageLast(ctx context.Context, userId int) (out []*model.MessageListOut, err error)
+	ISystemPluginsConfig interface {
+		// GetPluginsConfigList 获取列表数据
+		GetPluginsConfigList(ctx context.Context, in *model.GetPluginsConfigListInput) (total, page int, list []*model.PluginsConfigOutput, err error)
+		// GetPluginsConfigById 获取指定ID数据
+		GetPluginsConfigById(ctx context.Context, id int) (out *model.PluginsConfigOutput, err error)
+		// GetPluginsConfigByName 获取指定ID数据
+		GetPluginsConfigByName(ctx context.Context, types, name string) (out *model.PluginsConfigOutput, err error)
+		// AddPluginsConfig 添加数据
+		AddPluginsConfig(ctx context.Context, in model.PluginsConfigAddInput) (err error)
+		// EditPluginsConfig 修改数据
+		EditPluginsConfig(ctx context.Context, in model.PluginsConfigEditInput) (err error)
+		// SavePluginsConfig 更新数据，有数据就修改，没有数据就添加
+		SavePluginsConfig(ctx context.Context, in model.PluginsConfigAddInput) (err error)
+		// DeletePluginsConfig 删除数据
+		DeletePluginsConfig(ctx context.Context, Ids []int) (err error)
+		// UpdateAllPluginsConfigCache 将插件数据更新到缓存
+		UpdateAllPluginsConfigCache(ctx context.Context) (err error)
+		// GetPluginsConfigData 获取列表数据
+		GetPluginsConfigData(pluginType, pluginName string) (res map[interface{}]interface{}, err error)
+	}
+	ISysDept interface {
+		// GetTree 获取全部部门数据
+		GetTree(ctx context.Context, deptName string, status int) (out []*model.DeptOut, err error)
+		// GetData 执行获取数据操作
+		GetData(ctx context.Context, deptName string, status int) (data []*model.DeptOut, err error)
+		// Add 添加
+		Add(ctx context.Context, input *model.AddDeptInput) (err error)
+		// Edit 修改部门
+		Edit(ctx context.Context, input *model.EditDeptInput) (err error)
+		// Detail 部门详情
+		Detail(ctx context.Context, deptId int64) (entity *entity.SysDept, err error)
+		// Del 根据ID删除部门信息
+		Del(ctx context.Context, deptId int64) (err error)
+		// GetAll 获取全部部门数据
+		GetAll(ctx context.Context) (data []*entity.SysDept, err error)
+		GetFromCache(ctx context.Context) (list []*entity.SysDept, err error)
+		FindSonByParentId(deptList []*entity.SysDept, deptId int64) []*entity.SysDept
+		// GetDeptInfosByParentId 根据父ID获取子部门信息
+		GetDeptInfosByParentId(ctx context.Context, parentId int) (data []*entity.SysDept, err error)
 	}
 	ISysNotifications interface {
 		// GetSysNotificationsList 获取列表数据
@@ -416,105 +302,198 @@ type (
 		// GetSysPluginsTypesAll 获取所有插件的通信方式类型
 		GetSysPluginsTypesAll(ctx context.Context, types string) (out []*model.SysPluginsInfoOut, err error)
 	}
+	ISysPost interface {
+		// GetTree 获取全部岗位数据
+		GetTree(ctx context.Context, postName string, postCode string, status int) (data []*model.PostOut, err error)
+		// Add 添加岗位
+		Add(ctx context.Context, input *model.AddPostInput) (err error)
+		// Edit 修改岗位
+		Edit(ctx context.Context, input *model.EditPostInput) (err error)
+		// Detail 岗位详情
+		Detail(ctx context.Context, postId int64) (entity *entity.SysPost, err error)
+		// GetData 执行获取数据操作
+		GetData(ctx context.Context, postName string, postCode string, status int) (data []*model.PostOut, err error)
+		// Del 根据ID删除岗位信息
+		Del(ctx context.Context, postId int64) (err error)
+		// GetUsedPost 获取正常状态的岗位
+		GetUsedPost(ctx context.Context) (list []*model.DetailPostOut, err error)
+	}
+	ISysRole interface {
+		// GetAll 获取所有的角色
+		GetAll(ctx context.Context) (entity []*entity.SysRole, err error)
+		GetTree(ctx context.Context, name string, status int) (out []*model.RoleTreeOut, err error)
+		// Add 添加
+		Add(ctx context.Context, input *model.AddRoleInput) (err error)
+		// Edit 编辑
+		Edit(ctx context.Context, input *model.EditRoleInput) (err error)
+		// GetInfoById 根据ID获取角色信息
+		GetInfoById(ctx context.Context, id uint) (entity *entity.SysRole, err error)
+		// DelInfoById 根据ID删除角色信息
+		DelInfoById(ctx context.Context, id uint) (err error)
+		// GetRoleList 获取角色列表
+		GetRoleList(ctx context.Context) (list []*model.RoleInfoOut, err error)
+		// GetInfoByIds 根据ID数组获取角色信息
+		GetInfoByIds(ctx context.Context, id []int) (entity []*entity.SysRole, err error)
+		// DataScope 角色数据授权
+		DataScope(ctx context.Context, id int, dataScope uint, deptIds []int64) (err error)
+		GetAuthorizeById(ctx context.Context, id int) (menuIds []string, menuButtonIds []string, menuColumnIds []string, menuApiIds []string, err error)
+	}
+	ISysToken interface {
+		GenerateToken(ctx context.Context, key string, data interface{}) (keys string, err error)
+		ParseToken(r *ghttp.Request) (*gftoken.CustomClaims, error)
+		GfToken() *gftoken.GfToken
+	}
+	ICaptcha interface {
+		// GetVerifyImgString 获取字母数字混合验证码
+		GetVerifyImgString(ctx context.Context) (idKeyC string, base64stringC string, err error)
+		// VerifyString 验证输入的验证码是否正确
+		VerifyString(id, answer string) bool
+	}
+	ISysApi interface {
+		// GetInfoByIds 根据接口APIID数组获取接口信息
+		GetInfoByIds(ctx context.Context, ids []int) (data []*entity.SysApi, err error)
+		// GetApiByMenuId 根据ApiID获取接口信息
+		GetApiByMenuId(ctx context.Context, apiId int) (data []*entity.SysApi, err error)
+		// GetInfoById 根据ID获取API
+		GetInfoById(ctx context.Context, id int) (entity *entity.SysApi, err error)
+		// GetApiAll 获取所有接口
+		GetApiAll(ctx context.Context, method string) (data []*entity.SysApi, err error)
+		// GetApiTree 获取Api数结构数据
+		GetApiTree(ctx context.Context, name string, address string, status int, types int) (out []*model.SysApiTreeOut, err error)
+		// Add 添加Api列表
+		Add(ctx context.Context, input *model.AddApiInput) (err error)
+		// Detail Api列表详情
+		Detail(ctx context.Context, id int) (out *model.SysApiOut, err error)
+		AddMenuApi(ctx context.Context, addPageSource string, apiIds []int, menuIds []int) (err error)
+		// Edit 修改Api列表
+		Edit(ctx context.Context, input *model.EditApiInput) (err error)
+		// Del 根据ID删除Api列表信息
+		Del(ctx context.Context, Id int) (err error)
+		// EditStatus 修改状态
+		EditStatus(ctx context.Context, id int, status int) (err error)
+		// GetInfoByAddress 根据Address获取API
+		GetInfoByAddress(ctx context.Context, address string) (entity *entity.SysApi, err error)
+		// GetInfoByNameAndTypes 根据名字和类型获取API
+		GetInfoByNameAndTypes(ctx context.Context, name string, types int) (entity *entity.SysApi, err error)
+		// ImportApiFile 导入API文件
+		ImportApiFile(ctx context.Context) (err error)
+	}
 	ISysUserPost interface {
 		// GetInfoByUserId 根据用户ID获取信息
 		GetInfoByUserId(ctx context.Context, userId int) (data []*entity.SysUserPost, err error)
 		// BindUserAndPost 添加用户与岗位绑定关系
 		BindUserAndPost(ctx context.Context, userId int, postIds []int) (err error)
 	}
-	ISysDept interface {
-		// GetTree 获取全部部门数据
-		GetTree(ctx context.Context, deptName string, status int) (out []*model.DeptOut, err error)
+	ISysMenu interface {
+		// GetAll 获取全部菜单数据
+		GetAll(ctx context.Context) (data []*entity.SysMenu, err error)
+		// GetTree 获取菜单数据
+		GetTree(ctx context.Context, title string, status int) (data []*model.SysMenuOut, err error)
+		// Add 添加菜单
+		Add(ctx context.Context, input *model.AddMenuInput) (err error)
+		// Detail 菜单详情
+		Detail(ctx context.Context, menuId int64) (entity *entity.SysMenu, err error)
+		// Edit 修改菜单
+		Edit(ctx context.Context, input *model.EditMenuInput) (err error)
+		// Del 根据ID删除菜单信息
+		Del(ctx context.Context, menuId int64) (err error)
 		// GetData 执行获取数据操作
-		GetData(ctx context.Context, deptName string, status int) (data []*model.DeptOut, err error)
-		// Add 添加
-		Add(ctx context.Context, input *model.AddDeptInput) (err error)
-		// Edit 修改部门
-		Edit(ctx context.Context, input *model.EditDeptInput) (err error)
-		// Detail 部门详情
-		Detail(ctx context.Context, deptId int64) (entity *entity.SysDept, err error)
-		// Del 根据ID删除部门信息
-		Del(ctx context.Context, deptId int64) (err error)
-		// GetAll 获取全部部门数据
-		GetAll(ctx context.Context) (data []*entity.SysDept, err error)
-		GetFromCache(ctx context.Context) (list []*entity.SysDept, err error)
-		FindSonByParentId(deptList []*entity.SysDept, deptId int64) []*entity.SysDept
-		// GetDeptInfosByParentId 根据父ID获取子部门信息
-		GetDeptInfosByParentId(ctx context.Context, parentId int) (data []*entity.SysDept, err error)
+		GetData(ctx context.Context, title string, status int) (data []*model.SysMenuOut, err error)
+		// GetInfoByMenuIds 根据菜单ID数组获取菜单信息
+		GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenu, err error)
+		GetInfoById(ctx context.Context, id int) (data *entity.SysMenu, err error)
+	}
+	ISysCertificate interface {
+		// GetList 获取列表数据
+		GetList(ctx context.Context, input *model.SysCertificateListInput) (total, page int, out []*model.SysCertificateListOut, err error)
+		// GetInfoById 获取指定ID数据
+		GetInfoById(ctx context.Context, id int) (out *model.SysCertificateListOut, err error)
+		// Add 添加数据
+		Add(ctx context.Context, input *model.AddSysCertificateListInput) (err error)
+		// Edit 修改数据
+		Edit(ctx context.Context, input *model.EditSysCertificateListInput) (err error)
+		// Delete 删除数据
+		Delete(ctx context.Context, id int) (err error)
+		// EditStatus 更新状态
+		EditStatus(ctx context.Context, id int, status int) (err error)
+		// GetAll 获取所有证书
+		GetAll(ctx context.Context) (out []*entity.SysCertificate, err error)
+	}
+	ISysMenuColumn interface {
+		// GetList 获取全部菜单列表数据
+		GetList(ctx context.Context, input *model.MenuColumnDoInput) (data []*model.UserMenuColumnOut, err error)
+		// GetData 执行获取数据操作
+		GetData(ctx context.Context, input *model.MenuColumnDoInput) (data []model.UserMenuColumnOut, err error)
+		// Add 添加菜单列表
+		Add(ctx context.Context, input *model.AddMenuColumnInput) (err error)
+		// Detail 菜单列表详情
+		Detail(ctx context.Context, Id int64) (entity *entity.SysMenuColumn, err error)
+		// Edit 修改菜单列表
+		Edit(ctx context.Context, input *model.EditMenuColumnInput) (err error)
+		// Del 根据ID删除菜单列表信息
+		Del(ctx context.Context, Id int64) (err error)
+		// EditStatus 修改状态
+		EditStatus(ctx context.Context, id int, menuId int, status int) (err error)
+		// GetInfoByColumnIds 根据列表ID数组获取菜单信息
+		GetInfoByColumnIds(ctx context.Context, ids []int) (data []*entity.SysMenuColumn, err error)
+		// GetInfoByMenuIds 根据菜单ID数组获取菜单信息
+		GetInfoByMenuIds(ctx context.Context, menuIds []int) (data []*entity.SysMenuColumn, err error)
+		// GetInfoByMenuId 根据菜单ID获取菜单信息
+		GetInfoByMenuId(ctx context.Context, menuId int) (data []*entity.SysMenuColumn, err error)
+		// GetAll 获取所有的列表信息
+		GetAll(ctx context.Context) (data []*entity.SysMenuColumn, err error)
 	}
 )
 
 var (
-	localSysUserRole         ISysUserRole
-	localCaptcha             ICaptcha
-	localSysAuthorize        ISysAuthorize
-	localSysCertificate      ISysCertificate
 	localSysMenu             ISysMenu
+	localSysCertificate      ISysCertificate
+	localSysMenuColumn       ISysMenuColumn
 	localSysMenuButton       ISysMenuButton
+	localSysMessage          ISysMessage
+	localSysOperLog          ISysOperLog
+	localLogin               ILogin
+	localSysAuthorize        ISysAuthorize
+	localSysJob              ISysJob
+	localSysLoginLog         ISysLoginLog
+	localSysMenuApi          ISysMenuApi
+	localSysUserRole         ISysUserRole
+	localSysOrganization     ISysOrganization
+	localSystemPluginsConfig ISystemPluginsConfig
 	localSysRoleDept         ISysRoleDept
 	localSysUser             ISysUser
+	localSysUserOnline       ISysUserOnline
+	localSysPost             ISysPost
+	localSysRole             ISysRole
+	localSysToken            ISysToken
+	localCaptcha             ICaptcha
+	localSysApi              ISysApi
 	localSysDept             ISysDept
-	localSysMessage          ISysMessage
 	localSysNotifications    ISysNotifications
 	localSysPlugins          ISysPlugins
 	localSysUserPost         ISysUserPost
-	localSysApi              ISysApi
-	localSysLoginLog         ISysLoginLog
-	localSysOperLog          ISysOperLog
-	localSysToken            ISysToken
-	localSysRole             ISysRole
-	localLogin               ILogin
-	localSysJob              ISysJob
-	localSysMenuApi          ISysMenuApi
-	localSysMenuColumn       ISysMenuColumn
-	localSysOrganization     ISysOrganization
-	localSystemPluginsConfig ISystemPluginsConfig
-	localSysPost             ISysPost
-	localSysUserOnline       ISysUserOnline
 )
 
-func SysApi() ISysApi {
-	if localSysApi == nil {
-		panic("implement not found for interface ISysApi, forgot register?")
+func SysCertificate() ISysCertificate {
+	if localSysCertificate == nil {
+		panic("implement not found for interface ISysCertificate, forgot register?")
 	}
-	return localSysApi
+	return localSysCertificate
 }
 
-func RegisterSysApi(i ISysApi) {
-	localSysApi = i
+func RegisterSysCertificate(i ISysCertificate) {
+	localSysCertificate = i
 }
 
-func SysLoginLog() ISysLoginLog {
-	if localSysLoginLog == nil {
-		panic("implement not found for interface ISysLoginLog, forgot register?")
+func SysMenuColumn() ISysMenuColumn {
+	if localSysMenuColumn == nil {
+		panic("implement not found for interface ISysMenuColumn, forgot register?")
 	}
-	return localSysLoginLog
+	return localSysMenuColumn
 }
 
-func RegisterSysLoginLog(i ISysLoginLog) {
-	localSysLoginLog = i
-}
-
-func SysOperLog() ISysOperLog {
-	if localSysOperLog == nil {
-		panic("implement not found for interface ISysOperLog, forgot register?")
-	}
-	return localSysOperLog
-}
-
-func RegisterSysOperLog(i ISysOperLog) {
-	localSysOperLog = i
-}
-
-func SysToken() ISysToken {
-	if localSysToken == nil {
-		panic("implement not found for interface ISysToken, forgot register?")
-	}
-	return localSysToken
-}
-
-func RegisterSysToken(i ISysToken) {
-	localSysToken = i
+func RegisterSysMenuColumn(i ISysMenuColumn) {
+	localSysMenuColumn = i
 }
 
 func Login() ILogin {
@@ -528,6 +507,17 @@ func RegisterLogin(i ILogin) {
 	localLogin = i
 }
 
+func SysAuthorize() ISysAuthorize {
+	if localSysAuthorize == nil {
+		panic("implement not found for interface ISysAuthorize, forgot register?")
+	}
+	return localSysAuthorize
+}
+
+func RegisterSysAuthorize(i ISysAuthorize) {
+	localSysAuthorize = i
+}
+
 func SysJob() ISysJob {
 	if localSysJob == nil {
 		panic("implement not found for interface ISysJob, forgot register?")
@@ -537,6 +527,17 @@ func SysJob() ISysJob {
 
 func RegisterSysJob(i ISysJob) {
 	localSysJob = i
+}
+
+func SysLoginLog() ISysLoginLog {
+	if localSysLoginLog == nil {
+		panic("implement not found for interface ISysLoginLog, forgot register?")
+	}
+	return localSysLoginLog
+}
+
+func RegisterSysLoginLog(i ISysLoginLog) {
+	localSysLoginLog = i
 }
 
 func SysMenuApi() ISysMenuApi {
@@ -550,15 +551,37 @@ func RegisterSysMenuApi(i ISysMenuApi) {
 	localSysMenuApi = i
 }
 
-func SysMenuColumn() ISysMenuColumn {
-	if localSysMenuColumn == nil {
-		panic("implement not found for interface ISysMenuColumn, forgot register?")
+func SysMenuButton() ISysMenuButton {
+	if localSysMenuButton == nil {
+		panic("implement not found for interface ISysMenuButton, forgot register?")
 	}
-	return localSysMenuColumn
+	return localSysMenuButton
 }
 
-func RegisterSysMenuColumn(i ISysMenuColumn) {
-	localSysMenuColumn = i
+func RegisterSysMenuButton(i ISysMenuButton) {
+	localSysMenuButton = i
+}
+
+func SysMessage() ISysMessage {
+	if localSysMessage == nil {
+		panic("implement not found for interface ISysMessage, forgot register?")
+	}
+	return localSysMessage
+}
+
+func RegisterSysMessage(i ISysMessage) {
+	localSysMessage = i
+}
+
+func SysOperLog() ISysOperLog {
+	if localSysOperLog == nil {
+		panic("implement not found for interface ISysOperLog, forgot register?")
+	}
+	return localSysOperLog
+}
+
+func RegisterSysOperLog(i ISysOperLog) {
+	localSysOperLog = i
 }
 
 func SysOrganization() ISysOrganization {
@@ -583,94 +606,6 @@ func RegisterSystemPluginsConfig(i ISystemPluginsConfig) {
 	localSystemPluginsConfig = i
 }
 
-func SysPost() ISysPost {
-	if localSysPost == nil {
-		panic("implement not found for interface ISysPost, forgot register?")
-	}
-	return localSysPost
-}
-
-func RegisterSysPost(i ISysPost) {
-	localSysPost = i
-}
-
-func SysRole() ISysRole {
-	if localSysRole == nil {
-		panic("implement not found for interface ISysRole, forgot register?")
-	}
-	return localSysRole
-}
-
-func RegisterSysRole(i ISysRole) {
-	localSysRole = i
-}
-
-func SysUserOnline() ISysUserOnline {
-	if localSysUserOnline == nil {
-		panic("implement not found for interface ISysUserOnline, forgot register?")
-	}
-	return localSysUserOnline
-}
-
-func RegisterSysUserOnline(i ISysUserOnline) {
-	localSysUserOnline = i
-}
-
-func Captcha() ICaptcha {
-	if localCaptcha == nil {
-		panic("implement not found for interface ICaptcha, forgot register?")
-	}
-	return localCaptcha
-}
-
-func RegisterCaptcha(i ICaptcha) {
-	localCaptcha = i
-}
-
-func SysAuthorize() ISysAuthorize {
-	if localSysAuthorize == nil {
-		panic("implement not found for interface ISysAuthorize, forgot register?")
-	}
-	return localSysAuthorize
-}
-
-func RegisterSysAuthorize(i ISysAuthorize) {
-	localSysAuthorize = i
-}
-
-func SysCertificate() ISysCertificate {
-	if localSysCertificate == nil {
-		panic("implement not found for interface ISysCertificate, forgot register?")
-	}
-	return localSysCertificate
-}
-
-func RegisterSysCertificate(i ISysCertificate) {
-	localSysCertificate = i
-}
-
-func SysMenu() ISysMenu {
-	if localSysMenu == nil {
-		panic("implement not found for interface ISysMenu, forgot register?")
-	}
-	return localSysMenu
-}
-
-func RegisterSysMenu(i ISysMenu) {
-	localSysMenu = i
-}
-
-func SysMenuButton() ISysMenuButton {
-	if localSysMenuButton == nil {
-		panic("implement not found for interface ISysMenuButton, forgot register?")
-	}
-	return localSysMenuButton
-}
-
-func RegisterSysMenuButton(i ISysMenuButton) {
-	localSysMenuButton = i
-}
-
 func SysRoleDept() ISysRoleDept {
 	if localSysRoleDept == nil {
 		panic("implement not found for interface ISysRoleDept, forgot register?")
@@ -693,6 +628,17 @@ func RegisterSysUser(i ISysUser) {
 	localSysUser = i
 }
 
+func SysUserOnline() ISysUserOnline {
+	if localSysUserOnline == nil {
+		panic("implement not found for interface ISysUserOnline, forgot register?")
+	}
+	return localSysUserOnline
+}
+
+func RegisterSysUserOnline(i ISysUserOnline) {
+	localSysUserOnline = i
+}
+
 func SysUserRole() ISysUserRole {
 	if localSysUserRole == nil {
 		panic("implement not found for interface ISysUserRole, forgot register?")
@@ -704,6 +650,28 @@ func RegisterSysUserRole(i ISysUserRole) {
 	localSysUserRole = i
 }
 
+func Captcha() ICaptcha {
+	if localCaptcha == nil {
+		panic("implement not found for interface ICaptcha, forgot register?")
+	}
+	return localCaptcha
+}
+
+func RegisterCaptcha(i ICaptcha) {
+	localCaptcha = i
+}
+
+func SysApi() ISysApi {
+	if localSysApi == nil {
+		panic("implement not found for interface ISysApi, forgot register?")
+	}
+	return localSysApi
+}
+
+func RegisterSysApi(i ISysApi) {
+	localSysApi = i
+}
+
 func SysDept() ISysDept {
 	if localSysDept == nil {
 		panic("implement not found for interface ISysDept, forgot register?")
@@ -713,17 +681,6 @@ func SysDept() ISysDept {
 
 func RegisterSysDept(i ISysDept) {
 	localSysDept = i
-}
-
-func SysMessage() ISysMessage {
-	if localSysMessage == nil {
-		panic("implement not found for interface ISysMessage, forgot register?")
-	}
-	return localSysMessage
-}
-
-func RegisterSysMessage(i ISysMessage) {
-	localSysMessage = i
 }
 
 func SysNotifications() ISysNotifications {
@@ -748,6 +705,39 @@ func RegisterSysPlugins(i ISysPlugins) {
 	localSysPlugins = i
 }
 
+func SysPost() ISysPost {
+	if localSysPost == nil {
+		panic("implement not found for interface ISysPost, forgot register?")
+	}
+	return localSysPost
+}
+
+func RegisterSysPost(i ISysPost) {
+	localSysPost = i
+}
+
+func SysRole() ISysRole {
+	if localSysRole == nil {
+		panic("implement not found for interface ISysRole, forgot register?")
+	}
+	return localSysRole
+}
+
+func RegisterSysRole(i ISysRole) {
+	localSysRole = i
+}
+
+func SysToken() ISysToken {
+	if localSysToken == nil {
+		panic("implement not found for interface ISysToken, forgot register?")
+	}
+	return localSysToken
+}
+
+func RegisterSysToken(i ISysToken) {
+	localSysToken = i
+}
+
 func SysUserPost() ISysUserPost {
 	if localSysUserPost == nil {
 		panic("implement not found for interface ISysUserPost, forgot register?")
@@ -757,4 +747,15 @@ func SysUserPost() ISysUserPost {
 
 func RegisterSysUserPost(i ISysUserPost) {
 	localSysUserPost = i
+}
+
+func SysMenu() ISysMenu {
+	if localSysMenu == nil {
+		panic("implement not found for interface ISysMenu, forgot register?")
+	}
+	return localSysMenu
+}
+
+func RegisterSysMenu(i ISysMenu) {
+	localSysMenu = i
 }
