@@ -5,3 +5,12 @@ const (
 	DatabaseTypeMysql      = "mysql"   // mysql
 	DatabaseTypePostgresql = "pgsql"   // postgresql
 )
+
+const (
+	TdEngineDbNameKey       = "tsd.tdengine.dbName"
+	TdEngineTypeKey         = "tsd.tdengine.type"
+	TdEngineDsnKey          = "tsd.tdengine.dsn"
+	TdEngineMaxIdleConnsKey = "tsd.tdengine.maxIdleConns"
+	TdEngineMaxOpenConnsKey = "tsd.tdengine.maxOpenConns"
+	TdEngineDbName          = "sagoo_iot"
+)
