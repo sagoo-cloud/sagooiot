@@ -101,9 +101,9 @@ func (s *sDevInit) InitDeviceForTd(ctx context.Context) (err error) {
 	for _, d := range list {
 
 		// 检测设备表是否创建TD表的标识
-		if d.MetadataTable == 1 {
+		/*if d.MetadataTable == 1 {
 			continue
-		}
+		}*/
 
 		pd, err := service.DevProduct().Detail(ctx, d.ProductKey)
 		if err != nil {

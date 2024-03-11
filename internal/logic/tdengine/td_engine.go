@@ -3,6 +3,7 @@ package tdengine
 import (
 	"context"
 	"database/sql"
+	"sagooiot/internal/consts"
 	"sagooiot/internal/service"
 	"sync"
 	"time"
@@ -26,13 +27,13 @@ func tdEngineNew() *sTdEngine {
 	return _instance
 }
 
-var dbName = "sagoo_iot"
+var dbName = consts.TdEngineDbName
 
 // 初始化函数
 func init() {
 	service.RegisterTdEngine(tdEngineNew())
 	// 简化配置获取过程
-	dbName = g.Cfg().MustGet(context.Background(), "tsd.tdengine.dbName", "sagoo_iot").String()
+	dbName = g.Cfg().MustGet(context.Background(), consts.TdEngineDbNameKey, consts.TdEngineDbName).String()
 }
 
 type connections struct {
@@ -67,8 +68,8 @@ func (s *sTdEngine) GetConn(ctx context.Context, dbName string) (*sql.DB, error)
 
 // 初始化连接映射
 func initConnectionMap(ctx context.Context) *connections {
-	driver := g.Cfg().MustGet(ctx, "tsd.tdengine.type")
-	dsn := g.Cfg().MustGet(ctx, "tsd.tdengine.dsn")
+	driver := g.Cfg().MustGet(ctx, consts.TdEngineTypeKey)
+	dsn := g.Cfg().MustGet(ctx, consts.TdEngineDsnKey)
 	return &connections{
 		tdEngineType:  driver.String(),
 		tdDsn:         dsn.String(),
@@ -92,8 +93,9 @@ func createNewConnection(ctx context.Context, dbName string) (*sql.DB, error) {
 	}
 
 	// 配置连接池设置
-	connection.SetMaxIdleConns(g.Cfg().MustGet(ctx, "tdengine.maxIdleConns").Int())
-	connection.SetMaxOpenConns(g.Cfg().MustGet(ctx, "tdengine.maxOpenConns").Int())
+	// 配置连接池设置
+	connection.SetMaxIdleConns(g.Cfg().MustGet(ctx, consts.TdEngineMaxIdleConnsKey).Int())
+	connection.SetMaxOpenConns(g.Cfg().MustGet(ctx, consts.TdEngineMaxOpenConnsKey).Int())
 
 	connectionMap.ConnectionMap[dbName] = connection
 	return connection, nil
@@ -101,7 +103,7 @@ func createNewConnection(ctx context.Context, dbName string) (*sql.DB, error) {
 
 // Time REST连接时区处理
 func (s *sTdEngine) Time(v *g.Var) (rs *g.Var) {
-	driver := g.Cfg().MustGet(context.TODO(), "tdengine.type")
+	driver := g.Cfg().MustGet(context.TODO(), consts.TdEngineTypeKey)
 	if driver.String() == "taosRestful" {
 		if t, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", v.String()); err == nil {
 			rs = gvar.New(t.Local().Format("2006-01-02 15:04:05"))

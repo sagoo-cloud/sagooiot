@@ -245,7 +245,7 @@ func (s *sTSLTable) CheckStable(ctx context.Context, stable string) (b bool, err
 	}
 
 	var name string
-	if err = taos.QueryRow("SELECT stable_name FROM information_schema.ins_stables WHERE stable_name = '?' LIMIT 1", stable).Scan(&name); err != nil {
+	if err = taos.QueryRow("SELECT stable_name FROM information_schema.ins_stables WHERE db_name = '?' AND stable_name = '?' LIMIT 1", dbName, stable).Scan(&name); err != nil {
 		return
 	}
 	if name == "" {
@@ -265,7 +265,7 @@ func (s *sTSLTable) CheckTable(ctx context.Context, table string) (b bool, err e
 	}
 
 	var name string
-	if err = taos.QueryRowContext(ctx, "SELECT table_name FROM information_schema.ins_tables WHERE table_name = '?' LIMIT 1", table).Scan(&name); err != nil {
+	if err = taos.QueryRowContext(ctx, "SELECT table_name FROM information_schema.ins_tables WHERE db_name = '?' AND table_name = '?' LIMIT 1", dbName, table).Scan(&name); err != nil {
 		return
 	}
 	if name == "" {

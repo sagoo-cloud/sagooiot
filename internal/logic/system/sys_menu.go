@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -259,60 +260,61 @@ func (s *sSysMenu) Del(ctx context.Context, menuId int64) (err error) {
 	if menu == nil {
 		return gerror.New("ID错误")
 	}
-	errorString := checkMenuJoin(ctx, menuId)
-	if errorString != "" {
-		return gerror.New(errorString)
+	//查询是否有子节点
+	num, _ := dao.SysMenu.Ctx(ctx).Where(g.Map{
+		dao.SysMenu.Columns().ParentId:  menuId,
+		dao.SysMenu.Columns().IsDeleted: 0,
+	}).Count()
+	if num > 0 {
+		return gerror.New("请先删除子节点!")
 	}
+
+	//获取当前登录用户ID
 	loginUserId := service.Context().GetUserId(ctx)
-	_, err = dao.SysMenu.Ctx(ctx).Data(g.Map{
-		dao.SysMenu.Columns().DeletedBy: uint(loginUserId),
-		dao.SysMenu.Columns().DeletedAt: gtime.Now(),
-		dao.SysMenu.Columns().IsDeleted: 1,
-	}).Where(dao.SysMenu.Columns().Id, menuId).Update()
+
+	err = dao.SysMenu.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		//删除菜单
+		_, err = dao.SysMenu.Ctx(ctx).Data(g.Map{
+			dao.SysMenu.Columns().DeletedBy: uint(loginUserId),
+			dao.SysMenu.Columns().DeletedAt: gtime.Now(),
+			dao.SysMenu.Columns().IsDeleted: 1,
+		}).Where(dao.SysMenu.Columns().Id, menuId).Update()
+
+		//删除关联Api
+		_, err = dao.SysMenuApi.Ctx(ctx).Data(g.Map{
+			dao.SysMenuApi.Columns().IsDeleted: 1,
+			dao.SysMenuApi.Columns().DeletedBy: uint(loginUserId),
+			dao.SysMenuApi.Columns().DeletedAt: gtime.Now()}).Where(dao.SysMenuApi.Columns().MenuId, menuId).Update()
+		if err != nil {
+			return
+		}
+
+		//删除关联按钮
+		_, err = dao.SysMenuButton.Ctx(ctx).Data(g.Map{
+			dao.SysMenuButton.Columns().IsDeleted: 1,
+			dao.SysMenuButton.Columns().DeletedBy: uint(loginUserId),
+			dao.SysMenuButton.Columns().DeletedAt: gtime.Now()}).Where(dao.SysMenuButton.Columns().MenuId, menuId).Update()
+		if err != nil {
+			return
+		}
+
+		//删除关联列表
+		_, err = dao.SysMenuColumn.Ctx(ctx).Data(g.Map{
+			dao.SysMenuColumn.Columns().IsDeleted: 1,
+			dao.SysMenuColumn.Columns().DeletedBy: uint(loginUserId),
+			dao.SysMenuColumn.Columns().DeletedAt: gtime.Now()}).Where(dao.SysMenuColumn.Columns().MenuId, menuId).Update()
+		if err != nil {
+			return
+		}
+
+		return
+	})
 	//获取所有的菜单
 	_, err = s.GetAll(ctx)
 	if err != nil {
 		return
 	}
 	return
-}
-
-// 查询关联数据是否存在
-func checkMenuJoin(ctx context.Context, menuId int64) string {
-	num := 0
-	//查询是否有子节点
-	num, _ = dao.SysMenu.Ctx(ctx).Where(g.Map{
-		dao.SysMenu.Columns().ParentId:  menuId,
-		dao.SysMenu.Columns().IsDeleted: 0,
-	}).Count()
-	if num > 0 {
-		return "请先删除子节点!"
-	}
-	//查询关联Api
-	num, _ = dao.SysMenuApi.Ctx(ctx).Where(g.Map{
-		dao.SysMenuApi.Columns().MenuId:    menuId,
-		dao.SysMenuApi.Columns().IsDeleted: 0,
-	}).Count()
-	if num > 0 {
-		return "存在菜单API关联!"
-	}
-	//查询关联列表
-	num, _ = dao.SysMenuButton.Ctx(ctx).Where(g.Map{
-		dao.SysMenuButton.Columns().MenuId:    menuId,
-		dao.SysMenuButton.Columns().IsDeleted: 0,
-	}).Count()
-	if num > 0 {
-		return "存在菜单按钮关联!"
-	}
-	//查询关联按钮
-	num, _ = dao.SysMenuColumn.Ctx(ctx).Where(g.Map{
-		dao.SysMenuColumn.Columns().MenuId:    menuId,
-		dao.SysMenuColumn.Columns().IsDeleted: 0,
-	}).Count()
-	if num > 0 {
-		return "存在菜单列表关联!"
-	}
-	return ""
 }
 
 // GetData 执行获取数据操作
