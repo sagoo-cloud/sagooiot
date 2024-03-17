@@ -101,7 +101,6 @@ func (s *sMiddleware) Ctx(r *ghttp.Request) {
 func (s *sMiddleware) Auth(r *ghttp.Request) {
 	userId := service.Context().GetUserId(r.Context())
 	if userId == 0 {
-		response.JsonRedirectExit(r, consts.ErrorNotLogged, "未登录或会话已过期，请您登录后再继续", s.LoginUrl)
 		return
 	}
 

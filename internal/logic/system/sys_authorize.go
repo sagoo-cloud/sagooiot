@@ -214,38 +214,6 @@ func (s *sSysAuthorize) Add(ctx context.Context, authorize []*entity.SysAuthoriz
 }
 
 func (s *sSysAuthorize) AddAuthorize(ctx context.Context, roleId int, menuIds []string, buttonIds []string, columnIds []string, apiIds []string) (err error) {
-	//判断是否启用安全控制
-	var configDataByIsSecurityControlEnabled *entity.SysConfig
-	configDataByIsSecurityControlEnabled, err = service.ConfigData().GetConfigByKey(ctx, consts.SysIsSecurityControlEnabled)
-	if err != nil {
-		return
-	}
-	sysColumnSwitch := 0
-	sysButtonSwitch := 0
-	sysApiSwitch := 0
-
-	if configDataByIsSecurityControlEnabled != nil && strings.EqualFold(configDataByIsSecurityControlEnabled.ConfigValue, "1") {
-		//获取系统列表开关参数
-		var sysColumnSwitchConfig *entity.SysConfig
-		sysColumnSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, consts.SysColumnSwitch)
-		if sysColumnSwitchConfig != nil {
-			sysColumnSwitch = gconv.Int(sysColumnSwitchConfig.ConfigValue)
-		}
-		//获取系统按钮开关参数
-		var sysButtonSwitchConfig *entity.SysConfig
-		sysButtonSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, consts.SysButtonSwitch)
-		if sysButtonSwitchConfig != nil {
-			sysButtonSwitch = gconv.Int(sysButtonSwitchConfig.ConfigValue)
-		}
-
-		//获取系统API开关参数
-		var sysApiSwitchConfig *entity.SysConfig
-		sysApiSwitchConfig, err = service.ConfigData().GetConfigByKey(ctx, consts.SysApiSwitch)
-		if sysApiSwitchConfig != nil {
-			sysApiSwitch = gconv.Int(sysApiSwitchConfig.ConfigValue)
-		}
-	}
-
 	err = g.Try(ctx, func(ctx context.Context) {
 		//删除原有权限
 		err = service.SysAuthorize().DelByRoleId(ctx, roleId)
@@ -271,69 +239,63 @@ func (s *sSysAuthorize) AddAuthorize(ctx context.Context, roleId int, menuIds []
 			return
 		}
 		//封装按钮权限
-		if sysButtonSwitch == 1 {
-			for _, id := range buttonIds {
-				var authorize = new(entity.SysAuthorize)
-				split := strings.Split(id, "_")
-				if len(split) < 2 {
-					isTrue = false
-					break
-				}
-				authorize.ItemsId = gconv.Int(split[0])
-				authorize.ItemsType = consts.Button
-				authorize.RoleId = roleId
-				authorize.IsCheckAll = gconv.Int(split[1])
-				authorize.IsDeleted = 0
-				authorizeInfo = append(authorizeInfo, authorize)
+		for _, id := range buttonIds {
+			var authorize = new(entity.SysAuthorize)
+			split := strings.Split(id, "_")
+			if len(split) < 2 {
+				isTrue = false
+				break
 			}
-			if !isTrue {
-				err = gerror.New("按钮权限参数错误")
-				return
-			}
+			authorize.ItemsId = gconv.Int(split[0])
+			authorize.ItemsType = consts.Button
+			authorize.RoleId = roleId
+			authorize.IsCheckAll = gconv.Int(split[1])
+			authorize.IsDeleted = 0
+			authorizeInfo = append(authorizeInfo, authorize)
+		}
+		if !isTrue {
+			err = gerror.New("按钮权限参数错误")
+			return
 		}
 
 		//封装列表权限
-		if sysColumnSwitch == 1 {
-			for _, id := range columnIds {
-				var authorize = new(entity.SysAuthorize)
-				split := strings.Split(id, "_")
-				if len(split) < 2 {
-					isTrue = false
-					break
-				}
-				authorize.ItemsId = gconv.Int(split[0])
-				authorize.ItemsType = consts.Column
-				authorize.RoleId = roleId
-				authorize.IsCheckAll = gconv.Int(split[1])
-				authorize.IsDeleted = 0
-				authorizeInfo = append(authorizeInfo, authorize)
+		for _, id := range columnIds {
+			var authorize = new(entity.SysAuthorize)
+			split := strings.Split(id, "_")
+			if len(split) < 2 {
+				isTrue = false
+				break
 			}
-			if !isTrue {
-				err = gerror.New("列表权限参数错误")
-				return
-			}
+			authorize.ItemsId = gconv.Int(split[0])
+			authorize.ItemsType = consts.Column
+			authorize.RoleId = roleId
+			authorize.IsCheckAll = gconv.Int(split[1])
+			authorize.IsDeleted = 0
+			authorizeInfo = append(authorizeInfo, authorize)
+		}
+		if !isTrue {
+			err = gerror.New("列表权限参数错误")
+			return
 		}
 
 		//封装接口权限
-		if sysApiSwitch == 1 {
-			for _, id := range apiIds {
-				var authorize = new(entity.SysAuthorize)
-				split := strings.Split(id, "_")
-				if len(split) < 2 {
-					isTrue = false
-					break
-				}
-				authorize.ItemsId = gconv.Int(split[0])
-				authorize.ItemsType = consts.Api
-				authorize.RoleId = roleId
-				authorize.IsCheckAll = gconv.Int(split[1])
-				authorize.IsDeleted = 0
-				authorizeInfo = append(authorizeInfo, authorize)
+		for _, id := range apiIds {
+			var authorize = new(entity.SysAuthorize)
+			split := strings.Split(id, "_")
+			if len(split) < 2 {
+				isTrue = false
+				break
 			}
-			if !isTrue {
-				err = gerror.New("接口权限参数错误")
-				return
-			}
+			authorize.ItemsId = gconv.Int(split[0])
+			authorize.ItemsType = consts.Api
+			authorize.RoleId = roleId
+			authorize.IsCheckAll = gconv.Int(split[1])
+			authorize.IsDeleted = 0
+			authorizeInfo = append(authorizeInfo, authorize)
+		}
+		if !isTrue {
+			err = gerror.New("接口权限参数错误")
+			return
 		}
 
 		err = s.Add(ctx, authorizeInfo)

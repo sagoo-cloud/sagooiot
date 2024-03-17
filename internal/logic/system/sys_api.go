@@ -624,6 +624,7 @@ func (s *sSysApi) ImportApiFile(ctx context.Context) (err error) {
 	//封装数据、整理入库
 	//获取所有的接口
 	var address []string
+	var tags []string
 	var apiPathsAll = make(map[string][]map[string]string)
 	paths := apiJsonContent["paths"].(map[string]interface{})
 	for key, value := range paths {
@@ -673,6 +674,7 @@ func (s *sSysApi) ImportApiFile(ctx context.Context) (err error) {
 	err = dao.SysApi.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		//开始入库
 		for key, value := range apiPathsAll {
+			tags = append(tags, key)
 			//获取分组ID
 			var categoryId int
 			//判断分组是否存在,不存在则创建分组
@@ -773,6 +775,15 @@ func (s *sSysApi) ImportApiFile(ctx context.Context) (err error) {
 		if err != nil {
 			return
 		}
+
+		//删除不存在的分类
+		_, err = dao.SysApi.Ctx(ctx).Data(g.Map{
+			dao.SysApi.Columns().IsDeleted: 1,
+			dao.SysApi.Columns().Status:    0,
+			dao.SysApi.Columns().DeletedAt: gtime.Now(),
+			dao.SysApi.Columns().DeletedBy: service.Context().GetUserId(ctx),
+		}).WhereNotIn(dao.SysApi.Columns().Name, tags).Where(dao.SysApi.Columns().Types, 1).Update()
+
 		return
 	})
 	return
