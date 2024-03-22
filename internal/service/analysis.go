@@ -12,15 +12,6 @@ import (
 )
 
 type (
-	IAnalysisDeviceDataTsd interface {
-		GetDeviceData(ctx context.Context, reqData general.SelectReq) (rs []interface{}, err error)
-	}
-	IAnalysisProduct interface {
-		// GetDeviceCountForProduct 获取产品下的设备数量
-		GetDeviceCountForProduct(ctx context.Context, productKey string) (number int, err error)
-		// GetProductCount 获取产品数量统计
-		GetProductCount(ctx context.Context) (res model.ProductCountRes, err error)
-	}
 	IAnalysisAlarm interface {
 		// GetDeviceAlertCountByYearMonth 按年度每月设备告警数统计
 		GetDeviceAlertCountByYearMonth(ctx context.Context, year string) (res []model.CountData, err error)
@@ -51,15 +42,42 @@ type (
 		// GetDeviceAlarmLogData 获取设备告警数据
 		GetDeviceAlarmLogData(ctx context.Context, reqData *general.SelectReq) (res interface{}, err error)
 	}
+	IAnalysisDeviceDataTsd interface {
+		GetDeviceData(ctx context.Context, reqData general.SelectReq) (rs []interface{}, err error)
+	}
+	IAnalysisProduct interface {
+		// GetDeviceCountForProduct 获取产品下的设备数量
+		GetDeviceCountForProduct(ctx context.Context, productKey string) (number int, err error)
+		// GetProductCount 获取产品数量统计
+		GetProductCount(ctx context.Context) (res model.ProductCountRes, err error)
+	}
+	IAnalysisTsdData interface {
+		// GetDeviceIndicatorTrend 获取指标趋势
+		GetDeviceIndicatorTrend(ctx context.Context, req model.DeviceIndicatorTrendReq) (rs []model.DeviceIndicatorTrendRes, err error)
+		// GetDeviceIndicatorPolymerize 获取指标聚合
+		GetDeviceIndicatorPolymerize(ctx context.Context, req model.DeviceIndicatorPolymerizeReq) (rs []model.DeviceIndicatorPolymerizeRes, err error)
+	}
 )
 
 var (
+	localAnalysisAlarm         IAnalysisAlarm
 	localAnalysisDevice        IAnalysisDevice
 	localAnalysisDeviceData    IAnalysisDeviceData
 	localAnalysisDeviceDataTsd IAnalysisDeviceDataTsd
 	localAnalysisProduct       IAnalysisProduct
-	localAnalysisAlarm         IAnalysisAlarm
+	localAnalysisTsdData       IAnalysisTsdData
 )
+
+func AnalysisAlarm() IAnalysisAlarm {
+	if localAnalysisAlarm == nil {
+		panic("implement not found for interface IAnalysisAlarm, forgot register?")
+	}
+	return localAnalysisAlarm
+}
+
+func RegisterAnalysisAlarm(i IAnalysisAlarm) {
+	localAnalysisAlarm = i
+}
 
 func AnalysisDevice() IAnalysisDevice {
 	if localAnalysisDevice == nil {
@@ -105,13 +123,13 @@ func RegisterAnalysisProduct(i IAnalysisProduct) {
 	localAnalysisProduct = i
 }
 
-func AnalysisAlarm() IAnalysisAlarm {
-	if localAnalysisAlarm == nil {
-		panic("implement not found for interface IAnalysisAlarm, forgot register?")
+func AnalysisTsdData() IAnalysisTsdData {
+	if localAnalysisTsdData == nil {
+		panic("implement not found for interface IAnalysisTsdData, forgot register?")
 	}
-	return localAnalysisAlarm
+	return localAnalysisTsdData
 }
 
-func RegisterAnalysisAlarm(i IAnalysisAlarm) {
-	localAnalysisAlarm = i
+func RegisterAnalysisTsdData(i IAnalysisTsdData) {
+	localAnalysisTsdData = i
 }

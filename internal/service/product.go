@@ -18,84 +18,6 @@ import (
 )
 
 type (
-	IDevDeviceProperty interface {
-		// Set 设备属性设置
-		Set(ctx context.Context, in *model.DevicePropertyInput) (out *model.DevicePropertyOutput, err error)
-	}
-	IDevProduct interface {
-		Detail(ctx context.Context, key string) (out *model.DetailProductOutput, err error)
-		GetInfoById(ctx context.Context, id uint) (out *entity.DevProduct, err error)
-		GetNameByIds(ctx context.Context, productIds []uint) (names map[uint]string, err error)
-		ListForPage(ctx context.Context, in *model.ListForPageInput) (out *model.ListForPageOutput, err error)
-		List(ctx context.Context) (list []*model.ProductOutput, err error)
-		Add(ctx context.Context, in *model.AddProductInput) (err error)
-		Edit(ctx context.Context, in *model.EditProductInput) (err error)
-		UpdateExtend(ctx context.Context, in *model.ExtendInput) (err error)
-		Del(ctx context.Context, keys []string) (err error)
-		// Deploy 产品发布
-		Deploy(ctx context.Context, productKey string) (err error)
-		// Undeploy 产品停用
-		Undeploy(ctx context.Context, productKey string) (err error)
-		// ListForSub 子设备类型产品
-		ListForSub(ctx context.Context) (list []*model.ProductOutput, err error)
-		// UpdateScriptInfo 脚本更新
-		UpdateScriptInfo(ctx context.Context, in *model.ScriptInfoInput) (err error)
-		// ConnectIntro 获取设备接入信息
-		ConnectIntro(ctx context.Context, productKey string) (out *model.DeviceConnectIntroOutput, err error)
-	}
-	IDevTSLEvent interface {
-		Detail(ctx context.Context, deviceKey string, eventKey string) (event *model.TSLEvent, err error)
-		ListEvent(ctx context.Context, in *model.ListTSLEventInput) (out *model.ListTSLEventOutput, err error)
-		AllEvent(ctx context.Context, key string) (list []model.TSLEvent, err error)
-		AddEvent(ctx context.Context, in *model.TSLEventAddInput) (err error)
-		EditEvent(ctx context.Context, in *model.TSLEventAddInput) (err error)
-		DelEvent(ctx context.Context, in *model.DelTSLEventInput) (err error)
-	}
-	IDevTSLImport interface {
-		// Export 导出物模型
-		Export(ctx context.Context, key string) (err error)
-		// Import 导入物模型
-		Import(ctx context.Context, key string, file *ghttp.UploadFile) (err error)
-	}
-	IDevDeviceFunction interface {
-		// Do 执行设备功能
-		Do(ctx context.Context, in *model.DeviceFunctionInput) (out *model.DeviceFunctionOutput, err error)
-	}
-	IDevDeviceLog interface {
-		// LogType 日志类型
-		LogType(ctx context.Context) (list []string)
-		// Search 日志搜索
-		Search(ctx context.Context, in *model.DeviceLogSearchInput) (out *model.DeviceLogSearchOutput, err error)
-	}
-	IDevTSLFunction interface {
-		ListFunction(ctx context.Context, in *model.ListTSLFunctionInput) (out *model.ListTSLFunctionOutput, err error)
-		AllFunction(ctx context.Context, key string, inputsValueTypes string) (list []model.TSLFunction, err error)
-		AddFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error)
-		EditFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error)
-		DelFunction(ctx context.Context, in *model.DelTSLFunctionInput) (err error)
-	}
-	IDevTSLProperty interface {
-		ListProperty(ctx context.Context, in *model.ListTSLPropertyInput) (out *model.ListTSLPropertyOutput, err error)
-		AllProperty(ctx context.Context, key string) (list []model.TSLProperty, err error)
-		AddProperty(ctx context.Context, in *model.TSLPropertyInput) (err error)
-		EditProperty(ctx context.Context, in *model.TSLPropertyInput) (err error)
-		DelProperty(ctx context.Context, in *model.DelTSLPropertyInput) (err error)
-	}
-	IDevDeviceTag interface {
-		Add(ctx context.Context, in *model.AddTagDeviceInput) (err error)
-		Edit(ctx context.Context, in *model.EditTagDeviceInput) (err error)
-		Del(ctx context.Context, id uint) (err error)
-		Update(ctx context.Context, deviceId uint, list []model.AddTagDeviceInput) (err error)
-	}
-	IDevTSLDataType interface {
-		DataTypeValueList(ctx context.Context) (out *model.DataTypeOutput, err error)
-	}
-	IDevTSLTag interface {
-		ListTag(ctx context.Context, in *model.ListTSLTagInput) (out *model.ListTSLTagOutput, err error)
-		AddTag(ctx context.Context, in *model.TSLTagInput) (err error)
-		EditTag(ctx context.Context, in *model.TSLTagInput) (err error)
-		DelTag(ctx context.Context, in *model.DelTSLTagInput) (err error)
-	}
 	IDevCategory interface {
 		Detail(ctx context.Context, id uint) (out *model.ProductCategoryOutput, err error)
 		GetNameByIds(ctx context.Context, categoryIds []uint) (names map[uint]string, err error)
@@ -105,34 +27,6 @@ type (
 		Add(ctx context.Context, in *model.AddProductCategoryInput) (err error)
 		Edit(ctx context.Context, in *model.EditProductCategoryInput) (err error)
 		Del(ctx context.Context, id uint) (err error)
-	}
-	IDevTSLParse interface {
-		// ParseData 基于物模型解析上报数据
-		ParseData(ctx context.Context, deviceKey string, data []byte) (res iotModel.ReportPropertyData, err error)
-		// HandleProperties 处理属性
-		HandleProperties(ctx context.Context, device *model.DeviceOutput, properties map[string]interface{}) (reportDataInfo iotModel.ReportPropertyData, err error)
-		// HandleEvents 处理事件上报
-		HandleEvents(ctx context.Context, device *model.DeviceOutput, events map[string]sagooProtocol.EventNode) (res []iotModel.ReportEventData, err error)
-	}
-	IDevDeviceTree interface {
-		// List 设备树列表
-		List(ctx context.Context) (out []*model.DeviceTreeListOutput, err error)
-		// Change 更换上下级
-		Change(ctx context.Context, infoId, parentInfoId int) error
-		// Detail 信息详情
-		Detail(ctx context.Context, infoId int) (out *model.DetailDeviceTreeInfoOutput, err error)
-		// Add 添加设备树基本信息
-		Add(ctx context.Context, in *model.AddDeviceTreeInfoInput) error
-		// Edit 修改设备树基本信息
-		Edit(ctx context.Context, in *model.EditDeviceTreeInfoInput) error
-		// Del 删除设备树基本信息
-		Del(ctx context.Context, infoId int) error
-	}
-	IDevInit interface {
-		// InitProductForTd 产品表结构初始化
-		InitProductForTd(ctx context.Context) (err error)
-		// InitDeviceForTd 设备表结构初始化
-		InitDeviceForTd(ctx context.Context) (err error)
 	}
 	IDevDataReport interface {
 		// Event 设备事件上报
@@ -201,71 +95,133 @@ type (
 		// CacheDeviceDetailList 缓存所有设备详情数据
 		CacheDeviceDetailList(ctx context.Context) (err error)
 	}
+	IDevDeviceFunction interface {
+		// Do 执行设备功能
+		Do(ctx context.Context, in *model.DeviceFunctionInput) (out *model.DeviceFunctionOutput, err error)
+	}
+	IDevDeviceLog interface {
+		// LogType 日志类型
+		LogType(ctx context.Context) (list []string)
+		// Search 日志搜索
+		Search(ctx context.Context, in *model.DeviceLogSearchInput) (out *model.DeviceLogSearchOutput, err error)
+	}
+	IDevDeviceProperty interface {
+		// Set 设备属性设置
+		Set(ctx context.Context, in *model.DevicePropertyInput) (out *model.DevicePropertyOutput, err error)
+	}
+	IDevDeviceTag interface {
+		Add(ctx context.Context, in *model.AddTagDeviceInput) (err error)
+		Edit(ctx context.Context, in *model.EditTagDeviceInput) (err error)
+		Del(ctx context.Context, id uint) (err error)
+		Update(ctx context.Context, deviceId uint, list []model.AddTagDeviceInput) (err error)
+	}
+	IDevDeviceTree interface {
+		// List 设备树列表
+		List(ctx context.Context) (out []*model.DeviceTreeListOutput, err error)
+		// Change 更换上下级
+		Change(ctx context.Context, infoId, parentInfoId int) error
+		// Detail 信息详情
+		Detail(ctx context.Context, infoId int) (out *model.DetailDeviceTreeInfoOutput, err error)
+		// Add 添加设备树基本信息
+		Add(ctx context.Context, in *model.AddDeviceTreeInfoInput) error
+		// Edit 修改设备树基本信息
+		Edit(ctx context.Context, in *model.EditDeviceTreeInfoInput) error
+		// Del 删除设备树基本信息
+		Del(ctx context.Context, infoId int) error
+	}
+	IDevInit interface {
+		// InitProductForTd 产品表结构初始化
+		InitProductForTd(ctx context.Context) (err error)
+		// InitDeviceForTd 设备表结构初始化
+		InitDeviceForTd(ctx context.Context) (err error)
+	}
+	IDevProduct interface {
+		Detail(ctx context.Context, key string) (out *model.DetailProductOutput, err error)
+		GetInfoById(ctx context.Context, id uint) (out *entity.DevProduct, err error)
+		GetNameByIds(ctx context.Context, productIds []uint) (names map[uint]string, err error)
+		ListForPage(ctx context.Context, in *model.ListForPageInput) (out *model.ListForPageOutput, err error)
+		List(ctx context.Context) (list []*model.ProductOutput, err error)
+		Add(ctx context.Context, in *model.AddProductInput) (err error)
+		Edit(ctx context.Context, in *model.EditProductInput) (err error)
+		UpdateExtend(ctx context.Context, in *model.ExtendInput) (err error)
+		Del(ctx context.Context, keys []string) (err error)
+		// Deploy 产品发布
+		Deploy(ctx context.Context, productKey string) (err error)
+		// Undeploy 产品停用
+		Undeploy(ctx context.Context, productKey string) (err error)
+		// ListForSub 子设备类型产品
+		ListForSub(ctx context.Context) (list []*model.ProductOutput, err error)
+		// UpdateScriptInfo 脚本更新
+		UpdateScriptInfo(ctx context.Context, in *model.ScriptInfoInput) (err error)
+		// ConnectIntro 获取设备接入信息
+		ConnectIntro(ctx context.Context, productKey string) (out *model.DeviceConnectIntroOutput, err error)
+	}
+	IDevTSLDataType interface {
+		DataTypeValueList(ctx context.Context) (out *model.DataTypeOutput, err error)
+	}
+	IDevTSLEvent interface {
+		Detail(ctx context.Context, deviceKey string, eventKey string) (event *model.TSLEvent, err error)
+		ListEvent(ctx context.Context, in *model.ListTSLEventInput) (out *model.ListTSLEventOutput, err error)
+		AllEvent(ctx context.Context, key string) (list []model.TSLEvent, err error)
+		AddEvent(ctx context.Context, in *model.TSLEventAddInput) (err error)
+		EditEvent(ctx context.Context, in *model.TSLEventAddInput) (err error)
+		DelEvent(ctx context.Context, in *model.DelTSLEventInput) (err error)
+	}
+	IDevTSLFunction interface {
+		ListFunction(ctx context.Context, in *model.ListTSLFunctionInput) (out *model.ListTSLFunctionOutput, err error)
+		AllFunction(ctx context.Context, key string, inputsValueTypes string) (list []model.TSLFunction, err error)
+		AddFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error)
+		EditFunction(ctx context.Context, in *model.TSLFunctionAddInput) (err error)
+		DelFunction(ctx context.Context, in *model.DelTSLFunctionInput) (err error)
+	}
+	IDevTSLImport interface {
+		// Export 导出物模型
+		Export(ctx context.Context, key string) (err error)
+		// Import 导入物模型
+		Import(ctx context.Context, key string, file *ghttp.UploadFile) (err error)
+	}
+	IDevTSLParse interface {
+		// ParseData 基于物模型解析上报数据
+		ParseData(ctx context.Context, deviceKey string, data []byte) (res iotModel.ReportPropertyData, err error)
+		// HandleProperties 处理属性
+		HandleProperties(ctx context.Context, device *model.DeviceOutput, properties map[string]interface{}) (reportDataInfo iotModel.ReportPropertyData, err error)
+		// HandleEvents 处理事件上报
+		HandleEvents(ctx context.Context, device *model.DeviceOutput, events map[string]sagooProtocol.EventNode) (res []iotModel.ReportEventData, err error)
+	}
+	IDevTSLProperty interface {
+		ListProperty(ctx context.Context, in *model.ListTSLPropertyInput) (out *model.ListTSLPropertyOutput, err error)
+		AllProperty(ctx context.Context, key string) (list []model.TSLProperty, err error)
+		AddProperty(ctx context.Context, in *model.TSLPropertyInput) (err error)
+		EditProperty(ctx context.Context, in *model.TSLPropertyInput) (err error)
+		DelProperty(ctx context.Context, in *model.DelTSLPropertyInput) (err error)
+	}
+	IDevTSLTag interface {
+		ListTag(ctx context.Context, in *model.ListTSLTagInput) (out *model.ListTSLTagOutput, err error)
+		AddTag(ctx context.Context, in *model.TSLTagInput) (err error)
+		EditTag(ctx context.Context, in *model.TSLTagInput) (err error)
+		DelTag(ctx context.Context, in *model.DelTSLTagInput) (err error)
+	}
 )
 
 var (
 	localDevCategory       IDevCategory
-	localDevTSLParse       IDevTSLParse
-	localDevTSLTag         IDevTSLTag
 	localDevDataReport     IDevDataReport
 	localDevDevice         IDevDevice
-	localDevDeviceTree     IDevDeviceTree
-	localDevInit           IDevInit
-	localDevTSLImport      IDevTSLImport
 	localDevDeviceFunction IDevDeviceFunction
 	localDevDeviceLog      IDevDeviceLog
 	localDevDeviceProperty IDevDeviceProperty
-	localDevProduct        IDevProduct
-	localDevTSLEvent       IDevTSLEvent
 	localDevDeviceTag      IDevDeviceTag
+	localDevDeviceTree     IDevDeviceTree
+	localDevInit           IDevInit
+	localDevProduct        IDevProduct
 	localDevTSLDataType    IDevTSLDataType
+	localDevTSLEvent       IDevTSLEvent
 	localDevTSLFunction    IDevTSLFunction
+	localDevTSLImport      IDevTSLImport
+	localDevTSLParse       IDevTSLParse
 	localDevTSLProperty    IDevTSLProperty
+	localDevTSLTag         IDevTSLTag
 )
-
-func DevDeviceTag() IDevDeviceTag {
-	if localDevDeviceTag == nil {
-		panic("implement not found for interface IDevDeviceTag, forgot register?")
-	}
-	return localDevDeviceTag
-}
-
-func RegisterDevDeviceTag(i IDevDeviceTag) {
-	localDevDeviceTag = i
-}
-
-func DevTSLDataType() IDevTSLDataType {
-	if localDevTSLDataType == nil {
-		panic("implement not found for interface IDevTSLDataType, forgot register?")
-	}
-	return localDevTSLDataType
-}
-
-func RegisterDevTSLDataType(i IDevTSLDataType) {
-	localDevTSLDataType = i
-}
-
-func DevTSLFunction() IDevTSLFunction {
-	if localDevTSLFunction == nil {
-		panic("implement not found for interface IDevTSLFunction, forgot register?")
-	}
-	return localDevTSLFunction
-}
-
-func RegisterDevTSLFunction(i IDevTSLFunction) {
-	localDevTSLFunction = i
-}
-
-func DevTSLProperty() IDevTSLProperty {
-	if localDevTSLProperty == nil {
-		panic("implement not found for interface IDevTSLProperty, forgot register?")
-	}
-	return localDevTSLProperty
-}
-
-func RegisterDevTSLProperty(i IDevTSLProperty) {
-	localDevTSLProperty = i
-}
 
 func DevCategory() IDevCategory {
 	if localDevCategory == nil {
@@ -276,28 +232,6 @@ func DevCategory() IDevCategory {
 
 func RegisterDevCategory(i IDevCategory) {
 	localDevCategory = i
-}
-
-func DevTSLParse() IDevTSLParse {
-	if localDevTSLParse == nil {
-		panic("implement not found for interface IDevTSLParse, forgot register?")
-	}
-	return localDevTSLParse
-}
-
-func RegisterDevTSLParse(i IDevTSLParse) {
-	localDevTSLParse = i
-}
-
-func DevTSLTag() IDevTSLTag {
-	if localDevTSLTag == nil {
-		panic("implement not found for interface IDevTSLTag, forgot register?")
-	}
-	return localDevTSLTag
-}
-
-func RegisterDevTSLTag(i IDevTSLTag) {
-	localDevTSLTag = i
 }
 
 func DevDataReport() IDevDataReport {
@@ -320,28 +254,6 @@ func DevDevice() IDevDevice {
 
 func RegisterDevDevice(i IDevDevice) {
 	localDevDevice = i
-}
-
-func DevDeviceTree() IDevDeviceTree {
-	if localDevDeviceTree == nil {
-		panic("implement not found for interface IDevDeviceTree, forgot register?")
-	}
-	return localDevDeviceTree
-}
-
-func RegisterDevDeviceTree(i IDevDeviceTree) {
-	localDevDeviceTree = i
-}
-
-func DevInit() IDevInit {
-	if localDevInit == nil {
-		panic("implement not found for interface IDevInit, forgot register?")
-	}
-	return localDevInit
-}
-
-func RegisterDevInit(i IDevInit) {
-	localDevInit = i
 }
 
 func DevDeviceFunction() IDevDeviceFunction {
@@ -377,6 +289,39 @@ func RegisterDevDeviceProperty(i IDevDeviceProperty) {
 	localDevDeviceProperty = i
 }
 
+func DevDeviceTag() IDevDeviceTag {
+	if localDevDeviceTag == nil {
+		panic("implement not found for interface IDevDeviceTag, forgot register?")
+	}
+	return localDevDeviceTag
+}
+
+func RegisterDevDeviceTag(i IDevDeviceTag) {
+	localDevDeviceTag = i
+}
+
+func DevDeviceTree() IDevDeviceTree {
+	if localDevDeviceTree == nil {
+		panic("implement not found for interface IDevDeviceTree, forgot register?")
+	}
+	return localDevDeviceTree
+}
+
+func RegisterDevDeviceTree(i IDevDeviceTree) {
+	localDevDeviceTree = i
+}
+
+func DevInit() IDevInit {
+	if localDevInit == nil {
+		panic("implement not found for interface IDevInit, forgot register?")
+	}
+	return localDevInit
+}
+
+func RegisterDevInit(i IDevInit) {
+	localDevInit = i
+}
+
 func DevProduct() IDevProduct {
 	if localDevProduct == nil {
 		panic("implement not found for interface IDevProduct, forgot register?")
@@ -386,6 +331,17 @@ func DevProduct() IDevProduct {
 
 func RegisterDevProduct(i IDevProduct) {
 	localDevProduct = i
+}
+
+func DevTSLDataType() IDevTSLDataType {
+	if localDevTSLDataType == nil {
+		panic("implement not found for interface IDevTSLDataType, forgot register?")
+	}
+	return localDevTSLDataType
+}
+
+func RegisterDevTSLDataType(i IDevTSLDataType) {
+	localDevTSLDataType = i
 }
 
 func DevTSLEvent() IDevTSLEvent {
@@ -399,6 +355,17 @@ func RegisterDevTSLEvent(i IDevTSLEvent) {
 	localDevTSLEvent = i
 }
 
+func DevTSLFunction() IDevTSLFunction {
+	if localDevTSLFunction == nil {
+		panic("implement not found for interface IDevTSLFunction, forgot register?")
+	}
+	return localDevTSLFunction
+}
+
+func RegisterDevTSLFunction(i IDevTSLFunction) {
+	localDevTSLFunction = i
+}
+
 func DevTSLImport() IDevTSLImport {
 	if localDevTSLImport == nil {
 		panic("implement not found for interface IDevTSLImport, forgot register?")
@@ -408,4 +375,37 @@ func DevTSLImport() IDevTSLImport {
 
 func RegisterDevTSLImport(i IDevTSLImport) {
 	localDevTSLImport = i
+}
+
+func DevTSLParse() IDevTSLParse {
+	if localDevTSLParse == nil {
+		panic("implement not found for interface IDevTSLParse, forgot register?")
+	}
+	return localDevTSLParse
+}
+
+func RegisterDevTSLParse(i IDevTSLParse) {
+	localDevTSLParse = i
+}
+
+func DevTSLProperty() IDevTSLProperty {
+	if localDevTSLProperty == nil {
+		panic("implement not found for interface IDevTSLProperty, forgot register?")
+	}
+	return localDevTSLProperty
+}
+
+func RegisterDevTSLProperty(i IDevTSLProperty) {
+	localDevTSLProperty = i
+}
+
+func DevTSLTag() IDevTSLTag {
+	if localDevTSLTag == nil {
+		panic("implement not found for interface IDevTSLTag, forgot register?")
+	}
+	return localDevTSLTag
+}
+
+func RegisterDevTSLTag(i IDevTSLTag) {
+	localDevTSLTag = i
 }
