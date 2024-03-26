@@ -37,11 +37,11 @@ type DeviceDataRes struct {
 }
 
 type DeviceIndicatorTrendReq struct {
-	ProductKey       string `json:"productKey" v:"required#产品key不能为空"`
-	DeviceCode       string `json:"deviceCode" v:"required#设备code不能为空"`
-	DeviceProperties string `json:"DeviceProperties" v:"required#设备属性不能为空"`
-	StartDate        string `json:"StartDate" v:"required#开始时间不能为空"`
-	EndDate          string `json:"EndDate" v:"required#结束时间不能为空"`
+	ProductKey string `json:"productKey" v:"required#产品key不能为空"`
+	DeviceKey  string `json:"deviceKey" v:"required#设备key不能为空"`
+	Properties string `json:"properties" v:"required#设备属性不能为空"`
+	StartDate  string `json:"startDate" v:"required#开始时间不能为空"`
+	EndDate    string `json:"endDate" v:"required#结束时间不能为空"`
 }
 
 type DeviceIndicatorTrendRes struct {
@@ -51,12 +51,17 @@ type DeviceIndicatorTrendRes struct {
 
 // DeviceIndicatorPolymerizeReq 设备指标聚合
 type DeviceIndicatorPolymerizeReq struct {
-	DateType         string `json:"dateType" v:"required#日期类型不能为空" dc:"日期类型：1 yyyy-MM-dd HH:mm 5分钟，2 一小时 yyyy-MM-dd HH ，3 一天 yyyy-MM-dd；对应时间范围为 一周，一个月和一年"`
-	ProductKey       string `json:"productKey" v:"required#产品key不能为空"`
-	DeviceCode       string `json:"deviceCode" v:"required#设备code不能为空"`
-	DeviceProperties string `json:"DeviceProperties" v:"required#设备属性不能为空"`
-	StartDate        string `json:"StartDate" v:"required#开始时间不能为空"`
-	EndDate          string `json:"EndDate" v:"required#结束时间不能为空"`
+	DateType   string `json:"dateType" v:"required#日期类型不能为空" dc:"日期类型：1 yyyy-MM-dd HH:mm 5分钟，2 一小时 yyyy-MM-dd HH ，3 一天 yyyy-MM-dd；对应时间范围为 一周，一个月和一年"`
+	ProductKey string `json:"productKey" v:"required#产品key不能为空"`
+	DeviceKey  string `json:"deviceKey" v:"required#设备key不能为空"`
+	Properties string `json:"properties" v:"required#设备属性不能为空"`
+	StartDate  string `json:"startDate" v:"required#开始时间不能为空"`
+	EndDate    string `json:"endDate" v:"required#结束时间不能为空"`
+}
+
+type PolymerizeRes struct {
+	DataValue float64 `json:"dataValue" dc:"属性值"`
+	Date      string  `json:"date" dc:"属性值上报时间"`
 }
 
 type DeviceIndicatorPolymerizeRes struct {

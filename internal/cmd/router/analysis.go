@@ -16,7 +16,7 @@ func Analysis(ctx context.Context, group *ghttp.RouterGroup) {
 			analysisController.Alarm,      // 设备相关相关统计
 			analysisController.Product,    // 产品相关统计
 			analysisController.DeviceData, // 设备数据相关统计
-
+			analysisController.TsdData,    // 设备数据趋势相关统计
 		)
 	})
 }

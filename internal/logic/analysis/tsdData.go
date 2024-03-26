@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	gtime "github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/frame/g"
 	"sagooiot/internal/model"
 	"sagooiot/internal/service"
 	"sagooiot/pkg/tsd"
@@ -33,16 +33,16 @@ type RawData struct {
 }
 
 // GetDeviceIndicatorTrend 获取指标趋势
-func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req model.DeviceIndicatorTrendReq) (rs []model.DeviceIndicatorTrendRes, err error) {
+func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req model.DeviceIndicatorTrendReq) (rs []*model.DeviceIndicatorTrendRes, err error) {
 	// 创建数据库连接
-	table := comm.DeviceTableName(req.DeviceCode)
+	table := comm.DeviceTableName(req.DeviceKey)
 	db := tsd.GetDB()
 	defer db.Close()
 	if "" == req.ProductKey {
 		err = fmt.Errorf("deviceKey is blank")
 		return
 	}
-	//参数校验 表是不是存在   是否存在产品；设备是否启用； 默认起止时间
+	//参数校验 是否存在产品；设备是否启用；起止时间是否有值
 	flag, err := checkParam(ctx, req, 1)
 	if err != nil && flag {
 		return
@@ -52,7 +52,7 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req mode
 		return nil, errors.New("起止时间不能为空!")
 	}
 
-	sqlStr := fmt.Sprintf("select * from %s where ts >= %s and ts<= %s", table, req.StartDate, req.EndDate)
+	sqlStr := fmt.Sprintf("select %s,%s from %s where ts >= '%s' and ts<= '%s'", "p_"+req.Properties, "p_"+req.Properties+"_time", table, req.StartDate, req.EndDate)
 
 	rows, err := db.Query(sqlStr)
 	if err != nil {
@@ -60,35 +60,25 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req mode
 	}
 	defer rows.Close()
 
-	columns, _ := rows.Columns()
-	for rows.Next() {
-		values := make([]any, len(columns))
-		for i := range values {
-			values[i] = new(any)
-		}
-		// 扫描行数据到 values 切片
-		err = rows.Scan(values...)
-		if err != nil {
-			panic(err)
-		}
-		var build model.DeviceIndicatorTrendRes
-		// 遍历列，检查列名并存储以 "P_valuea" 开头的属性
-		for i, colName := range columns {
-			if strings.HasPrefix(colName, req.DeviceProperties) {
-				build.DataValue = values[i].(float64)
+	list, err := g.DB().GetCore().RowsToResult(ctx, rows)
+	if err != nil {
+		fmt.Println("failed to query TDengine, err:", err)
+		return
+	}
+	if !list.IsEmpty() {
+		for _, v := range list {
+			out := &model.DeviceIndicatorTrendRes{
+				DataValue: v["p_"+req.Properties].Float64(),
+				Date:      v["p_"+req.Properties+"_time"].String(),
 			}
-			if colName == "ts" {
-				gtime.New(values[i]).Format("Y-m-d 00:00:00")
-
-			}
+			rs = append(rs, out)
 		}
-		rs = append(rs, build)
 	}
 	return
 }
 
 // GetDeviceIndicatorPolymerize 获取指标聚合
-func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req model.DeviceIndicatorPolymerizeReq) (rs []model.DeviceIndicatorPolymerizeRes, err error) {
+func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req model.DeviceIndicatorPolymerizeReq) (rs []*model.DeviceIndicatorPolymerizeRes, err error) {
 	startDate := req.StartDate
 	endDate := req.EndDate
 	startTime, err := time.Parse("2006-01-02 00:00:00", startDate)
@@ -100,8 +90,8 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req
 		return rs, errors.New("结束时间格式错误")
 	}
 	fmt.Println(startTime, endTime)
-	//参数校验 表是不是存在   是否存在产品；设备是否启用； 默认起止时间
-	flag, err := checkParam(ctx, req, 1)
+	//参数校验 是否存在产品；设备是否启用；
+	flag, err := checkParam(ctx, req, 2)
 	if err != nil && flag {
 		return
 	}
@@ -112,7 +102,7 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req
 
 	//1.读取设备参数的原始数据。
 	// 创建数据库连接
-	table := comm.DeviceTableName(req.DeviceCode)
+	table := comm.DeviceTableName(req.DeviceKey)
 	db := tsd.GetDB()
 	defer db.Close()
 	if "" == req.ProductKey {
@@ -120,15 +110,28 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req
 		return
 	}
 
-	sqlStr := fmt.Sprintf("select * from %s where ts >= %s and ts<= %s", table, req.StartDate, req.EndDate)
+	sqlStr := fmt.Sprintf("select %s,%s from %s where ts >= '%s' and ts<= '%s'", "p_"+req.Properties, "p_"+req.Properties+"_time", table, req.StartDate, req.EndDate)
+
 	rows, err := db.Query(sqlStr)
 	if err != nil {
 		return
 	}
 	defer rows.Close()
-	rawData, err := readDataFromRows(rows, req.DeviceProperties)
+
+	list, err := g.DB().GetCore().RowsToResult(ctx, rows)
 	if err != nil {
+		fmt.Println("failed to query TDengine, err:", err)
 		return
+	}
+	var resList []RawData
+	if !list.IsEmpty() {
+		for _, v := range list {
+			out := RawData{
+				value: v["p_"+req.Properties].Float64(),
+				Ts:    v["p_"+req.Properties+"_time"].Time(),
+			}
+			resList = append(resList, out)
+		}
 	}
 
 	//2.根据聚合力度（5分钟、1小时、1天）和时间范围对数据进行分组。
@@ -136,13 +139,13 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req
 	timeRangeStart, _ := time.Parse("2006-01-02 15:04:05", req.StartDate)
 	timeRangeEnd, _ := time.Parse("2006-01-02 15:04:05", req.EndDate)
 
-	results, err := aggregateData(rawData, aggregationLevel, timeRangeStart, timeRangeEnd)
+	results, err := aggregateData(resList, aggregationLevel, timeRangeStart, timeRangeEnd)
 
 	return results, err
 }
 
 // 聚合计算
-func aggregateData(rawData []RawData, aggregationLevel string, timeRangeStart, timeRangeEnd time.Time) ([]model.DeviceIndicatorPolymerizeRes, error) {
+func aggregateData(rawData []RawData, aggregationLevel string, timeRangeStart, timeRangeEnd time.Time) ([]*model.DeviceIndicatorPolymerizeRes, error) {
 	interval, err := calculateInterval(aggregationLevel)
 	if err != nil {
 		return nil, err
@@ -164,7 +167,7 @@ func aggregateData(rawData []RawData, aggregationLevel string, timeRangeStart, t
 	}
 
 	// 3.计算每个分组的最大值、最小值和平均值
-	var results []model.DeviceIndicatorPolymerizeRes
+	var results []*model.DeviceIndicatorPolymerizeRes
 	for timeKey, group := range groups {
 		var maxVal, minVal, sumVal float64
 		for _, data := range group {
@@ -179,7 +182,7 @@ func aggregateData(rawData []RawData, aggregationLevel string, timeRangeStart, t
 		avgVal := sumVal / float64(len(group))
 
 		//4.将计算结果转换为analysis.DeviceIndicatorPolymerizeRes，并放入结果切片中。
-		results = append(results, model.DeviceIndicatorPolymerizeRes{
+		results = append(results, &model.DeviceIndicatorPolymerizeRes{
 			Date:             timeKey,
 			DataAverageValue: avgVal,
 			DataMaxValue:     maxVal,
@@ -246,11 +249,11 @@ func checkParam(ctx context.Context, req interface{}, ty int) (flag bool, err er
 	if ty == 1 {
 		trendReq := req.(model.DeviceIndicatorTrendReq)
 		productKey = trendReq.ProductKey
-		deviceCode = trendReq.DeviceCode
+		deviceCode = trendReq.DeviceKey
 	} else if ty == 2 {
 		polymerizeReq := req.(model.DeviceIndicatorPolymerizeReq)
 		productKey = polymerizeReq.ProductKey
-		deviceCode = polymerizeReq.DeviceCode
+		deviceCode = polymerizeReq.DeviceKey
 	} else {
 		return false, errors.New("类型错误")
 	}
@@ -269,47 +272,3 @@ func checkParam(ctx context.Context, req interface{}, ty int) (flag bool, err er
 	}
 	return true, nil
 }
-
-// 聚合力度为5分钟，时间范围为一周
-// 按照5分钟切割
-// 每一个段都有一个开始时间 结束时间
-// 循环数据 遍历时间数组  选择满足此时间区间的 都算一个点。将点值数据相加  得到最大值 最小值
-// 将分割结果集放到新的list里
-// 时间点为每个时间段的开始时间点
-/*
-type TimeInterval struct {
-	Start time.Time
-	End   time.Time
-}
-func (s *sAnalysisProduct) transTimeList(startTime time.Time, endTime time.Time, dateType string) (rs []TimeInterval) {
-	var interval time.Duration
-	switch dateType {
-	case "1":
-		interval = 5 * time.Minute
-	case "2":
-		//聚合力度为1小时，时间范围为一个月
-		interval = time.Hour
-	case "3":
-		//聚合力度为一天，时间范围为一年
-		interval = 24 * time.Hour
-	}
-	intervals := make([]TimeInterval, 0)
-	// 当前时间设置为开始时间
-	currentTime := startTime
-	for currentTime.Before(endTime) {
-		// 计算下一个时间段的开始时间（向下舍入到最接近的5分钟/1小时/一天间隔）
-		nextStartTime := currentTime.Truncate(interval)
-		// 计算下一个时间段的结束时间（不包括）
-		nextEndTime := nextStartTime.Add(interval)
-		// 如果结束时间超过了给定的结束时间，则修正结束时间为给定的结束时间
-		if nextEndTime.After(endTime) {
-			nextEndTime = endTime
-		}
-		// 创建一个新的时间区间并添加到切片中
-		intervals = append(intervals, TimeInterval{Start: nextStartTime, End: nextEndTime})
-		// 更新当前时间为下一个时间段的结束时间
-		currentTime = nextEndTime
-
-	}
-	return intervals
-}*/

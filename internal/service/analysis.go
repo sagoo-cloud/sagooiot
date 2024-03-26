@@ -53,9 +53,9 @@ type (
 	}
 	IAnalysisTsdData interface {
 		// GetDeviceIndicatorTrend 获取指标趋势
-		GetDeviceIndicatorTrend(ctx context.Context, req model.DeviceIndicatorTrendReq) (rs []model.DeviceIndicatorTrendRes, err error)
+		GetDeviceIndicatorTrend(ctx context.Context, req model.DeviceIndicatorTrendReq) (rs []*model.DeviceIndicatorTrendRes, err error)
 		// GetDeviceIndicatorPolymerize 获取指标聚合
-		GetDeviceIndicatorPolymerize(ctx context.Context, req model.DeviceIndicatorPolymerizeReq) (rs []model.DeviceIndicatorPolymerizeRes, err error)
+		GetDeviceIndicatorPolymerize(ctx context.Context, req model.DeviceIndicatorPolymerizeReq) (rs []*model.DeviceIndicatorPolymerizeRes, err error)
 	}
 )
 
