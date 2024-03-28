@@ -5,12 +5,12 @@ system:
   description: "SagooIoT Server"
   enablePProf: true # 是否开启pprof
   #  pprofPort:  "58088" # pprof端口
-  ipMethod: "whois"   # IP归属地解析方法，可选：cz88|whois，默认为whois
-  isDemo: false   # 是否为演示系统
-  isCluster: false   # 是否为集群部署，默认为false。开启集群必须配置redis
+  ipMethod: "whois" # IP归属地解析方法，可选：cz88|whois，默认为whois
+  isDemo: false # 是否为演示系统
+  isCluster: false # 是否为集群部署，默认为false。开启集群必须配置redis
   deviceCacheData:
     poolSize: 50 #设备数据缓存池连接数
-    recordDuration: "20m"  #设备数据缓存时长，超过时长的数据将被清除。默认为10分钟
+    recordDuration: "20m" #设备数据缓存时长，超过时长的数据将被清除。默认为10分钟
     recordLimit: 1000 #设备数据缓存条数限制，超过条数的数据将被清除。默认为1000条
   pluginsPath: "./plugins/built"
   # 文件上传设置
@@ -20,12 +20,12 @@ system:
 #缓存
 cache:
   prefix: "SagooIot_Sys:" #缓存前缀
-  adapter: "redis"                    # 缓存驱动方式，支持：memory|redis|file，不填默认memory
-  fileDir: "./storage/cache"         # 文件缓存路径，adapter=file时必填
+  adapter: "redis" # 缓存驱动方式，支持：memory|redis|file，不填默认memory
+  fileDir: "./storage/cache" # 文件缓存路径，adapter=file时必填
 
 # http服务配置
 server:
-  serverAgent: "SagooIOT Server"        # 服务端Agent信息。
+  serverAgent: "SagooIOT Server" # 服务端Agent信息。
   address: ":8199"
   dumpRouterMap: false
   routeOverWrite: true
@@ -35,21 +35,21 @@ server:
   maxHeaderBytes: "20KB"
   clientMaxBodySize: "50MB"
   # Logging配置
-  logPath: "resource/log/server"                 # 日志文件存储目录路径，建议使用绝对路径。默认为空，表示关闭
-  logStdout: false               # 日志是否输出到终端。默认为true
-  errorStack: true               # 当Server捕获到异常时是否记录堆栈信息到日志中。默认为true
-  errorLogEnabled: true               # 是否记录异常日志信息到日志中。默认为true
-  errorLogPattern: "error-{Ymd}.log"  # 异常错误日志文件格式。默认为"error-{Ymd}.log"
-  accessLogEnabled: true              # 是否记录访问日志。默认为false
+  logPath: "resource/log/server" # 日志文件存储目录路径，建议使用绝对路径。默认为空，表示关闭
+  logStdout: false # 日志是否输出到终端。默认为true
+  errorStack: true # 当Server捕获到异常时是否记录堆栈信息到日志中。默认为true
+  errorLogEnabled: true # 是否记录异常日志信息到日志中。默认为true
+  errorLogPattern: "error-{Ymd}.log" # 异常错误日志文件格式。默认为"error-{Ymd}.log"
+  accessLogEnabled: true # 是否记录访问日志。默认为false
   accessLogPattern: "access-{Ymd}.log" # 访问日志文件格式。默认为"access-{Ymd}.log"
   https: false
   httpsCertFile: ""
   httpsKeyFile: ""
   # 静态服务配置
-  indexFiles: [ "index.html"]   # 自动首页静态文件检索。默认为["index.html", "index.htm"]
-  indexFolder: false                        # 当访问静态文件目录时，是否展示目录下的文件列表。默认关闭，那么请求将返回403
+  indexFiles: ["index.html"] # 自动首页静态文件检索。默认为["index.html", "index.htm"]
+  indexFolder: false # 当访问静态文件目录时，是否展示目录下的文件列表。默认关闭，那么请求将返回403
   serverRoot: "resource/public" # 静态文件服务的目录根路径，配置时自动开启静态文件服务。默认关闭
-  searchPaths: [ "/resource/public/"] # 提供静态文件服务时额外的文件搜索路径，当根路径找不到时则按照顺序在搜索目录查找。默认关闭
+  searchPaths: ["/resource/public/"] # 提供静态文件服务时额外的文件搜索路径，当根路径找不到时则按照顺序在搜索目录查找。默认关闭
   fileServerEnabled: true # 是否开启静态文件服务。默认为false
   adminPprofPort: "58089" # web-admin pprof端口
 #  allowedDomains: #允许跨域访问的域名列表
@@ -57,15 +57,15 @@ server:
 #    - https://www.example.com
 
 logger:
-  level : "all"
+  level: "all"
   stdout: true
 
 #GFToken
 gfToken:
-  timeOut: 10800         #token超时时间（秒）
-  maxRefresh: 5400       #token自动刷新时间（秒）
-  multiLogin: true       #是否允许一个账号多人同时登录
-  encryptKey: "49c54195e750b04e74a8429b17896586"    #加密key (32位)
+  timeOut: 10800 #token超时时间（秒）
+  maxRefresh: 5400 #token自动刷新时间（秒）
+  multiLogin: true #是否允许一个账号多人同时登录
+  encryptKey: "49c54195e750b04e74a8429b17896586" #加密key (32位)
   excludePaths: #排除不做登录验证的路由地址
     - "/api/v1/login"
     - "/api/v1/sysinfo"
@@ -77,9 +77,9 @@ database:
     path: "resource/log/sql"
     level: "all"
     stdout: false
-    ctxKeys: [ "RequestId" ]
+    ctxKeys: ["RequestId"]
   default:
-    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3307)/sagooiot-community?loc=Local&parseTime=true"
+    link: "mysql:root:DbyTYGu3s4WuAF4TTq7@tcp(127.0.0.1:3306)/sagoo_iot_open?loc=Local&parseTime=true"
     debug: true #开启调试模式
     charset: "utf8mb4" #数据库编码(如: utf8/gbk/gb2312)，一般设置为utf8
     dryRun: false #ORM空跑(只读不写)
@@ -119,7 +119,7 @@ tsd:
   aggregator: #聚合器配置，用来配置批量写入时的聚合器
     batchSize: 1000 #批处理数
     workers: 100 #工作线程数
-    channelBufferSize: 50000  #通道缓冲数
+    channelBufferSize: 50000 #通道缓冲数
     lingerTime: 100 # 防止数据积压时间，单位毫秒
 
 # Redis 配置示例
@@ -137,12 +137,12 @@ redis:
 
 #消息队列
 queue:
-  switch: true                                        # 队列开关，可选：true|false，默认为true
-  driver: "redis"                                      # 队列驱动，可选：redis|rocketmq|kafka，默认为disk
-  retry: 2                                            # 重试次数，仅rocketmq|redis支持
-  groupName: "sagooiot"                                  # mq群组名称
+  switch: true # 队列开关，可选：true|false，默认为true
+  driver: "redis" # 队列驱动，可选：redis|rocketmq|kafka，默认为disk
+  retry: 2 # 重试次数，仅rocketmq|redis支持
+  groupName: "sagooiot" # mq群组名称
   redis:
-    address: "127.0.0.1:6379"                         # redis服务地址，默认为127.0.0.1:6379
-    db: 0                                            # 指定redis库
-    pass: ""                                          # redis密码
+    address: "127.0.0.1:6379" # redis服务地址，默认为127.0.0.1:6379
+    db: 0 # 指定redis库
+    pass: "" # redis密码
     timeout: 60

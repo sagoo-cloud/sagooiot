@@ -18,6 +18,7 @@ main
 output/
 manifest/output/
 manifest/config/config.yaml
+manifest/docker-compose/**/*
 temp/
 resource/log/
 resource/public/*
