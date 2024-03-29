@@ -17,7 +17,7 @@ cbuild
 main
 output/
 manifest/output/
-manifest/config/config.yaml
+manifest/config/config111.yaml
 temp/
 resource/log/
 resource/public/*

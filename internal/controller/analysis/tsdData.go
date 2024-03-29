@@ -48,7 +48,6 @@ func (c *cTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req *analys
 		searchDate[1] = gtime.Now().AddDate(0, 0, 1).Format("Y-m-d 23:59:59")
 		req.DateRange = searchDate
 	}
-
 	polymerizeReq := model.DeviceIndicatorPolymerizeReq{
 		ProductKey: req.ProductKey,
 		DeviceKey:  req.DeviceKey,
@@ -64,6 +63,5 @@ func (c *cTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req *analys
 	res = &analysis.DeviceIndicatorPolymerizeRes{
 		Data: data,
 	}
-
 	return res, err
 }
