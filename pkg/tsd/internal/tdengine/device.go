@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"sagooiot/pkg/iotModel"
 	"sagooiot/pkg/tsd/comm"
+	"sort"
 	"time"
 
 	"strings"
@@ -45,7 +46,7 @@ func (m *TdEngine) InsertDeviceData(deviceKey string, data iotModel.ReportProper
 
 // getDeviceField 获取设备数据字段
 func getDeviceField(data iotModel.ReportPropertyData) []string {
-	var field = []string{"ts"}
+	var field []string
 
 	for k := range data {
 		k = comm.TsdColumnName(k)
@@ -53,6 +54,7 @@ func getDeviceField(data iotModel.ReportPropertyData) []string {
 		// 属性上报时间
 		field = append(field, k+"_time")
 	}
+	sort.Strings(field)
 	return field
 }
 
@@ -61,7 +63,17 @@ func getDeviceValue(data iotModel.ReportPropertyData) []string {
 	//ts := time.Now().Format("Y-m-d H:i:s")
 	//var value = []string{"'" + ts + "'"}
 	var value []string
-	for _, v := range data {
+
+	var keys []string
+	// 提取map中的键
+	for k := range data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	// 给key排序后，从map取值
+	for _, k := range keys {
+		v := data[k]
 		value = append(value, "'"+gvar.New(v.Value).String()+"'")
 		value = append(value, "'"+gtime.New(v.CreateTime).Format("Y-m-d H:i:s")+"'")
 	}
@@ -145,7 +157,8 @@ func (m *TdEngine) BatchInsertMultiDeviceData(multiDeviceDataList map[string][]i
 	for deviceKey, deviceData := range multiDeviceDataList {
 
 		table := comm.DeviceTableName(deviceKey)
-		field := getDeviceField(deviceData[0])
+		var field = []string{"ts"}
+		field = append(field, getDeviceField(deviceData[0])...)
 
 		ts++
 
