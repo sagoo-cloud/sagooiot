@@ -25,7 +25,7 @@ Sagoo IOT
 	</p>
 </div>
 
-English| [简体中文](README.zh-cn.md)
+English| [简体中文](README_ZH.md)
 
 ## Copyright Notice
 
@@ -105,3 +105,8 @@ Password: admin123456
 ## Disclaimer
 
 SagooIOT Community Edition is an open source learning project and is not related to commercial activities. Users should comply with laws and regulations when using this project and should not engage in illegal activities. If SagooIOT finds that a user is engaged in illegal activities, it will cooperate with relevant authorities to investigate and report to the government. Users shall bear any legal liability arising from illegal activities themselves. If a third party is damaged due to the user's use, the user shall compensate the third party in accordance with the law. Users bear all risks in using all relevant resources of SagooIOT.
+
+
+## stars
+
+[![Star History Chart](https://api.star-history.com/svg?repos=sagoo-cloud/sagooiot&type=Date)](https://star-history.com/#sagoo-cloud/sagooiot&Date)

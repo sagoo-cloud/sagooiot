@@ -127,6 +127,9 @@ SagooIOT是一个基于golang开发的轻量级的物联网平台。支持跨平
 
 SagooIOT社区版是一个开源学习项目，与商业行为无关。用户在使用该项目时，应遵循法律法规，不得进行非法活动。如果SagooIOT发现用户有违法行为，将会配合相关机关进行调查并向政府部门举报。用户因非法行为造成的任何法律责任均由用户自行承担，如因用户使用造成第三方损害的，用户应当依法予以赔偿。使用SagooIOT所有相关资源均由用户自行承担风险.
 
+## stars
+
+[![Star History Chart](https://api.star-history.com/svg?repos=sagoo-cloud/sagooiot&type=Date)](https://star-history.com/#sagoo-cloud/sagooiot&Date)
 
 
 
