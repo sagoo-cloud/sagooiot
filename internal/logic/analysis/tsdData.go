@@ -35,6 +35,7 @@ type RawData struct {
 // GetDeviceIndicatorTrend 获取指标趋势
 func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req model.DeviceIndicatorTrendReq) (rs []*model.DeviceIndicatorTrendRes, err error) {
 	// 创建数据库连接
+
 	table := comm.DeviceTableName(req.DeviceKey)
 	db := tsd.GetDB()
 	defer db.Close()
@@ -52,7 +53,7 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req mode
 		return nil, errors.New("起止时间不能为空!")
 	}
 
-	sqlStr := fmt.Sprintf("select %s,%s from %s where ts >= '%s' and ts<= '%s'", "p_"+req.Properties, "p_"+req.Properties+"_time", table, req.StartDate, req.EndDate)
+	sqlStr := fmt.Sprintf("select %s,%s from %s where ts >= '%s' and ts<= '%s'", "p_"+strings.ToLower(req.Properties), "p_"+strings.ToLower(req.Properties)+"_time", table, req.StartDate, req.EndDate)
 
 	rows, err := db.Query(sqlStr)
 	if err != nil {
@@ -68,8 +69,8 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req mode
 	if !list.IsEmpty() {
 		for _, v := range list {
 			out := &model.DeviceIndicatorTrendRes{
-				DataValue: v["p_"+req.Properties].Float64(),
-				Date:      v["p_"+req.Properties+"_time"].String(),
+				DataValue: v["p_"+strings.ToLower(req.Properties)].Float64(),
+				Date:      v["p_"+strings.ToLower(req.Properties)+"_time"].String(),
 			}
 			rs = append(rs, out)
 		}
@@ -79,17 +80,7 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorTrend(ctx context.Context, req mode
 
 // GetDeviceIndicatorPolymerize 获取指标聚合
 func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req model.DeviceIndicatorPolymerizeReq) (rs []*model.DeviceIndicatorPolymerizeRes, err error) {
-	/*startDate := req.StartDate
-	endDate := req.EndDate
-	startTime, err := time.Parse("2006-01-02 00:00:00", startDate)
-	if err != nil {
-		return rs, errors.New("开始时间格式错误")
-	}
-	endTime, err := time.Parse("2006-01-02 23:59:59", endDate)
-	if err != nil {
-		return rs, errors.New("结束时间格式错误")
-	}
-	fmt.Println(startTime, endTime)*/
+
 	//参数校验 是否存在产品；设备是否启用；
 	flag, err := checkParam(ctx, req, 2)
 	if err != nil && flag {
@@ -142,17 +133,28 @@ func (s *sAnalysisTsdData) GetDeviceIndicatorPolymerize(ctx context.Context, req
 
 // 聚合计算
 func aggregateData(rawData []RawData, aggregationLevel string, timeRangeStart, timeRangeEnd *gtime.Time) ([]*model.DeviceIndicatorPolymerizeRes, error) {
-	interval := GetTimeSegments(aggregationLevel, timeRangeStart, timeRangeEnd)
+	interval, val := GetTimeSegments(aggregationLevel, timeRangeStart, timeRangeEnd)
 
 	groups := make(map[string][]RawData)
-	for _, v := range interval {
+	for index, v := range interval {
 		key := v.Format("Y-m-d H:m:s")
+		var rangeStart = v
+		var rangeEnd = v
+		if index+1 < len(interval) {
+			rangeEnd = interval[index+1]
+		} else {
+			// 对于最后一个间隔，您可以决定如何设置 timeRangeEnd
+			// 例如，您可能想要将其设置为 timeRangeStart 加上 val
+			rangeEnd = rangeStart.Add(val)
+		}
 		for _, data := range rawData {
-			if data.Ts.Before(timeRangeStart) && data.Ts.After(timeRangeEnd) {
-				continue
+			if data.Ts.Before(rangeStart) || data.Ts.After(rangeEnd) {
+				continue // 跳过不满足时间范围的数据
 			}
+
 			groups[key] = append(groups[key], data)
 		}
+
 	}
 	// 3.计算每个分组的最大值、最小值和平均值
 	var results []*model.DeviceIndicatorPolymerizeRes
@@ -187,7 +189,7 @@ func aggregateData(rawData []RawData, aggregationLevel string, timeRangeStart, t
 // 根据聚合力度计算时间间隔
 
 // 获取时间段切片
-func GetTimeSegments(aggregationLevel string, startTime *gtime.Time, endTime *gtime.Time) []*gtime.Time {
+func GetTimeSegments(aggregationLevel string, startTime *gtime.Time, endTime *gtime.Time) ([]*gtime.Time, time.Duration) {
 	segments := []*gtime.Time{}
 	current := startTime
 	// 确保时间间隔不为0
@@ -212,7 +214,7 @@ func GetTimeSegments(aggregationLevel string, startTime *gtime.Time, endTime *gt
 		current = current.Add(interval)
 	}
 
-	return segments
+	return segments, interval
 }
 func checkParam(ctx context.Context, req interface{}, ty int) (flag bool, err error) {
 	var productKey = ""
