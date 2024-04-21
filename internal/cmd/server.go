@@ -98,7 +98,10 @@ func RunServer(ctx context.Context, stopSignal chan os.Signal) {
 			s.EnableHTTPS(certFile, keyFile)
 		}
 
-		s.Run()
+		go s.Run()
+		select {
+		case <-ctx.Done():
+		}
 		stopSignal <- syscall.SIGQUIT
 	}()
 	return
