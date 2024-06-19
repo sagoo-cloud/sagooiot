@@ -7,12 +7,14 @@ import (
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/model"
 	"sagooiot/internal/mqtt"
 	"sagooiot/network/core/logic/baseLogic"
 	"sagooiot/pkg/dcache"
 	"sagooiot/pkg/gpool"
+	"sagooiot/pkg/iotModel/sagooProtocol"
 	"sagooiot/pkg/iotModel/topicModel"
 	"sagooiot/pkg/jsinterpreter"
 	"sagooiot/pkg/plugins"
@@ -78,6 +80,16 @@ func (s *SubMap) HandleMessage(ctx context.Context, handleF handleFunc) func(con
 			if len(topicInfo) == 8 && logType == consts.MsgTypeFunctionReply && !strings.HasSuffix(topicInfo[6], "reply") {
 				g.Log().Infof(ctx, "handleF: topic:%s, message:%s, message ignored", message.Topic(), string(message.Payload()))
 				return nil
+			}
+
+			// 处理设备应答
+			if strings.HasSuffix(topicInfo[6], "reply") {
+				var msg sagooProtocol.ServiceCallOutputRes
+				json.Unmarshal([]byte(res), &msg)
+
+				if info, ok := baseLogic.AsyncMapInfo.Info[msg.Id]; ok {
+					info.Response <- gconv.Map(msg)
+				}
 			}
 
 			// 获取设备详情，拿出来消息协议，然后按照产品定义的消息协议解析消息
