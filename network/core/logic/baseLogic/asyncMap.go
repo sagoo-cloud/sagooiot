@@ -10,7 +10,7 @@ import (
 
 type AsyncMap struct {
 	sync.RWMutex
-	info map[string]*FInfo
+	Info map[string]*FInfo
 }
 
 type FInfo struct {
@@ -19,26 +19,26 @@ type FInfo struct {
 	Response chan interface{}
 }
 
-var asyncMapInfo = &AsyncMap{info: make(map[string]*FInfo)}
+var AsyncMapInfo = &AsyncMap{Info: make(map[string]*FInfo)}
 
 func SyncRequest(ctx context.Context, id, funcKey string, params interface{}, timeout int) (interface{}, error) {
 	if timeout == 0 {
 		timeout = 45
 	}
 
-	responseChan := make(chan interface{})
-	asyncMapInfo.Lock()
-	asyncMapInfo.info[id] = &FInfo{
+	responseChan := make(chan interface{}, 1)
+	AsyncMapInfo.Lock()
+	AsyncMapInfo.Info[id] = &FInfo{
 		FuncKey:  funcKey,
 		Request:  params,
 		Response: responseChan,
 	}
-	asyncMapInfo.Unlock()
+	AsyncMapInfo.Unlock()
 
 	defer func() {
-		asyncMapInfo.Lock()
-		delete(asyncMapInfo.info, id)
-		asyncMapInfo.Unlock()
+		AsyncMapInfo.Lock()
+		delete(AsyncMapInfo.Info, id)
+		AsyncMapInfo.Unlock()
 		close(responseChan)
 	}()
 
@@ -53,9 +53,9 @@ func SyncRequest(ctx context.Context, id, funcKey string, params interface{}, ti
 }
 
 func GetCallInfoById(ctx context.Context, id string) (funcKey string, params interface{}, response chan interface{}, err error) {
-	asyncMapInfo.RLock()
-	defer asyncMapInfo.RUnlock()
-	if info, ok := asyncMapInfo.info[id]; !ok {
+	AsyncMapInfo.RLock()
+	defer AsyncMapInfo.RUnlock()
+	if info, ok := AsyncMapInfo.Info[id]; !ok {
 		return "", nil, nil, errors.New("cannot get call info by id " + id)
 	} else {
 		return info.FuncKey, info.Request, info.Response, nil
