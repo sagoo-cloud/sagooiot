@@ -25,8 +25,8 @@ SagooIOT Community V2
 	</p>
 </div>
 
-[English](README.MD)| 简体中文
 
+[English](README.MD) | 简体中文
 
 ## 版权声明
 
