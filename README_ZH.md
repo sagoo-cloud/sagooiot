@@ -1,30 +1,6 @@
 SagooIOT Community V2
 ========
 
-<div align="center">
-	<img width="140px" src="https://foruda.gitee.com/avatar/1692323731930718042/10619366_sagoo-cloud_1692323731.png!avatar100">
-    <p>
-        <h1>SagooIOT </h1>
-    </p>
-    <p align="center">
-        <a href="https://goframe.org/pages/viewpage.action?pageId=1114119" target="_blank">
-	        <img src="https://img.shields.io/badge/goframe-2.2-green" alt="goframe">
-	    </a>
-	    <a href="https://v3.vuejs.org/" target="_blank">
-	        <img src="https://img.shields.io/badge/vue.js-vue3.x-green" alt="vue">
-	    </a>
-		<a href="https://www.tslang.cn/" target="_blank">
-	        <img src="https://img.shields.io/badge/typescript-%3E4.0.0-blue" alt="typescript">
-	    </a>
-		<a href="https://vitejs.dev/" target="_blank">
-		    <img src="https://img.shields.io/badge/vite-%3E2.0.0-yellow" alt="vite">
-		</a>
-		<a href="https://github.com/sagoo-cloud/sagooiot/blob/main/LICENSE" target="_blank">
-		    <img src="https://img.shields.io/badge/license-GPL3.0-success" alt="license">
-		</a>
-	</p>
-</div>
-
 
 [English](README.MD) | 简体中文
 
