@@ -25,7 +25,7 @@ Sagoo IOT
 	</p>
 </div>
 
-English| [简体中文](README_ZH.MD)
+English| [简体中文](README_ZH.md)
 
 ## Copyright Notice
 
