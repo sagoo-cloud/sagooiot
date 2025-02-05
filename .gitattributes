@@ -1,0 +1,2 @@
+*.go linguist-language=Go
+*.sql linguist-language=PLpgSQL
