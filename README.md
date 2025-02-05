@@ -4,7 +4,7 @@ Sagoo IOT
 <div align="center">
 	<img width="120px" src="https://raw.githubusercontent.com/sagoo-cloud/.github/main/profile/logo.svg">
     <p>
-        <h1>SagooIOT </h1>
+        <h1>SagooIOT Community V2</h1>
     </p>
     <p align="center">
         <a href="https://goframe.org/pages/viewpage.action?pageId=1114119" target="_blank">

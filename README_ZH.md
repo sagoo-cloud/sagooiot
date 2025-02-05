@@ -1,4 +1,28 @@
-# SagooIOT Community V2
+# SagooIOT
+
+<div align="center">
+	<img width="120px" src="https://raw.githubusercontent.com/sagoo-cloud/.github/main/profile/logo.svg">
+    <p>
+        <h1>SagooIOT Community V2</h1>
+    </p>
+    <p align="center">
+        <a href="https://goframe.org/pages/viewpage.action?pageId=1114119" target="_blank">
+	        <img src="https://img.shields.io/badge/goframe-2.2-green" alt="goframe">
+	    </a>
+	    <a href="https://v3.vuejs.org/" target="_blank">
+	        <img src="https://img.shields.io/badge/vue.js-vue3.x-green" alt="vue">
+	    </a>
+		<a href="https://www.tslang.cn/" target="_blank">
+	        <img src="https://img.shields.io/badge/typescript-%3E4.0.0-blue" alt="typescript">
+	    </a>
+		<a href="https://vitejs.dev/" target="_blank">
+		    <img src="https://img.shields.io/badge/vite-%3E2.0.0-yellow" alt="vite">
+		</a>
+		<a href="https://github.com/sagoo-cloud/sagooiot/blob/main/LICENSE" target="_blank">
+		    <img src="https://img.shields.io/badge/license-GPL3.0-success" alt="license">
+		</a>
+	</p>
+</div>
 
 
 [English](./README.md) | 简体中文
