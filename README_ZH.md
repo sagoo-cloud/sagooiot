@@ -1,8 +1,7 @@
-
 # SagooIOT Community V2
 
 
-[English](README.md) | 简体中文
+[English](./README.md) | 简体中文
 
 ## 版权声明
 
