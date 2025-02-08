@@ -71,6 +71,7 @@ func RunServer(ctx context.Context, stopSignal chan os.Signal) {
 		router.Iot(ctx, group)      //Iot功能的路由
 		router.Analysis(ctx, group) //分析统计功能的路由
 		module.Router(ctx, group)   //加载模块的路由
+		router.OAuth(ctx, group)    //第三方授权登录
 
 	})
 
