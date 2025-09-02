@@ -1,8 +1,9 @@
-package cmd
+package command
 
 import (
 	"context"
 	"fmt"
+	_ "sagooiot/internal/logic"
 	"sagooiot/internal/service"
 	"sagooiot/network"
 	"sagooiot/network/core/logic/model"

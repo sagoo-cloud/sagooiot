@@ -1,11 +1,7 @@
-package cmd
+package command
 
 import (
 	"context"
-	"github.com/gogf/gf/contrib/trace/jaeger/v2"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/gogf/gf/v2/util/gmode"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/logic/analysis"
 	"sagooiot/pkg/cache"
@@ -13,6 +9,11 @@ import (
 	"sagooiot/pkg/statistics"
 	"sagooiot/pkg/utility/helper"
 	"sagooiot/utility/validate"
+
+	"github.com/gogf/gf/contrib/trace/jaeger/v2"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gmode"
 )
 
 func AllSystemInit(ctx context.Context) {

@@ -1,6 +1,6 @@
 module sagooiot
 
-go 1.21
+go 1.24
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
