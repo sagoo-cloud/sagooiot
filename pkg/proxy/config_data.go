@@ -18,3 +18,13 @@ func GetConfigMapByKeys(ctx context.Context, keys []string) (out map[string]stri
 	}
 	return
 }
+
+// GetConfigValueByKey 通过key获取配置值（从缓存获取）
+func GetConfigValueByKey(ctx context.Context, key string) (value string, err error) {
+	config, err := service.ConfigData().GetByKey(ctx, key)
+	if err != nil {
+		return
+	}
+	value = config.ConfigValue
+	return
+}
