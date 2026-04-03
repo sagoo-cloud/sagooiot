@@ -7,14 +7,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/gogf/gf/v2/os/gcache"
-	"github.com/gogf/gf/v2/os/gfile"
-	"github.com/gogf/gf/v2/util/gconv"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/os/gcache"
+	"github.com/gogf/gf/v2/os/gfile"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type (
@@ -169,6 +170,9 @@ func (c *AdapterFile) Size(ctx context.Context) (size int, err error) {
 
 // Data 获取所有缓存的键值对
 func (c *AdapterFile) Data(ctx context.Context) (data map[interface{}]interface{}, err error) {
+	if c == nil {
+		return
+	}
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
@@ -224,6 +228,9 @@ func (c *AdapterFile) Values(ctx context.Context) (values []interface{}, err err
 		content, err := c.read(file.Name())
 		if err != nil {
 			continue // 忽略无法读取的文件
+		}
+		if content == nil {
+			continue
 		}
 		values = append(values, content.Data)
 	}
@@ -284,7 +291,9 @@ func (c *AdapterFile) GetExpire(ctx context.Context, key interface{}) (time.Dura
 	if err != nil {
 		return -1, nil
 	}
-
+	if content == nil {
+		return -1, nil
+	}
 	if content.Duration <= time.Now().Unix() {
 		return -1, nil
 	}

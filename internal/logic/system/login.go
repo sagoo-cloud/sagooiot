@@ -294,7 +294,11 @@ func (s *sLogin) GenUserToken(ctx context.Context, isSecurityControlEnabled stri
 }
 
 func (s *sLogin) LoginOut(ctx context.Context) (err error) {
-	authorization := ghttp.RequestFromCtx(ctx).Header.Get("Authorization")
+	gr := ghttp.RequestFromCtx(ctx)
+	if gr == nil {
+		return
+	}
+	authorization := gr.Header.Get("Authorization")
 	if authorization == "" {
 		err = gerror.New("请先登录!")
 		return

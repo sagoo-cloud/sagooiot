@@ -54,18 +54,20 @@ func (s *sSysJobLog) JobLogList(ctx context.Context, input *model.GetJobLogListI
 			m = m.WhereGTE(dao.SysJobLog.Columns().CreatedAt, input.DateRange[0]+" 00:00:00")
 			m = m.WhereLTE(dao.SysJobLog.Columns().CreatedAt, input.DateRange[1]+" 23:59:59")
 		}
+
+		if input.PageNum == 0 {
+			input.PageNum = 1
+		}
+		if input.PageSize == 0 {
+			input.PageSize = consts.PageSize
+		}
 	}
 	total, err = m.Count()
 	if err != nil {
 		err = gerror.New("获取总行数失败")
 		return
 	}
-	if input.PageNum == 0 {
-		input.PageNum = 1
-	}
-	if input.PageSize == 0 {
-		input.PageSize = consts.PageSize
-	}
+
 	err = m.Page(input.PageNum, input.PageSize).OrderDesc(dao.SysJob.Columns().CreatedAt).Scan(&out)
 	if err != nil {
 		err = gerror.New("获取任务日志列表失败")

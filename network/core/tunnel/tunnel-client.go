@@ -3,7 +3,6 @@ package tunnel
 import (
 	"context"
 	"errors"
-	"github.com/gogf/gf/v2/frame/g"
 	"net"
 	"sagooiot/internal/consts"
 	interlModel "sagooiot/internal/model"
@@ -13,6 +12,8 @@ import (
 	"sagooiot/network/model"
 	"strconv"
 	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 // TunnelClient 网络链接
@@ -84,12 +85,12 @@ func (client *TunnelClient) receive(ctx context.Context) {
 	client.online = true
 
 	tunnelInfo, tunnelInfoErr := service.NetworkTunnel().GetTunnelById(ctx, int(client.tunnelInfo.Id))
+	if tunnelInfo == nil {
+		return
+	}
 	if tunnelInfoErr != nil {
 		_ = mqtt.Publish(consts.GetWrapperTopic(consts.DataBusTunnel, consts.ActionError, strconv.Itoa(int(client.tunnelInfo.Id))), []byte(tunnelInfoErr.Error()))
 	} else {
-		if tunnelInfo == nil {
-			return
-		}
 
 		onlineErr := action.TunnelOnlineAction(ctx, 0, strconv.Itoa(int(client.tunnelInfo.Id)), tunnelInfo.DeviceKey)
 		if onlineErr != nil {

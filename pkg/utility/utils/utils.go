@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"io"
 	"net"
 	"net/http"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gogf/gf/v2/errors/gerror"
 
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/encoding/gcharset"
@@ -114,7 +115,11 @@ func GetPublicIP() (ip string, err error) {
 
 // GetUserAgent 获取user-agent
 func GetUserAgent(ctx context.Context) string {
-	return ghttp.RequestFromCtx(ctx).Header.Get("User-Agent")
+	gr := ghttp.RequestFromCtx(ctx)
+	if gr == nil {
+		return ""
+	}
+	return gr.Header.Get("User-Agent")
 }
 
 // GetCityByIp 获取ip所属城市

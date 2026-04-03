@@ -2,12 +2,13 @@ package common
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/util/gconv"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/service"
 	"strings"
+
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sCheckAuth struct {
@@ -23,7 +24,12 @@ func init() {
 
 // IsToken 验证TOKEN是否正确
 func (s *sCheckAuth) IsToken(ctx context.Context) (isToken bool, expiresAt int64, isAuth string, err error) {
-	authorization := ghttp.RequestFromCtx(ctx).Header.Get("Authorization")
+
+	gr := ghttp.RequestFromCtx(ctx)
+	if gr == nil {
+		return false, 0, "", nil
+	}
+	authorization := gr.Header.Get("Authorization")
 	if authorization == "" {
 		err = gerror.New("请先登录!")
 		return
