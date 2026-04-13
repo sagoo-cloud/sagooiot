@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/dromara/carbon/v2"
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/util/guid"
-	"github.com/golang-module/carbon/v2"
 	"github.com/gorhill/cronexpr"
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
@@ -440,9 +440,9 @@ func getNext(expr string, timestamp int64) (next int64, err error) {
 	if err != nil {
 		return
 	}
-	t := carbon.Now().ToStdTime()
+	t := carbon.Now().StdTime()
 	if timestamp > 0 {
-		t = carbon.CreateFromTimestamp(timestamp).ToStdTime()
+		t = carbon.CreateFromTimestamp(timestamp).StdTime()
 	}
 	next = e.Next(t).Unix()
 	return

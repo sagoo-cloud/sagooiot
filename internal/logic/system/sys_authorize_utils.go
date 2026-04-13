@@ -3,9 +3,6 @@ package system
 import (
 	"context"
 	"encoding/json"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gconv"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/dao"
 	"sagooiot/internal/model"
@@ -14,6 +11,10 @@ import (
 	"sagooiot/pkg/cache"
 	"sort"
 	"strings"
+
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 // GetAllAuthorizeQueryChildrenTree 获取所有的子节点
@@ -192,48 +193,39 @@ func ApiTree(parentNodeRes []*model.SysApiTreeOut, data []*model.SysApiTreeOut) 
 
 // GetMenuInfo 根据菜单ID获取指定菜单信息或者获取所有菜单信息
 func GetMenuInfo(ctx context.Context, menuIds []int) (userMenuTreeOut []*model.UserMenuTreeOut, err error) {
-	//查看REDIS是否存在
-	tmpData, err := cache.Instance().Get(ctx, consts.CacheSysMenu)
-	if err != nil {
-		return
-	}
-	if tmpData == nil {
-		err = gerror.New("获取菜单失败")
-		return
-	}
-	//将缓存菜单转为struct
+	// 1. 优先从缓存获取菜单列表
 	var tmpMenuInfo []*entity.SysMenu
-	if err = json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo); err != nil {
-		return
+	tmpData, err := cache.Instance().Get(ctx, consts.CacheSysMenu)
+	if err == nil && tmpData != nil {
+		_ = json.Unmarshal([]byte(tmpData.Val().(string)), &tmpMenuInfo)
 	}
 
+	// 2. 按需过滤或兜底查库
 	var menuInfo []*entity.SysMenu
-	if menuIds != nil {
-		//根据菜单ID获取菜单信息
-		if tmpData != nil {
-			for _, menuId := range menuIds {
-				for _, tmp := range tmpMenuInfo {
-					if menuId == int(tmp.Id) {
-						menuInfo = append(menuInfo, tmp)
-						continue
-					}
+	if len(menuIds) > 0 {
+		if len(tmpMenuInfo) > 0 {
+			// 缓存命中：用 map 过滤
+			idSet := make(map[int]struct{}, len(menuIds))
+			for _, id := range menuIds {
+				idSet[id] = struct{}{}
+			}
+			for _, m := range tmpMenuInfo {
+				if _, ok := idSet[int(m.Id)]; ok {
+					menuInfo = append(menuInfo, m)
 				}
 			}
 		} else {
-			//获取所有的菜单
+			// 缓存未命中：查库
 			menuInfo, err = service.SysMenu().GetInfoByMenuIds(ctx, menuIds)
 			if err != nil {
 				return
 			}
 		}
-
 	} else {
-		if tmpMenuInfo != nil {
-			if err = gconv.Scan(tmpMenuInfo, &menuInfo); err != nil {
-				return
-			}
+		if len(tmpMenuInfo) > 0 {
+			menuInfo = tmpMenuInfo
 		} else {
-			//获取所有的菜单
+			// 缓存未命中：查库
 			menuInfo, err = service.SysMenu().GetAll(ctx)
 			if err != nil {
 				return
@@ -241,20 +233,14 @@ func GetMenuInfo(ctx context.Context, menuIds []int) (userMenuTreeOut []*model.U
 		}
 	}
 
-	//获取所有的菜单信
-	if menuInfo != nil {
-		var userMenuTreeInfo []*model.UserMenuTreeOut
-		if err = gconv.Scan(menuInfo, &userMenuTreeInfo); err != nil {
-			return nil, err
-		}
-		//封装菜单数据
-		//userMenuTreeInfoRes := GetUserMenuTree(userMenuTreeInfo)
-
-		return userMenuTreeInfo, nil
-	} else {
-		err = gerror.New("无菜单,请先配置菜单")
-		return
+	// 3. 转换输出
+	if len(menuInfo) == 0 {
+		return nil, gerror.New("无菜单，请先配置菜单")
 	}
+	if err = gconv.Scan(menuInfo, &userMenuTreeOut); err != nil {
+		return nil, err
+	}
+	return
 }
 
 // GetUserItemsTypeTreeOut 根据项目类型 菜单ID封装菜单的按钮，列表字段,API接口

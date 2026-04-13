@@ -2,11 +2,12 @@ package oauth
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 	oauthV1 "sagooiot/api/v1/oauth"
 	"sagooiot/internal/model/entity"
 	"sagooiot/internal/service"
 	oauth2 "sagooiot/pkg/oauth"
+
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 var OUser = cUser{}
@@ -16,6 +17,9 @@ type cUser struct{}
 // 授权登录
 func (c *cUser) Login(ctx context.Context, in *oauthV1.AuthLoginReq) (res *oauthV1.AuthLoginRes, err error) {
 	r := g.RequestFromCtx(ctx)
+	if r == nil {
+		return
+	}
 	err = service.OauthProvider().UseProvider(ctx, in.Provider)
 	if err != nil {
 		return nil, err
@@ -27,6 +31,9 @@ func (c *cUser) Login(ctx context.Context, in *oauthV1.AuthLoginReq) (res *oauth
 // 授权回调
 func (c *cUser) Callback(ctx context.Context, req *oauthV1.AuthCallbackReq) (res *oauthV1.AuthCallbackRes, err error) {
 	r := g.RequestFromCtx(ctx)
+	if r == nil {
+		return
+	}
 	userInfo, err := oauth2.CompleteUserAuth(r.Response.RawWriter(), r.Request)
 	if err != nil {
 		return nil, err

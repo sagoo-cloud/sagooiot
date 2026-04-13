@@ -373,6 +373,9 @@ func (s *sDevDevice) BatchUpdateDeviceStatusInfo(ctx context.Context, deviceStat
 			if err != nil {
 				continue
 			}
+			if device == nil {
+				continue
+			}
 
 			if device.RegistryTime == nil {
 				registryData[dao.DevDevice.Columns().RegistryTime] = statusLog.Timestamp
@@ -830,6 +833,9 @@ func (s *sDevDevice) RunStatus(ctx context.Context, deviceKey string) (out *mode
 	device, err := dcache.GetDeviceDetailInfo(deviceKey)
 	if err != nil {
 		return nil, errors.New("设备不存在")
+	}
+	if device == nil {
+		return
 	}
 	out = new(model.DeviceRunStatusOutput)
 	out.Status = dcache.GetDeviceStatus(ctx, deviceKey)

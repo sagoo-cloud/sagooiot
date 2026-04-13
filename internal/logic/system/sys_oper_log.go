@@ -2,14 +2,6 @@ package system
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/os/grpool"
-	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/gogf/gf/v2/util/gconv"
 	"net/url"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/dao"
@@ -18,6 +10,15 @@ import (
 	"sagooiot/internal/service"
 	"sagooiot/pkg/utility/utils"
 	"strings"
+
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/grpool"
+	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sSysOperLog struct {
@@ -208,6 +209,9 @@ func (s *sSysOperLog) AnalysisLog(ctx context.Context) (data entity.SysOperLog) 
 	// 获取当前请求的上下文对象
 	mctx := service.Context().Get(ctx)
 	request := ghttp.RequestFromCtx(ctx)
+	if request == nil {
+		return
+	}
 	handlerResponse := request.GetHandlerResponse() // 响应结果
 	param := request.GetMap()                       // 请求参数
 
