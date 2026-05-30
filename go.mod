@@ -7,10 +7,10 @@ require (
 	github.com/arl/statsviz v0.8.0
 	github.com/dromara/carbon/v2 v2.6.16
 	github.com/eclipse/paho.mqtt.golang v1.5.1
-	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.10.0
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.10.0
+	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.10.2
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.10.2
 	github.com/gogf/gf/contrib/trace/jaeger/v2 v2.7.4
-	github.com/gogf/gf/v2 v2.10.0
+	github.com/gogf/gf/v2 v2.10.2
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/gorilla/sessions v1.4.0
@@ -30,7 +30,7 @@ require (
 	github.com/taosdata/driver-go/v3 v3.5.1
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
-	github.com/xinjiayu/sse v1.0.1
+	github.com/xinjiayu/sse v1.1.2
 	github.com/xuri/excelize/v2 v2.8.0
 	go.opentelemetry.io/otel v1.38.0
 	golang.org/x/oauth2 v0.27.0
