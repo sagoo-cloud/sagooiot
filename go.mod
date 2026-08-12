@@ -30,7 +30,7 @@ require (
 	github.com/taosdata/driver-go/v3 v3.5.1
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
-	github.com/xinjiayu/sse v1.1.2
+	github.com/xinjiayu/sse v1.1.3
 	github.com/xuri/excelize/v2 v2.8.0
 	go.opentelemetry.io/otel v1.38.0
 	golang.org/x/oauth2 v0.27.0

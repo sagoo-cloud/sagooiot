@@ -61,6 +61,9 @@ func (s *sSysJobLog) JobLogList(ctx context.Context, input *model.GetJobLogListI
 		if input.PageSize == 0 {
 			input.PageSize = consts.PageSize
 		}
+
+		m = m.Page(input.PageNum, input.PageSize)
+
 	}
 	total, err = m.Count()
 	if err != nil {
@@ -68,7 +71,7 @@ func (s *sSysJobLog) JobLogList(ctx context.Context, input *model.GetJobLogListI
 		return
 	}
 
-	err = m.Page(input.PageNum, input.PageSize).OrderDesc(dao.SysJob.Columns().CreatedAt).Scan(&out)
+	err = m.OrderDesc(dao.SysJobLog.Columns().CreatedAt).Scan(&out)
 	if err != nil {
 		err = gerror.New("获取任务日志列表失败")
 	}

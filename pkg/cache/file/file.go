@@ -39,6 +39,8 @@ var (
 
 // NewAdapterFile creates and returns a new memory cache object.
 func NewAdapterFile(dir string) gcache.Adapter {
+	// 确保目录存在
+	_ = os.MkdirAll(dir, 0o755)
 	return &AdapterFile{
 		dir: dir,
 	}
@@ -173,8 +175,8 @@ func (c *AdapterFile) Data(ctx context.Context) (data map[interface{}]interface{
 	if c == nil {
 		return
 	}
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	// 初始化返回的数据结构
 	data = make(map[interface{}]interface{})
@@ -189,17 +191,23 @@ func (c *AdapterFile) Data(ctx context.Context) (data map[interface{}]interface{
 	for _, file := range files {
 		content, err := c.read(file.Name())
 		if err != nil {
+			// 如果是过期错误，主动删除该文件
+			if errors.Is(err, CacheExpiredErr) {
+				_ = c.Delete(file.Name())
+			}
 			continue // 忽略无法读取的文件
 		}
-		data[file.Name()] = content.Data
+		if content != nil {
+			data[file.Name()] = content.Data
+		}
 	}
 	return data, nil
 }
 
 // Keys 获取所有缓存的键
 func (c *AdapterFile) Keys(ctx context.Context) (keys []interface{}, err error) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	files, err := os.ReadDir(c.dir)
 	if err != nil {
@@ -208,15 +216,25 @@ func (c *AdapterFile) Keys(ctx context.Context) (keys []interface{}, err error) 
 
 	keys = make([]interface{}, 0, len(files))
 	for _, file := range files {
-		keys = append(keys, file.Name())
+		content, err := c.read(file.Name())
+		if err != nil {
+			// 如果是过期错误，主动删除该文件
+			if errors.Is(err, CacheExpiredErr) {
+				_ = c.Delete(file.Name())
+			}
+			continue
+		}
+		if content != nil {
+			keys = append(keys, file.Name())
+		}
 	}
 	return keys, nil
 }
 
 // Values 获取所有缓存的值
 func (c *AdapterFile) Values(ctx context.Context) (values []interface{}, err error) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	files, err := os.ReadDir(c.dir)
 	if err != nil {
@@ -227,12 +245,15 @@ func (c *AdapterFile) Values(ctx context.Context) (values []interface{}, err err
 	for _, file := range files {
 		content, err := c.read(file.Name())
 		if err != nil {
+			// 如果是过期错误，主动删除该文件
+			if errors.Is(err, CacheExpiredErr) {
+				_ = c.Delete(file.Name())
+			}
 			continue // 忽略无法读取的文件
 		}
-		if content == nil {
-			continue
+		if content != nil {
+			values = append(values, content.Data)
 		}
-		values = append(values, content.Data)
 	}
 	return values, nil
 }
@@ -289,15 +310,21 @@ func (c *AdapterFile) UpdateExpire(ctx context.Context, key interface{}, duratio
 func (c *AdapterFile) GetExpire(ctx context.Context, key interface{}) (time.Duration, error) {
 	content, err := c.read(gconv.String(key))
 	if err != nil {
-		return -1, nil
+		return -2, nil // -2 表示键不存在
 	}
 	if content == nil {
+		return -2, nil // -2 表示键不存在
+	}
+	// 永不过期
+	if content.Duration == 0 {
 		return -1, nil
 	}
+	// 已过期
 	if content.Duration <= time.Now().Unix() {
-		return -1, nil
+		return -2, nil
 	}
-	return time.Duration(time.Now().Unix()-content.Duration) * time.Second, nil
+	// 返回剩余过期时间
+	return time.Duration(content.Duration-time.Now().Unix()) * time.Second, nil
 }
 
 func (c *AdapterFile) Remove(ctx context.Context, keys ...interface{}) (lastValue *gvar.Var, err error) {
@@ -349,7 +376,8 @@ func (c *AdapterFile) read(key string) (*fileContent, error) {
 	}
 
 	if content.Duration <= time.Now().Unix() {
-		_ = c.Delete(key)
+		// 注意：这里不调用 Delete() 避免死锁风险（已持有锁）
+		// 调用者需要自行处理过期删除
 		return nil, CacheExpiredErr
 	}
 	return content, nil
@@ -382,8 +410,15 @@ func (c *AdapterFile) DeleteMulti(keys ...string) (err error) {
 
 // Fetch retrieves the cached value from key of the File storage
 func (c *AdapterFile) Fetch(key string) (interface{}, error) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	content, err := c.read(key)
 	if err != nil {
+		// 如果是过期错误，主动删除该文件
+		if errors.Is(err, CacheExpiredErr) {
+			_ = c.Delete(key)
+		}
 		return nil, err
 	}
 
