@@ -609,7 +609,7 @@ SagooIOT Community Edition is an open source learning project not related to com
 
 Thanks for all the support from stars and contributors!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=sagoo-cloud/sagooiot&type=Date)](https://star-history.com/#sagoo-cloud/sagooiot&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=sagoo-cloud/sagooiot&type=Date)](https://star-history.dera.page/#sagoo-cloud/sagooiot&Date)
 
 ---
 
