@@ -608,7 +608,7 @@ SagooIOT 社区版是一个开源学习项目，与商业行为无关。用户�
 
 感谢所有 Star 和贡献者的支持！
 
-[![Star History Chart](https://api.star-history.com/svg?repos=sagoo-cloud/sagooiot&type=Date)](https://star-history.com/#sagoo-cloud/sagooiot&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=sagoo-cloud/sagooiot&type=Date)](https://star-history.dera.page/#sagoo-cloud/sagooiot&Date)
 
 ---
 
