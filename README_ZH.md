@@ -75,6 +75,7 @@ Sagoo IOT Community V2
 | **PostgreSQL** | 16.x        | 关系数据库，存储业务数据（可选）            |
 | **Redis** | 6.0+        | 缓存和消息队列                     |
 | **TDengine** | 3.0+        | 时序数据库（可选，用于高效存储设备时序数据）      |
+| **Apache IoTDB** | 2.0.11 已验证 | 可选时序存储，使用 Tree 模型和原生 RPC。将 `tsd.database` 设为 `IoTDB`，在 `tsd.iotdb` 中配置主机、端口、数据库和账号。示例见 [配置文件](manifest/config/config.example.yaml)。 |
 | **Influxdb** | 2.x         | 时序数据库（可选，用于高效存储设备时序数据）      |
 | **MQTT Broker** | -           | 消息中间件（可选，推荐 Mosquitto 或云服务） |
 | **MinIO** | -           | 对象存储（可选，用于文件管理）             |

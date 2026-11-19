@@ -3,6 +3,7 @@ package tsd
 import (
 	"errors"
 	"sagooiot/pkg/tsd/comm"
+	"sagooiot/pkg/tsd/internal/iotdb"
 	"testing"
 )
 
@@ -37,4 +38,16 @@ func TestDatabaseFactory(t *testing.T) {
 
 	idb.Close()
 	t.Log("创建 Influxdb 数据库实例成功")
+
+	iotdbDB := DatabaseFactory(comm.DBIoTDB, comm.Option{
+		Host:     "127.0.0.1",
+		Port:     6667,
+		Database: "root.sagoo_iot",
+		Username: "root",
+		Password: "root",
+	})
+	if _, ok := iotdbDB.(*iotdb.Database); !ok {
+		t.Fatalf("DatabaseFactory(%q) returned %T", comm.DBIoTDB, iotdbDB)
+	}
+	iotdbDB.Close()
 }

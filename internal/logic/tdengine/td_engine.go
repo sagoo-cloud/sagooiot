@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/service"
+	"strings"
 	"sync"
 	"time"
 
@@ -31,9 +32,23 @@ var dbName = consts.TdEngineDbName
 
 // 初始化函数
 func init() {
-	service.RegisterTdEngine(tdEngineNew())
 	// 简化配置获取过程
-	dbName = g.Cfg().MustGet(context.Background(), consts.TdEngineDbNameKey, consts.TdEngineDbName).String()
+	dbName = configString(context.Background(), consts.TdEngineDbNameKey, consts.TdEngineDbName)
+	if !isIoTDBSelected() {
+		service.RegisterTdEngine(tdEngineNew())
+	}
+}
+
+func isIoTDBSelected() bool {
+	return strings.EqualFold(configString(context.Background(), "tsd.database", "TdEngine"), "IoTDB")
+}
+
+func configString(ctx context.Context, key, fallback string) string {
+	value, err := g.Cfg().Get(ctx, key, fallback)
+	if err != nil || value == nil {
+		return fallback
+	}
+	return value.String()
 }
 
 type connections struct {

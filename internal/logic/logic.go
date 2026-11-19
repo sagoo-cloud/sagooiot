@@ -9,6 +9,7 @@ import (
 	_ "sagooiot/internal/logic/analysis"
 	_ "sagooiot/internal/logic/common"
 	_ "sagooiot/internal/logic/context"
+	_ "sagooiot/internal/logic/iotdb"
 	_ "sagooiot/internal/logic/middleware"
 	_ "sagooiot/internal/logic/network"
 	_ "sagooiot/internal/logic/notice"

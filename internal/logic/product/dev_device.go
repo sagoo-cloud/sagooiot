@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"sagooiot/api/v1/product"
 	"sagooiot/internal/consts"
 	"sagooiot/internal/dao"
@@ -35,6 +36,17 @@ import (
 )
 
 type sDevDevice struct{}
+
+var tsdIdentifierPattern = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
+
+func validateTsdIdentifiers(identifiers ...string) error {
+	for _, identifier := range identifiers {
+		if !tsdIdentifierPattern.MatchString(identifier) {
+			return fmt.Errorf("invalid time-series identifier %q", identifier)
+		}
+	}
+	return nil
+}
 
 func init() {
 	service.RegisterDevDevice(deviceNew())
@@ -691,13 +703,25 @@ func (s *sDevDevice) getTotalForMonthsData(ctx context.Context) (data map[int]in
 		return
 	}
 	if devices != nil {
+		tsdDb := tsd.DB()
+		defer tsdDb.Close()
+		if db, tree := tsd.AsIoTDB(tsdDb); tree {
+			now := time.Now()
+			keys := deviceLogKeys(devices)
+			for month := time.January; month <= now.Month(); month++ {
+				start := time.Date(now.Year(), month, 1, 0, 0, 0, 0, now.Location())
+				count, err := db.CountLogs(ctx, keys, start, start.AddDate(0, 1, 0))
+				if err != nil {
+					return nil, err
+				}
+				data[int(month)] = count
+			}
+			return data, nil
+		}
 		var deviceKeys []string
 		for _, device := range devices {
 			deviceKeys = append(deviceKeys, "'"+device.Key+"'")
 		}
-
-		tsdDb := tsd.DB()
-		defer tsdDb.Close()
 
 		// 设备消息总量 TDengine
 		var list gdb.Result
@@ -730,13 +754,24 @@ func (s *sDevDevice) getTotalForDayData(ctx context.Context) (data map[string]in
 		return
 	}
 	if devices != nil {
+		tsdDb := tsd.DB()
+		defer tsdDb.Close()
+		if db, tree := tsd.AsIoTDB(tsdDb); tree {
+			keys := deviceLogKeys(devices)
+			now := time.Now()
+			for day := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location()); !day.After(now); day = day.AddDate(0, 0, 1) {
+				count, err := db.CountLogs(ctx, keys, day, day.AddDate(0, 0, 1))
+				if err != nil {
+					return nil, err
+				}
+				data[day.Format(time.DateOnly)] = count
+			}
+			return data, nil
+		}
 		var deviceKeys []string
 		for _, device := range devices {
 			deviceKeys = append(deviceKeys, "'"+device.Key+"'")
 		}
-
-		tsdDb := tsd.DB()
-		defer tsdDb.Close()
 
 		// 设备消息总量 TDengine
 		var list gdb.Result
@@ -752,6 +787,16 @@ func (s *sDevDevice) getTotalForDayData(ctx context.Context) (data map[string]in
 	}
 
 	return
+}
+
+func deviceLogKeys(devices []*entity.DevDevice) []string {
+	keys := make([]string, 0, len(devices))
+	for _, device := range devices {
+		if device != nil {
+			keys = append(keys, device.Key)
+		}
+	}
+	return keys
 }
 
 // getAlarmTotalForMonthsData 统计设备月度告警数量
@@ -891,17 +936,25 @@ func (s *sDevDevice) GetLatestProperty(ctx context.Context, key string) (list []
 	tsdDb := tsd.DB()
 	defer tsdDb.Close()
 
+	orderTime := "ts"
+	_, tree := tsd.AsIoTDB(tsdDb)
+	if tree {
+		orderTime = "time"
+	}
 	for _, v := range p.TSL.Properties {
-		ckey := comm.TsdColumnName(v.Key)
+		ckey := comm.PropertyColumn(v.Key, tree)
+		if err := validateTsdIdentifiers(ckey, deviceTable); err != nil {
+			return nil, err
+		}
 
 		// 获取属性最近有效值
-		sql := "select ? from ? where ? is not null order by ts desc limit 1"
-		rs, err := tsdDb.GetTableDataOne(ctx, sql, ckey, deviceTable, ckey)
+		query := fmt.Sprintf("select %s from %s where %s is not null order by %s desc limit 1", ckey, deviceTable, ckey, orderTime)
+		rs, err := tsdDb.GetTableDataOne(ctx, query)
 		if err != nil {
 			return nil, err
 		}
 		value := rs[strings.ToLower(v.Key)]
-		if value.IsEmpty() {
+		if value == nil || value.IsNil() {
 			continue
 		}
 
@@ -937,18 +990,21 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	defer tsdDb.Close()
 
 	sKey := in.PropertyKey
-	in.PropertyKey = strings.ToLower(in.PropertyKey)
-	col := comm.TsdColumnName(in.PropertyKey)
+	propertyKey := strings.ToLower(sKey)
+	_, tree := tsd.AsIoTDB(tsdDb)
+	col := comm.PropertyColumn(propertyKey, tree)
 
 	deviceTable := comm.DeviceTableName(p.Key)
 
 	// 属性上报时间
-	ctime := in.PropertyKey + "_time"
-	ctime = comm.TsdColumnName(ctime)
+	ctime := comm.PropertyColumn(propertyKey+"_time", tree)
+	if err := validateTsdIdentifiers(deviceTable, col, ctime); err != nil {
+		return nil, err
+	}
 
 	// 属性值获取
-	sql := "select ? from ? where ? is not null order by ? desc limit 1"
-	rs, err := tsdDb.GetTableDataOne(ctx, sql, col, deviceTable, col, ctime)
+	query := fmt.Sprintf("select %s from %s where %s is not null order by %s desc limit 1", col, deviceTable, col, ctime)
+	rs, err := tsdDb.GetTableDataOne(ctx, query)
 	if err != nil {
 		return
 	}
@@ -956,7 +1012,7 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	var name string
 	var valueType string
 	for _, v := range p.TSL.Properties {
-		if strings.ToLower(v.Key) == in.PropertyKey {
+		if strings.EqualFold(v.Key, propertyKey) {
 			name = v.Name
 			valueType = v.ValueType.Type
 			break
@@ -967,12 +1023,16 @@ func (s *sDevDevice) GetProperty(ctx context.Context, in *model.DeviceGetPropert
 	out.Key = sKey
 	out.Name = name
 	out.Type = valueType
-	out.Value = rs[in.PropertyKey]
+	out.Value = rs[propertyKey]
 
 	// 获取当天属性值列表
-	sql = "select ? from ? where ? >= '?' order by ? desc"
-	ls, _ := tsdDb.GetTableDataAll(ctx, sql, col, deviceTable, ctime, gtime.Now().Format("Y-m-d"), ctime)
-	out.List = ls.Array(in.PropertyKey)
+	start, end, _ := deviceDateBounds(nil, time.Now())
+	query = fmt.Sprintf("select %s from %s where %s >= ? and %s < ? order by %s desc", col, deviceTable, ctime, ctime, ctime)
+	ls, err := tsdDb.GetTableDataAll(ctx, query, propertyTimeArgs(tree, start, end)...)
+	if err != nil {
+		return nil, err
+	}
+	out.List = ls.Array(propertyKey)
 
 	return
 }
@@ -1009,16 +1069,21 @@ func (s *sDevDevice) GetData(ctx context.Context, in *model.DeviceGetDataInput) 
 
 	deviceTable := comm.DeviceTableName(p.Key)
 
-	in.PropertyKey = strings.ToLower(in.PropertyKey)
-	col := comm.TsdColumnName(in.PropertyKey)
+	tsdDb := tsd.DB()
+	defer tsdDb.Close()
+	_, tree := tsd.AsIoTDB(tsdDb)
+	propertyKey := strings.ToLower(in.PropertyKey)
+	col := comm.PropertyColumn(propertyKey, tree)
 
 	// 属性上报时间
-	ctime := in.PropertyKey + "_time"
-	ctime = comm.TsdColumnName(ctime)
+	ctime := comm.PropertyColumn(propertyKey+"_time", tree)
 
-	where := fmt.Sprintf("%s >= %q", ctime, gtime.Now().Format("Y-m-d"))
-	if len(in.DateRange) > 1 {
-		where = fmt.Sprintf("%s >= %q and %s <= %q", ctime, in.DateRange[0], ctime, in.DateRange[1])
+	if err := validateTsdIdentifiers(deviceTable, col, ctime); err != nil {
+		return nil, err
+	}
+	start, end, err := deviceDateBounds(in.DateRange, time.Now())
+	if err != nil {
+		return nil, err
 	}
 
 	desc := "asc"
@@ -1026,25 +1091,38 @@ func (s *sDevDevice) GetData(ctx context.Context, in *model.DeviceGetDataInput) 
 		desc = "desc"
 	}
 
-	tsdDb := tsd.DB()
-	defer tsdDb.Close()
-
-	// TDengine
-	sql := "select ?, ? from ? where ? order by ? ?"
-	ls, _ := tsdDb.GetTableDataAll(
-		ctx,
-		sql,
-		fmt.Sprintf("distinct %s as ts", ctime),
-		col,
-		deviceTable,
-		where,
-		ctime,
-		desc,
-	)
-	for _, v := range ls.List() {
+	selectOp := "select distinct"
+	timeAlias := "ts"
+	if tree {
+		selectOp = "select"
+		if propertyKey == timeAlias {
+			timeAlias = "report_time"
+		}
+	}
+	query := fmt.Sprintf("%s %s as %s, %s from %s where %s >= ? and %s < ? order by %s %s", selectOp, ctime, timeAlias, col, deviceTable, ctime, ctime, ctime, desc)
+	ls, err := tsdDb.GetTableDataAll(ctx, query, propertyTimeArgs(tree, start, end)...)
+	if err != nil {
+		return nil, err
+	}
+	type sampleKey struct {
+		ts    int64
+		value string
+	}
+	seen := make(map[sampleKey]bool)
+	for _, v := range ls {
+		reported := v[timeAlias].GTime()
+		if tree {
+			timestamp := v[timeAlias].Int64()
+			key := sampleKey{timestamp, v[propertyKey].String()}
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			reported = gtime.New(time.UnixMilli(timestamp))
+		}
 		list = append(list, model.DevicePropertiyOut{
-			Ts:    gvar.New(v["ts"]).GTime(),
-			Value: gvar.New(v[in.PropertyKey]),
+			Ts:    reported,
+			Value: v[propertyKey],
 		})
 	}
 	return
@@ -1481,9 +1559,36 @@ func (s *sDevDevice) GetDeviceDataList(ctx context.Context, in *model.DeviceData
 		return
 	}
 
-	fields := []string{"_wstart", "_wend"}
+	deviceTable := comm.DeviceTableName(device.Key)
+	if err := validateTsdIdentifiers(deviceTable); err != nil {
+		return nil, err
+	}
+	tsdDb := tsd.DB()
+	defer tsdDb.Close()
+	db, tree := tsd.AsIoTDB(tsdDb)
+	columns := make([]string, 0, len(propertys))
 	for _, v := range propertys {
-		key := comm.TsdColumnName(v.Key)
+		key := comm.PropertyColumn(v.Key, tree)
+		if err := validateTsdIdentifiers(key); err != nil {
+			return nil, err
+		}
+		columns = append(columns, key)
+	}
+	if tree {
+		var start, end time.Time
+		if len(in.DateRange) > 0 {
+			start, end, err = deviceDateBounds(in.DateRange, time.Now())
+			if err != nil {
+				return nil, err
+			}
+		}
+		out = new(model.DeviceDataListOutput)
+		out.CurrentPage = in.PageNum
+		out.List, out.Total, err = db.DeviceWindows(ctx, device.Key, columns, in.Interval, in.TimeUnit, start, end, in.PageNum, in.PageSize)
+		return out, err
+	}
+	fields := []string{"_wstart", "_wend"}
+	for _, key := range columns {
 		fields = append(fields, fmt.Sprintf("mode(%s) as %s", key, key))
 	}
 
@@ -1500,12 +1605,8 @@ func (s *sDevDevice) GetDeviceDataList(ctx context.Context, in *model.DeviceData
 	}
 	interval := fmt.Sprintf("interval(%d%s)", in.Interval, timeUnit)
 
-	tsdDb := tsd.DB()
-	defer tsdDb.Close()
-
-	deviceTable := comm.DeviceTableName(device.Key)
-	sql := "select count(*) as num from (select count(*) from ? ?)"
-	rs, err := tsdDb.GetTableDataOne(ctx, sql, deviceTable, interval)
+	query := fmt.Sprintf("select count(*) as num from (select count(*) from %s %s)", deviceTable, interval)
+	rs, err := tsdDb.GetTableDataOne(ctx, query)
 	if err != nil {
 		return
 	}
@@ -1513,13 +1614,10 @@ func (s *sDevDevice) GetDeviceDataList(ctx context.Context, in *model.DeviceData
 	out.Total = rs["num"].Int()
 	out.CurrentPage = in.PageNum
 
-	sql = "select ? from ? ? order by _wstart desc limit ?, ?"
+	query = fmt.Sprintf("select %s from %s %s order by _wstart desc limit ?, ?", strings.Join(fields, ","), deviceTable, interval)
 	out.List, err = tsdDb.GetTableDataAll(
 		ctx,
-		sql,
-		strings.Join(fields, ","),
-		deviceTable,
-		interval,
+		query,
 		(in.PageNum-1)*in.PageSize,
 		in.PageSize,
 	)
