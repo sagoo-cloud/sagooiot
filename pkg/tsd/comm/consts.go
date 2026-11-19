@@ -3,6 +3,7 @@ package comm
 const (
 	DBTdEngine = "TdEngine"
 	DBInfluxdb = "Influxdb"
+	DBIoTDB    = "IoTDB"
 
 	// td 产品表前缀
 	TdProductPrefix = "product_"

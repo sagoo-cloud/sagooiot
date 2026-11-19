@@ -97,7 +97,7 @@ mqtt:
 
 # 时序数据库配置
 tsd:
-  database: "TdEngine"
+  database: "TdEngine" #可切换为 IoTDB
   tdengine:
     #  type: "taosRestful" #http连接方式，端口是6041
     #  dsn: "root:taosdata@http(127.0.0.1:6041)/"
@@ -106,6 +106,14 @@ tsd:
     dbName: "sagoo_iot"
     maxOpenConns: 1000
     maxIdleConns: 50
+  iotdb:
+    host: "iotdb"
+    port: 6667
+    database: "root.sagoo_iot"
+    username: "root"
+    password: "root"
+    maxOpenConns: 32
+    maxIdleConns: 8
 
 # Redis 配置示例
 redis:

@@ -100,7 +100,7 @@ mqtt:
 
 # 时序数据库配置
 tsd:
-  database: "Influxdb" #可选择 TdEngine、Influxdb
+  database: "Influxdb" #可选择 TdEngine、Influxdb、IoTDB
   tdengine:
     #  type: "taosRestful" #http连接方式，端口是6041
     #  dsn: "root:taosdata@http(127.0.0.1:6041)/"
@@ -116,6 +116,14 @@ tsd:
     token: "ez4BQ5QQCUpcAp1FDhhdY9jfcvxq2Z9OLkQSuQG_IPOzE9GvGRHfRm_YYwfuHtCaS7TVefxhEnzCOHi_nGtsCw=="
     userName:
     passWord:
+  iotdb:
+    host: "127.0.0.1"
+    port: 6667
+    database: "root.sagoo_iot"
+    username: "root"
+    password: "root"
+    maxOpenConns: 32
+    maxIdleConns: 8
   aggregator: #聚合器配置，用来配置批量写入时的聚合器
     batchSize: 1000 #批处理数
     workers: 100 #工作线程数

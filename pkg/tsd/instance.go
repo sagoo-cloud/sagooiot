@@ -45,6 +45,23 @@ func GetDB() (db Database) {
 			Org:      org.String(),
 			Token:    token.String(),
 		}
+	case comm.DBIoTDB:
+		host := g.Cfg().MustGet(context.Background(), "tsd.iotdb.host", "127.0.0.1").String()
+		port := g.Cfg().MustGet(context.Background(), "tsd.iotdb.port", 6667).Int()
+		database := g.Cfg().MustGet(context.Background(), "tsd.iotdb.database", "root.sagoo_iot").String()
+		username := g.Cfg().MustGet(context.Background(), "tsd.iotdb.username", "root").String()
+		password := g.Cfg().MustGet(context.Background(), "tsd.iotdb.password", "root").String()
+		maxIdle := g.Cfg().MustGet(context.Background(), "tsd.iotdb.maxIdleConns", 8).Int()
+		maxOpen := g.Cfg().MustGet(context.Background(), "tsd.iotdb.maxOpenConns", 32).Int()
+		option = comm.Option{
+			Host:         host,
+			Port:         port,
+			Database:     database,
+			Username:     username,
+			Password:     password,
+			MaxIdleConns: maxIdle,
+			MaxOpenConns: maxOpen,
+		}
 	}
 	return DatabaseFactory(databaseType, option)
 }

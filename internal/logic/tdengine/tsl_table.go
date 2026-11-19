@@ -19,7 +19,9 @@ import (
 type sTSLTable struct{}
 
 func init() {
-	service.RegisterTSLTable(tslTableNew())
+	if !isIoTDBSelected() {
+		service.RegisterTSLTable(tslTableNew())
+	}
 }
 
 func tslTableNew() *sTSLTable {

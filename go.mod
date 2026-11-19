@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/apache/iotdb-client-go v1.3.7
 	github.com/arl/statsviz v0.8.0
 	github.com/dromara/carbon/v2 v2.6.16
 	github.com/eclipse/paho.mqtt.golang v1.5.1
@@ -38,6 +39,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/apache/thrift v0.15.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect

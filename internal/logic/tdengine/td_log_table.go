@@ -17,7 +17,9 @@ import (
 type sTdLogTable struct{}
 
 func init() {
-	service.RegisterTdLogTable(tdLogTableNew())
+	if !isIoTDBSelected() {
+		service.RegisterTdLogTable(tdLogTableNew())
+	}
 }
 
 func tdLogTableNew() *sTdLogTable {
